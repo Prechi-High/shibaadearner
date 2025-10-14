@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tasks Center</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+
+<script src="https://ad.gigapub.tech/script?id=1901"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 70px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+      position: relative;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .top-section-left {
+      display: flex;
+      align-items: center;
+    }
+    .task-center-icon {
+      width: 40px;
+      height: 40px;
+      margin-top: 2px;
+      background-image: url('img/task-center.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 5px;
+    }
+    .task-center-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 600;
+    }
+    .details-button {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 15px;
+      border-radius: 10px;
+      font-family: "Poppins", sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      font-style: italic;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .gems-redeem-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .gems-display {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .gems-display::before {
+      content: '';
+      width: 30px;
+      height: 30px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 8px;
+    }
+    .redeem-button {
+      background: #FDAB00;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-style: italic;
+      font-weight: 600;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .random-image-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .random-image {
+      width: 100%;
+      max-width: 350px;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    .invite-poster-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .invite-poster-container {
+      background: rgba(188, 12, 237, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .invite-poster {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .invite-poster-text {
+      font-size: 1.1rem;
+      color: white;
+      font-weight: 600;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .invite-poster-text::before {
+      content: '';
+      width: 30px;
+      height: 30px;
+      background-image: url('img/scratch-card.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .invite-friends-button {
+      background: #FDAB00;
+      border: none;
+      border-radius: 10px;
+      width: 80%;
+      font-weight: 600;
+      font-style: italic;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 8px 15px;
+    }
+    .tasks-title-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .tasks-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: 600;
+      text-align: left;
+    }
+    .add-task-button {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 15px;
+      border-radius: 10px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .tasks-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+    .task-item {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .task-item.ad-task {
+      background: linear-gradient(135deg, var(--primary-bg), #fff176);
+      border: 2px solid var(--dark-accent);
+    }
+    .task-image {
+      width: 50px;
+      height: 50px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    .task-image.ad-task-image {
+      background-image: url('img/ads-task.png');
+    }
+    .task-content {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .task-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      flex: 1;
+      padding-top: 0;
+      margin-top: 4%;
+      align-self: flex-start;
+    }
+    .task-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .task-go-button {
+      background: linear-gradient(135deg, var(--primary-color), #5b21b6);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-style: italic;
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .task-reward-button {
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-style: italic;
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .task-reward-button::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      display: inline-block;
+    }
+    .task-reward-button.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .task-reward-button.completed {
+      opacity: 0.6;
+      background: transparent;
+      color: green;
+      pointer-events: none;
+    }
+    .task-reward-button.completed::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .task-reward-button.completed::after {
+      content: '\f058';
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      font-size: 1rem;
+      color: green;
+      margin-left: 5px;
+    }
+    .task-reward-button.ad-task-button::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 5px;
+    }
+    /* >>> NEW: hide gem icon while countdown is active */
+    .task-reward-button.ad-task-button.countdown::before {
+      content: none;
+      display: none;
+    }
+    .no-tasks-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+    }
+    .no-tasks-gif {
+      width: 200px;
+      height: 200px;
+      background-image: url('img/envelop-Animation.gif');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-bottom: 20px;
+    }
+    .no-tasks-text {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .redeem-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .redeem-popup-overlay.active {
+      display: flex;
+    }
+    .redeem-popup {
+      background: white;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      overflow: hidden;
+      animation: popupSlideIn 0.3s ease-out;
+    }
+    @keyframes popupSlideIn {
+      0% { transform: translateY(50px) scale(0.95); opacity: 0; }
+      70% { transform: translateY(-10px) scale(1.02); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .redeem-popup-header {
+      background: linear-gradient(135deg, var(--dark-accent), #e65100);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    .redeem-popup-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .redeem-popup-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .redeem-popup-body {
+      padding: 30px 20px;
+    }
+    .redeem-popup-text {
+      text-align: center;
+      color: var(--text-dark);
+      font-size: 1rem;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    .redeem-options {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .redeem-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      border-radius: 15px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      background: #f8f9fa;
+    }
+    .redeem-option.selected {
+      background: var(--primary-bg);
+      border-color: var(--dark-accent);
+    }
+    .redeem-option-image {
+      width: 60px;
+      height: 60px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-bottom: 10px;
+    }
+    .scratch-card-image { background-image: url('img/scratch-card.png'); }
+    .lucky-box-image { background-image: url('img/giftBox.webp'); }
+    .redeem-option-price {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .redeem-option-price::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .redeem-submit-button {
+      width: 100%;
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .redeem-submit-button.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .random-image-1 { background-image: url('https://iili.io/FSkxx0G.png'); }
+    .random-image-2 { background-image: url('https://iili.io/FSkxCsn.png'); }
+    .random-image-3 { background-image: url('https://iili.io/FSkxBWX.png'); }
+    .random-image-4 { background-image: url('https://iili.io/FSkxqxt.png'); }
+    .random-image-5 { background-image: url('https://iili.io/FSkxFON.png'); }
+    .random-image-6 { background-image: url('https://iili.io/FSkx2JR.png'); }
+    .random-image-7 { background-image: url('https://iili.io/FSkx3Rp.png'); }
+    @media (max-width: 576px) {
+      .container { padding: 10px; }
+      .task-center-title { font-size: 1.5rem; }
+      .details-button { font-size: 0.9rem; padding: 6px 12px; }
+      .gems-display { font-size: 1.5rem; }
+      .redeem-button { padding: 8px 15px; font-size: 0.9rem; }
+      .invite-poster-title { font-size: 1.3rem; }
+      .invite-poster-text { font-size: 1rem; }
+      .invite-friends-button { padding: 8px 15px; font-size: 0.9rem; }
+      .tasks-title { font-size: 1.3rem; }
+      .add-task-button { padding: 6px 12px; font-size: 0.9rem; }
+      .task-item { padding: 12px; gap: 12px; }
+      .task-image { width: 40px; height: 40px; }
+      .task-name { font-size: 1rem; }
+      .redeem-popup { width: 95%; }
+      .redeem-options { gap: 15px; }
+      .redeem-option { padding: 15px; }
+      .redeem-option-image { width: 50px; height: 50px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <div class="top-section-left">
+          <div class="task-center-icon"></div>
+          <h1 class="task-center-title">Task Center</h1>
+        </div>
+        <button class="details-button" onclick="window.location.href='gems-record.html'">
+          <i class="fas fa-chevron-right"></i> Details
+        </button>
+      </div>
+      <div class="gems-redeem-section">
+        <div class="gems-display" id="gemsDisplay">0</div>
+        <button class="redeem-button" id="redeemButton">Redeem</button>
+      </div>
+      <div class="random-image-container">
+        <div class="random-image" id="randomImage"></div>
+      </div>
+      <div class="invite-poster-title">Invitation Reward</div>
+      <div class="invite-poster-container">
+        <div class="invite-poster">
+          <div class="invite-poster-text">Invite 1 Friend = 1 Scratch.</div>
+          <button class="invite-friends-button" onclick="window.location.href='invitation.html'">Invite For Scratches!</button>
+        </div>
+      </div>
+      <div class="tasks-title-container">
+        <div class="tasks-title">Task List</div>
+        <button class="add-task-button" onclick="window.location.href='add-task.html'; tg.HapticFeedback.selectionChanged();">
+          <i class="fas fa-plus"></i> Add task
+        </button>
+      </div>
+    </div>
+    <div class="tasks-container" id="tasksContainer">
+      <div id="tasksList"></div>
+      <div class="no-tasks-container" id="noTasksContainer">
+        <div class="no-tasks-gif"></div>
+        <div class="no-tasks-text">No tasks available</div>
+      </div>
+    </div>
+  </div>
+  <div class="redeem-popup-overlay" id="redeemPopupOverlay">
+    <div class="redeem-popup">
+      <div class="redeem-popup-header">
+        <h3 class="redeem-popup-title">Redeem Gems</h3>
+        <button class="redeem-popup-close" id="redeemPopupClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="redeem-popup-body">
+        <p class="redeem-popup-text">
+          Redeem your gems to scratch card or lucky box
+        </p>
+        <div class="redeem-options" id="redeemOptions">
+          <div class="redeem-option" data-type="card" id="scratchCardOption">
+            <div class="redeem-option-image scratch-card-image"></div>
+            <div class="redeem-option-price" id="scratchCardPrice">10</div>
+          </div>
+          <div class="redeem-option" data-type="box" id="luckyBoxOption">
+            <div class="redeem-option-image lucky-box-image"></div>
+            <div class="redeem-option-price" id="luckyBoxPrice">20</div>
+          </div>
+        </div>
+        <button class="redeem-submit-button" id="redeemSubmitButton">Redeem</button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'index.html';
+    });
+
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const gemsDisplay = document.getElementById('gemsDisplay');
+    const redeemButton = document.getElementById('redeemButton');
+    const randomImage = document.getElementById('randomImage');
+    const tasksContainer = document.getElementById('tasksContainer');
+    const tasksList = document.getElementById('tasksList');
+    const noTasksContainer = document.getElementById('noTasksContainer');
+    const redeemPopupOverlay = document.getElementById('redeemPopupOverlay');
+    const redeemPopupClose = document.getElementById('redeemPopupClose');
+    const redeemOptions = document.getElementById('redeemOptions');
+    const scratchCardOption = document.getElementById('scratchCardOption');
+    const luckyBoxOption = document.getElementById('luckyBoxOption');
+    const scratchCardPrice = document.getElementById('scratchCardPrice');
+    const luckyBoxPrice = document.getElementById('luckyBoxPrice');
+    const redeemSubmitButton = document.getElementById('redeemSubmitButton');
+
+    let userData = null;
+    let currentInitData = null;
+    let tasksData = [];
+    let adTask = null;
+    let pricesData = {};
+    let selectedRedeemType = null;
+    let completedTasks = new Set();
+    let adTaskTimer = null;
+    const randomImages = [
+      'random-image-1',
+      'random-image-2',
+      'random-image-3',
+      'random-image-4',
+      'random-image-5',
+      'random-image-6',
+      'random-image-7'
+    ];
+    function playClickSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } catch (error) {
+        console.log('Audio not supported');
+      }
+    }
+    function formatTime(minutes) {
+      if (isNaN(minutes) || minutes <= 0) return '00:00:00';
+      const hours = Math.floor(minutes / 60);
+      const mins = Math.floor(minutes % 60);
+      const secs = Math.floor((minutes * 60) % 60);
+      return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function startAdTaskTimer(minutes, button) {
+      if (adTaskTimer) clearInterval(adTaskTimer);
+      let remainingMinutes = minutes;
+
+      button.classList.add('countdown');
+      button.innerHTML = `<span>${formatTime(remainingMinutes)}</span>`;
+      adTaskTimer = setInterval(() => {
+        remainingMinutes -= 1 / 60;
+        if (remainingMinutes <= 0) {
+          clearInterval(adTaskTimer);
+          button.classList.remove('countdown');
+          button.textContent = `+${parseFloat(adTask.reward).toFixed(2)}`;
+          button.classList.add('active');
+          adTask.status = 'ready';
+
+          button.addEventListener('click', handleAdTaskClaim, { once: true });
+        } else {
+          const span = button.querySelector('span');
+          if (span) span.textContent = formatTime(remainingMinutes);
+        }
+      }, 1000);
+    }
+    function initApp() {
+      if (!loadingScreen || !mainContent) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      const randomClass = randomImages[Math.floor(Math.random() * randomImages.length)];
+      randomImage.className = `random-image ${randomClass}`;
+      redeemButton.addEventListener('click', showRedeemPopup);
+      redeemPopupClose.addEventListener('click', hideRedeemPopup);
+      redeemPopupOverlay.addEventListener('click', (e) => {
+        if (e.target === redeemPopupOverlay) hideRedeemPopup();
+      });
+      randomImage.addEventListener('click', () => {
+        tg.openLink("https://otieu.com/4/9955411");
+      });
+      scratchCardOption.addEventListener('click', () => selectRedeemOption('card'));
+      luckyBoxOption.addEventListener('click', () => selectRedeemOption('box'));
+      redeemSubmitButton.addEventListener('click', submitRedeem);
+      fetchTaskData();
+    }
+    async function fetchTaskData() {
+      if (!loadingScreen || !mainContent) {
+        console.error('Missing DOM elements: loadingScreen or mainContent');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const [response] = await Promise.all([
+          fetch('api/get-user-task.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ init_data: currentInitData }),
+            signal: controller.signal
+          }).finally(() => clearTimeout(timeoutId)),
+          new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.message || 'API error');
+        tasksData = data.result.tasks || [];
+        userData = data.result.user_data || {};
+        adTask = data.result.ad_task || { status: 'ready', reward: 5 };
+        pricesData = data.result.prices || {};
+        displayTaskData();
+      } catch (error) {
+        console.error('Error fetching task data:', error);
+        if (error.name === 'AbortError') {
+          showError('Network Timeout', 'Request took too long. Please try again.');
+        } else {
+          showError('Network Error', 'Failed to connect to server. Please try again later.');
+        }
+      } finally {
+        setTimeout(() => {
+          if (loadingScreen && mainContent) {
+            loadingScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+          }
+        }, 1500);
+      }
+    }
+    function displayTaskData() {
+      gemsDisplay.textContent = userData.gems || 0;
+      scratchCardPrice.textContent = pricesData.scratch_card || 10;
+      luckyBoxPrice.textContent = pricesData.lucky_box || 20;
+      renderTasks();
+    }
+    function renderTasks() {
+      tasksList.innerHTML = '';
+
+      const adTaskItem = document.createElement('div');
+      adTaskItem.className = 'task-item ad-task';
+      const isAdTaskReady = adTask.status === 'ready';
+      const isAdCompleted = !!adTask.completed;
+      adTaskItem.innerHTML = `
+        <div class="task-image ad-task-image"></div>
+        <div class="task-content">
+          <div class="task-name">Watch Ad</div>
+          <div class="task-buttons">
+            <button class="task-reward-button ad-task-button ${isAdTaskReady ? 'active' : 'countdown'} ${isAdCompleted ? 'completed' : ''}" data-task-type="ad" ${isAdCompleted ? 'disabled' : ''}>
+              ${isAdTaskReady ? `+${parseFloat(adTask.reward).toFixed(2)}` : `<span></span>`}
+            </button>
+          </div>
+        </div>
+      `;
+      tasksList.appendChild(adTaskItem);
+
+      if (!isAdTaskReady && !isAdCompleted) {
+        const adTaskButton = adTaskItem.querySelector('.task-reward-button');
+        startAdTaskTimer(parseFloat(adTask.status), adTaskButton);
+      }
+
+      if (isAdTaskReady && !isAdCompleted) {
+        adTaskItem.querySelector('.ad-task-button').addEventListener('click', handleAdTaskClaim, { once: true });
+      }
+
+      if (tasksData.length > 0) {
+        tasksList.style.display = 'block';
+        noTasksContainer.style.display = 'none';
+        tasksData.forEach(task => {
+          const taskItem = document.createElement('div');
+          taskItem.className = 'task-item';
+          const isCompleted = task.completed || completedTasks.has(task.task_id);
+          taskItem.innerHTML = `
+            <div class="task-image" style="background-image: url('${task.task_image || 'https://i.ibb.co/MDNxjMy3/rupee.png'}')"></div>
+            <div class="task-content">
+              <div class="task-name">${task.name}</div>
+              <div class="task-buttons">
+                <button class="task-go-button" data-task-id="${task.task_id}" data-link="${task.link}" ${isCompleted ? 'disabled' : ''}>
+                  GO
+                </button>
+                <button class="task-reward-button ${isCompleted ? 'completed' : ''}" data-task-id="${task.task_id}" data-reward="${task.reward}" ${isCompleted ? 'disabled' : ''}>
+                  +${parseFloat(task.reward).toFixed(2)}
+                </button>
+              </div>
+            </div>
+          `;
+          tasksList.appendChild(taskItem);
+        });
+
+        document.querySelectorAll('.task-go-button:not(:disabled)').forEach(button => {
+          button.addEventListener('click', handleTaskGo);
+        });
+        document.querySelectorAll('.task-reward-button:not(.completed):not(.ad-task-button)').forEach(button => {
+          button.addEventListener('click', handleTaskClaim);
+        });
+      } else {
+        tasksList.style.display = adTask ? 'block' : 'none';
+        noTasksContainer.style.display = adTask ? 'none' : 'flex';
+      }
+    }
+    async function handleAdTaskClaim() {
+      if (adTask.completed) return;
+      try {
+        await window.showGiga()
+          .then(async () => {
+            const response = await fetch('api/ad-task.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ init_data: currentInitData })
+            });
+            const data = await response.json();
+            if (!data.ok) {
+              showError('Error', data.message);
+              return;
+            }
+            userData.gems = (userData.gems || 0) + parseInt(adTask.reward);
+            adTask.completed = true;
+            gemsDisplay.textContent = userData.gems;
+            renderTasks();
+            showSuccess('Ad Task Completed!', data.message);
+            tg.HapticFeedback.notificationOccurred('success');
+          })
+          .catch((e) => {
+            showError('Ad Error', 'Failed to load ad. Please try again. ' + e);
+          });
+      } catch (error) {
+        console.error('Error completing ad task:', error);
+        showError('Ad Error', 'Failed to load ad. Please try again. ' + error);
+      }
+    }
+    function handleTaskGo(e) {
+      const taskId = e.currentTarget.dataset.taskId;
+      const link = e.currentTarget.dataset.link;
+      tg.openLink(link);
+      completedTasks.add(taskId);
+      const rewardButton = document.querySelector(`.task-reward-button[data-task-id="${taskId}"]`);
+      if (rewardButton) {
+        rewardButton.classList.add('active');
+        rewardButton.addEventListener('click', handleTaskClaim, { once: true });
+      }
+      tg.HapticFeedback.notificationOccurred('success');
+    }
+    async function handleTaskClaim(e) {
+      const taskId = e.currentTarget.dataset.taskId;
+      try {
+        const response = await fetch('api/complete-task.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ init_data: currentInitData, task_id: taskId })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+        userData.gems = (userData.gems || 0) + parseInt(data.result.reward);
+        gemsDisplay.textContent = userData.gems;
+        e.currentTarget.closest('.task-item').remove();
+        tasksData = tasksData.filter(task => task.task_id !== taskId);
+        if (tasksData.length === 0 && adTask?.completed) {
+          tasksList.style.display = 'none';
+          noTasksContainer.style.display = 'flex';
+        }
+        showSuccess('Task Completed!', data.message);
+        tg.HapticFeedback.notificationOccurred('success');
+      } catch (error) {
+        console.error('Error completing task:', error);
+        showError('Network Error', 'Failed to complete task. Please try again.');
+      }
+    }
+    function showRedeemPopup() {
+      redeemPopupOverlay.classList.add('active');
+      selectedRedeemType = null;
+      updateRedeemSubmitButton();
+      tg.HapticFeedback.selectionChanged();
+    }
+    function hideRedeemPopup() {
+      redeemPopupOverlay.classList.remove('active');
+      clearRedeemSelection();
+      tg.HapticFeedback.selectionChanged();
+    }
+    function selectRedeemOption(type) {
+      playClickSound();
+      selectedRedeemType = type;
+      document.querySelectorAll('.redeem-option').forEach(option => option.classList.remove('selected'));
+      if (type === 'card') scratchCardOption.classList.add('selected');
+      else if (type === 'box') luckyBoxOption.classList.add('selected');
+      updateRedeemSubmitButton();
+      tg.HapticFeedback.selectionChanged();
+    }
+    function updateRedeemSubmitButton() {
+      if (selectedRedeemType) redeemSubmitButton.classList.add('active');
+      else redeemSubmitButton.classList.remove('active');
+    }
+    function clearRedeemSelection() {
+      document.querySelectorAll('.redeem-option').forEach(option => option.classList.remove('selected'));
+      selectedRedeemType = null;
+      updateRedeemSubmitButton();
+    }
+    async function submitRedeem() {
+      if (!selectedRedeemType) return;
+      const requiredGems = selectedRedeemType === 'card'
+        ? (pricesData.scratch_card || 10)
+        : (pricesData.lucky_box || 20);
+      if ((userData.gems || 0) < requiredGems) {
+        showError('Insufficient Gems', `You need ${requiredGems} gems to redeem this item.`);
+        hideRedeemPopup();
+        return;
+      }
+      try {
+        const response = await fetch('api/redeem-gems.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ init_data: currentInitData, redeem_to: selectedRedeemType })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          hideRedeemPopup();
+          return;
+        }
+        userData.gems -= requiredGems;
+        gemsDisplay.textContent = userData.gems;
+        hideRedeemPopup();
+        const itemName = selectedRedeemType === 'card' ? 'Scratch Card' : 'Lucky Box';
+        showSuccess('Redeemed Successfully!', `You received ${data.result.amount} ${itemName}${data.result.amount > 1 ? 's' : ''}!`);
+        tg.HapticFeedback.notificationOccurred('success');
+      } catch (error) {
+        console.error('Error redeeming gems:', error);
+        showError('Network Error', 'Failed to redeem gems. Please try again.');
+      }
+    }
+    function showSuccess(title, text) {
+      Swal.fire({
+        icon: 'success',
+        title,
+        text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title,
+        text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

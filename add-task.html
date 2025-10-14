@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Tasks</title>
+    <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Exo:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-gold: #FFD700;
+            --primary-purple: #8A2BE2;
+            --primary-orange: #FF6B35;
+            --glass-bg: rgba(0, 0, 0, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #ffffff;
+            --: rgba(255, 255, 255, 0.8);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: url("img/background.jpg") center center fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            margin-top: 70px;
+            overflow-y: auto;
+        }
+        .container-fluid {
+            padding: 20px;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .btn-gradient {
+            background: linear-gradient(45deg, var(--primary-gold), var(--primary-orange));
+            border: none;
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:active {
+            transform: scale(0.98);
+        }
+        .loading-screen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loader {
+            transform: rotateZ(45deg);
+            perspective: 1000px;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            color: #a722f6;
+        }
+        .loader:before,
+        .loader:after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: inherit;
+            height: inherit;
+            border-radius: 50%;
+            transform: rotateX(70deg);
+            animation: 1s spin linear infinite;
+        }
+        .loader:after {
+            color: yellow;
+            transform: rotateY(70deg);
+            animation-delay: .4s;
+        }
+        @keyframes spin {
+            0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+            12% { box-shadow: .2em .2em 0 0 currentcolor; }
+            25% { box-shadow: 0 .2em 0 0px currentcolor; }
+            37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+            50% { box-shadow: -.2em 0 0 0 currentcolor; }
+            62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+            75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+            87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+        }
+        .task-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .task-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 15px 15px 0 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-running { background: rgba(40, 167, 69, 0.8); }
+        .status-reviewing { background: rgba(255, 193, 7, 0.8); }
+        .status-stop { background: rgba(220, 53, 69, 0.8); }
+        .status-done { background: rgba(23, 162, 184, 0.8); }
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+        .task-form {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 10px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-gold);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .form-select option {
+            background: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <span class="loader"></span>
+    </div>
+    <div class="container-fluid">
+        <!-- Balance & Deposit Section -->
+        <div class="glass-card p-4 mb-4">
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                    <h4 class="gradient-text mb-0">
+                        <i class="fas fa-wallet me-2"></i>USDT Balance
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <h3 class="text-warning mb-0" id="usdtBalance">0.00</h3>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Deposit Address (BEP20)</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="depositAddress" readonly>
+                    <button class="copy-btn" type="button" onclick="copyAddress()">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-info mb-0" style="background: rgba(13, 202, 240, 0.1); border: 1px solid rgba(13, 202, 240, 0.3); color: white;"> 
+                <small>
+                    <i class="fas fa-info-circle me-2"></i>
+                    Send only USDT with BEP20 network to this address. Balance will be added instantly.
+                </small>
+            </div>
+        </div>
+        <!-- My Tasks Section -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="gradient-text mb-0">
+                <i class="fas fa-tasks me-2"></i>My Tasks
+            </h4>
+            <button class="btn btn-gradient btn-sm" onclick="showAddTaskForm()">
+                <i class="fas fa-plus me-2"></i>New Task
+            </button>
+        </div>
+        <!-- Add Task Form -->
+        <div id="addTaskForm" class="task-form glass-card p-4 mb-4">
+            <h5 class="text-warning mb-3">
+                <i class="fas fa-plus-circle me-2"></i>Add New Task
+            </h5>
+            <form id="newTaskForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Task Name *</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Task Type *</label>
+                        <select class="form-select" name="type" onchange="toggleTypeFields(this)" required>
+                            <option value="">Select Type</option>
+                            <option value="channel">Channel</option>
+                            <option value="bot">Bot</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Task Link *</label>
+                    <input type="url" class="form-control" name="link" placeholder="https://t.me/example" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Order Amount * <small class="">(Min: <span id="minOrder">100</span>, Max: <span id="maxOrder">10000</span>)</small></label>
+                    <input type="number" class="form-control" name="order_amount" min="100" max="10000" required>
+                </div>
+                <div id="channelField" class="mb-3" style="display: none;">
+                    <label class="form-label">Chat ID *</label>
+                    <input type="text" class="form-control" name="chat_id" placeholder="-1002506782359">
+                </div>
+                <div id="botField" class="mb-3" style="display: none;">
+                    <label class="form-label">Bot Token *</label>
+                    <input type="text" class="form-control" name="bot_token" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+                </div>
+                <div id="customImageField" class="mb-3" style="display: none;">
+                    <label class="form-label">Custom Task Image</label>
+                    <input type="url" class="form-control" name="task_image" placeholder="https://example.com/image.png">
+                </div>
+                <div class="mb-3">
+                    <button type="button" class="btn btn-outline-light btn-sm" id="customImageBtn" onclick="toggleCustomImage()">
+                        <i class="fas fa-plus me-2"></i>Add Custom Image
+                    </button>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-gradient">
+                        <i class="fas fa-save me-2"></i>Save Task
+                    </button>
+                    <button type="button" class="btn btn-outline-light" onclick="hideAddTaskForm()">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- Tasks Grid -->
+        <div id="tasksContainer" class="row"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let appData = {};
+        let currentEditingTask = null;
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.BackButton.show();
+        window.Telegram.WebApp.BackButton.onClick(() => {
+            window.location.href = 'tasks.html';
+        });
+        async function loadPageData() {
+            try {
+                const initData = window.Telegram.WebApp.initData;
+                const [response] = await Promise.all([
+                    fetch('api/add-task-page.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ init_data: initData })
+                    }),
+                    new Promise(resolve => setTimeout(resolve, 1000))
+                ]);
+                const data = await response.json();
+                if (data.ok) {
+                    appData = data.result;
+                    updateUI();
+                } else {
+                    throw new Error(data.message || 'Failed to load data');
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load page data. Please try again.',
+                    confirmButtonColor: 'var(--primary-purple)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: '#fff'
+                });
+            } finally {
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 1000);
+            }
+        }
+        function updateUI() {
+            document.getElementById('usdtBalance').textContent = appData.balance_usdt.toFixed(2);
+            document.getElementById('depositAddress').value = appData.usdt_deposit_address;
+            document.getElementById('minOrder').textContent = appData.min_order;
+            document.getElementById('maxOrder').textContent = appData.max_order;
+            const orderInput = document.querySelector('input[name="order_amount"]');
+            orderInput.min = appData.min_order;
+            orderInput.max = appData.max_order;
+            renderTasks();
+        }
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            if (!appData.mytasks || appData.mytasks.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-tasks fa-3x  mb-3"></i>
+                        <h5 class="">No tasks yet</h5>
+                        <p class="">Create your first task to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = appData.mytasks.map(task => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="glass-card task-card">
+                        <div class="position-relative">
+                            <img src="${task.task_image}" alt="${task.name}" class="task-image" onerror="this.src='https://i.ibb.co/MDNxjMy3/rupee.png'">
+                            <span class="status-badge status-${task.status}">${task.status.toUpperCase()}</span>
+                        </div>
+                        <div class="p-3">
+                            <div id="taskInfo-${task.task_id}">
+                                <h6 class="text-warning mb-2">${task.name}</h6>
+                                <p class=" mb-2">
+                                    <small>
+                                        <i class="fas fa-chart-line me-1"></i>Status: ${task.status} |
+                                        <i class="fas fa-check-circle me-1"></i>Completed: ${task.completed}/${task.order_amount}
+                                    </small>
+                                </p>
+                                <button class="btn btn-outline-light btn-sm w-100" onclick="editTask('${task.task_id}')">
+                                    <i class="fas fa-edit me-2"></i>Edit Task
+                                </button>
+                            </div>
+                            <div id="editForm-${task.task_id}" class="task-form" style="display: none; margin-top: 0; padding: 15px; background: rgba(0,0,0,0.2);">
+                                <form onsubmit="saveTask(event, '${task.task_id}')">
+                                    <div class="mb-2">
+                                        <label class="form-label small">Task Name</label>
+                                        <input type="text" class="form-control form-control-sm" name="name" value="${task.name}" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Link</label>
+                                        <input type="url" class="form-control form-control-sm" name="link" value="${task.link}" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Image URL</label>
+                                        <input type="url" class="form-control form-control-sm" name="task_image" value="${task.task_image}">
+                                    </div>
+                                    ${task.type === 'channel' ? `
+                                        <div class="mb-2">
+                                            <label class="form-label small">Chat ID</label>
+                                            <input type="text" class="form-control form-control-sm" name="chat_id" value="${task.chat_id || ''}">
+                                        </div>
+                                    ` : ''}
+                                    ${task.type === 'bot' ? `
+                                        <div class="mb-2">
+                                            <label class="form-label small">Bot Token</label>
+                                            <input type="text" class="form-control form-control-sm" name="bot_token" value="${task.bot_token || ''}">
+                                        </div>
+                                    ` : ''}
+                                    <div class="d-flex gap-1">
+                                        <button type="submit" class="btn btn-gradient btn-sm flex-fill">
+                                            <i class="fas fa-save"></i> Save
+                                        </button>
+                                        <button type="button" class="btn btn-outline-light btn-sm flex-fill" onclick="cancelEdit('${task.task_id}')">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function copyAddress() {
+            const address = document.getElementById('depositAddress').value;
+            navigator.clipboard.writeText(address).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    text: 'Deposit address copied to clipboard',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    confirmButtonColor: 'var(--primary-purple)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: '#fff'
+                });
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }).catch(err => {
+                console.error('Failed to copy address:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Copy Error',
+                    text: 'Failed to copy address.',
+                    confirmButtonColor: 'var(--primary-purple)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: '#fff'
+                });
+            });
+        }
+        function showAddTaskForm() {
+            document.getElementById('addTaskForm').style.display = 'block';
+        }
+        function hideAddTaskForm() {
+            document.getElementById('addTaskForm').style.display = 'none';
+            document.getElementById('newTaskForm').reset();
+            document.getElementById('channelField').style.display = 'none';
+            document.getElementById('botField').style.display = 'none';
+            document.getElementById('customImageField').style.display = 'none';
+            document.getElementById('customImageBtn').innerHTML = '<i class="fas fa-plus me-2"></i>Add Custom Image';
+        }
+        function toggleTypeFields(select) {
+            const channelField = document.getElementById('channelField');
+            const botField = document.getElementById('botField');
+            channelField.style.display = 'none';
+            botField.style.display = 'none';
+            if (select.value === 'channel') {
+                channelField.style.display = 'block';
+                channelField.querySelector('input').required = true;
+                botField.querySelector('input').required = false;
+            } else if (select.value === 'bot') {
+                botField.style.display = 'block';
+                botField.querySelector('input').required = true;
+                channelField.querySelector('input').required = false;
+            } else {
+                channelField.querySelector('input').required = false;
+                botField.querySelector('input').required = false;
+            }
+        }
+        function toggleCustomImage() {
+            const field = document.getElementById('customImageField');
+            const btn = document.getElementById('customImageBtn');
+            if (field.style.display === 'none' || field.style.display === '') {
+                field.style.display = 'block';
+                btn.innerHTML = '<i class="fas fa-times me-2"></i>Use Default Image';
+            } else {
+                field.style.display = 'none';
+                btn.innerHTML = '<i class="fas fa-plus me-2"></i>Add Custom Image';
+            }
+        }
+        document.getElementById('newTaskForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const taskData = {
+                init_data: window.Telegram.WebApp.initData,
+                action: 'add'
+            };
+            for (let [key, value] of formData.entries()) {
+                if (value.trim()) {
+                    taskData[key] = key === 'order_amount' ? parseInt(value) : value;
+                }
+            }
+            try {
+                const response = await fetch('api/manage-task.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        confirmButtonColor: 'var(--primary-purple)',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        color: '#fff'
+                    });
+                    hideAddTaskForm();
+                    loadPageData();
+                } else {
+                    throw new Error(data.message || 'Failed to add task');
+                }
+            } catch (error) {
+                console.error('Error adding task:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: 'var(--primary-purple)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: '#fff'
+                });
+            }
+        });
+        function editTask(taskId) {
+            document.getElementById(`taskInfo-${taskId}`).style.display = 'none';
+            document.getElementById(`editForm-${taskId}`).style.display = 'block';
+            currentEditingTask = taskId;
+        }
+        function cancelEdit(taskId) {
+            document.getElementById(`taskInfo-${taskId}`).style.display = 'block';
+            document.getElementById(`editForm-${taskId}`).style.display = 'none';
+            currentEditingTask = null;
+        }
+        async function saveTask(event, taskId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const taskData = {
+                init_data: window.Telegram.WebApp.initData,
+                action: 'edit',
+                task_id: taskId
+            };
+            for (let [key, value] of formData.entries()) {
+                if (value.trim()) {
+                    taskData[key] = value;
+                }
+            }
+            try {
+                const response = await fetch('api/manage-task.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        confirmButtonColor: 'var(--primary-purple)',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        color: '#fff'
+                    });
+                    cancelEdit(taskId);
+                    loadPageData();
+                } else {
+                    throw new Error(data.message || 'Failed to update task');
+                }
+            } catch (error) {
+                console.error('Error updating task:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: 'var(--primary-purple)',
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    color: '#fff'
+                });
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadPageData);
+    </script>
+</body>
+</html>

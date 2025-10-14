@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="nav-footer.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+       
+        .navbar {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+       
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+       
+        .details-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+       
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+       
+        .section-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+       
+        .section-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+       
+        .edit-btn, .collapse-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+       
+        .edit-btn:hover, .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+       
+        .collapse-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+       
+        .table {
+            margin: 0;
+        }
+       
+        .table th {
+            background: #f8f9fa;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 1rem;
+        }
+       
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+       
+        .btn-primary {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+       
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 86, 179, 0.3);
+        }
+       
+        .btn-action {
+            margin: 0 0.3rem;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+        }
+       
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+       
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+       
+        .info-item {
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+       
+        .info-item strong {
+            color: #0056b3;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+       
+        .edit-section {
+            display: none;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin: 1rem;
+            background: #f8f9fa;
+        }
+       
+        .back-button {
+            border-radius: 20px;
+            margin-left: 80%;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+        }
+       
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
+        }
+       
+        .list-group-item {
+            border: 1px solid #e9ecef;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            background: white;
+            padding: 1rem;
+        }
+       
+        .user-card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 86, 179, 0.05);
+            transition: all 0.3s ease;
+        }
+       
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 86, 179, 0.1);
+        }
+       
+        .user-card .btn-action {
+            margin-top: 0.75rem;
+        }
+       
+        .view-toggle {
+            margin-bottom: 1rem;
+        }
+       
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+       
+        .form-control:focus, .form-select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+       
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+       
+        .modal-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+       
+        .modal-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+        }
+       
+        .modal-body {
+            padding: 2rem;
+        }
+       
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+       
+        .loading-spinner {
+            font-size: 3rem;
+            color: #0056b3;
+            animation: spin 1s linear infinite;
+        }
+       
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+       
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .main-container, .details-container {
+                padding: 1rem;
+            }
+            .back-button {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.5rem 1.25rem;
+            }
+            .table-responsive {
+                display: none;
+            }
+            .grid-view {
+                display: block;
+            }
+        }
+       
+        @media (min-width: 769px) {
+            .grid-view {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="text-center">
+            <i class="fas fa-spinner loading-spinner"></i>
+            <div class="mt-3 fw-medium">Loading...</div>
+        </div>
+    </div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>Admin Authentication
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="adminPassword" class="form-label fw-medium">Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Enter secure password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Secure Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-users-cog"></i>User Management
+                </a>
+            </div>
+        </nav>
+        <div class="main-container">
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="input-group" style="max-width: 400px;">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search by name or user ID">
+                        </div>
+                        <div class="view-toggle">
+                            <button class="btn btn-primary" id="toggleViewBtn" onclick="toggleView()">
+                                <i class="fas fa-th me-2"></i>Grid View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable(0)">User ID <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(1)">Name <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(2)">Balance <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(3)">Balance USDT <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(4)">Gems <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(5)">Badge <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(6)">Total Withdrawal <i class="fas fa-sort"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="grid-view" id="userGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- User Details Page -->
+    <div id="userDetails" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-user-circle"></i>User Details
+                </a>
+            </div>
+        </nav>
+        <div class="details-container">
+            <!-- Basic Information Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div id="basicInfo"></div>
+                </div>
+            </div>
+            <!-- Balance & Gems Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-coins me-2"></i>Balance & Gems</h5>
+                    <button class="edit-btn" onclick="toggleEdit('balance')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="balanceInfo"></div>
+                    <div id="balanceEdit" class="edit-section">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">New Balance</label>
+                                <input type="number" step="0.001" class="form-control" id="editBalance" placeholder="Enter new balance">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">New Balance USDT</label>
+                                <input type="number" step="0.001" class="form-control" id="editBalanceUsdt" placeholder="Enter new balance USDT">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">New Gems</label>
+                                <input type="number" class="form-control" id="editGems" placeholder="Enter new gems">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateBalanceGems()">
+                            <i class="fas fa-save me-2"></i>Update
+                        </button>
+                        <button class="btn btn-secondary ms-2" onclick="toggleEdit('balance')">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Referral List Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-users me-2"></i>Referral List</h5>
+                    <button class="collapse-btn" data-bs-toggle="collapse" data-bs-target="#referralCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="referralCollapse">
+                    <div class="card-body">
+                        <div id="referralList"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Gems Records Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-gem me-2"></i>Gems Records</h5>
+                    <button class="collapse-btn" data-bs-toggle="collapse" data-bs-target="#gemsCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="gemsCollapse">
+                    <div class="card-body">
+                        <div id="gemsRecords"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Withdraw Records Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-money-bill me-2"></i>Withdraw Records</h5>
+                    <button class="collapse-btn" data-bs-toggle="collapse" data-bs-target="#withdrawCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="withdrawCollapse">
+                    <div class="card-body">
+                        <div id="withdrawRecords"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Gift Claims Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-gift me-2"></i>Gift Claims</h5>
+                    <button class="collapse-btn" data-bs-toggle="collapse" data-bs-target="#giftsCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="collapse" id="giftsCollapse">
+                    <div class="card-body">
+                        <div id="giftClaims"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Back Button -->
+        <button class="btn btn-primary back-button" onclick="showAdminPanel()">
+            <i class="fas fa-arrow-left me-2"></i>Back to User List
+        </button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let users = [];
+        let sortDirection = 1;
+        let sortColumn = -1;
+        let currentUserId = null;
+        let currentUserData = null;
+        let isGridView = window.innerWidth <= 768;
+        let adminPassword = '';
+
+        // Cookie functions
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPassword = getCookie('admin_password');
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            if (savedPassword) {
+                adminPassword = savedPassword;
+                if (userId) {
+                    viewUser(userId);
+                } else {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadUsers();
+                }
+            } else {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const response = await fetch('api/user-api.php/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: password })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    adminPassword = password;
+                    setCookie('admin_password', password, 1);
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    document.getElementById('adminPanel').style.display = 'block';
+                    users = data.result;
+                    renderUsers(users);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'Welcome to the user management dashboard!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: data.message || 'Invalid admin password'
+                    });
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Unable to connect to server'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        // Load users
+        async function loadUsers() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/user-api.php/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    users = data.result;
+                    renderUsers(users);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error Loading Users',
+                    text: error.message || 'Failed to load users'
+                });
+                if (error.message === 'Invalid admin password') {
+                    deleteCookie('admin_password');
+                    new bootstrap.Modal(document.getElementById('loginModal')).show();
+                }
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('userDetails').style.display = 'none';
+            document.getElementById('loginModal').style.display = 'none';
+            history.pushState(null, '', window.location.pathname);
+            loadUsers();
+        }
+
+        function toggleView() {
+            isGridView = !isGridView;
+            const toggleBtn = document.getElementById('toggleViewBtn');
+            toggleBtn.innerHTML = isGridView
+                ? '<i class="fas fa-table me-2"></i>List View'
+                : '<i class="fas fa-th me-2"></i>Grid View';
+            renderUsers(users);
+        }
+
+        function toggleEdit(section) {
+            const editDiv = document.getElementById(section + 'Edit');
+            const isVisible = editDiv.style.display === 'block';
+            if (!isVisible && currentUserData) {
+                if (section === 'bank' && currentUserData.bank_details) {
+                    document.getElementById('bankHolderName').value = currentUserData.bank_details.holder_name || '';
+                    document.getElementById('bankAccountNumber').value = currentUserData.bank_details.account_number || '';
+                    document.getElementById('bankIfscCode').value = currentUserData.bank_details.ifsc_code || '';
+                } else if (section === 'binance' && currentUserData.binance_details) {
+                    document.getElementById('binanceHolderName').value = currentUserData.binance_details.holder_name || '';
+                    document.getElementById('binanceId').value = currentUserData.binance_details.binance_id || '';
+                } else if (section === 'balance') {
+                    document.getElementById('editBalance').value = currentUserData.balance || '';
+                    document.getElementById('editBalanceUsdt').value = currentUserData.balance_usdt || '';
+                    document.getElementById('editGems').value = currentUserData.gems || '';
+                }
+            }
+            editDiv.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function renderUsers(data) {
+            const tbody = document.getElementById('userTable');
+            const grid = document.getElementById('userGrid');
+            tbody.innerHTML = '';
+            grid.innerHTML = '';
+            const isMobile = window.innerWidth <= 768;
+            if (isGridView || isMobile) {
+                document.querySelector('.table-responsive').style.display = 'none';
+                grid.style.display = 'block';
+                data.forEach(user => {
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+                    card.innerHTML = `
+                        <div><strong><i class="fas fa-id-card me-2"></i>User ID:</strong> ${user.user_id}</div>
+                        <div><strong><i class="fas fa-user me-2"></i>Name:</strong> ${user.name}</div>
+                        <div><strong><i class="fas fa-coins me-2"></i>Balance:</strong> ${user.balance}</div>
+                        <div><strong><i class="fas fa-coins me-2"></i>Balance USDT:</strong> ${user.balance_usdt}</div>
+                        <div><strong><i class="fas fa-gem me-2"></i>Gems:</strong> ${user.gems}</div>
+                        <div><strong><i class="fas fa-medal me-2"></i>Badge:</strong> ${user.my_badge}</div>
+                        <div><strong><i class="fas fa-money-bill me-2"></i>Total Withdrawal:</strong> ${user.total_withdrawal || '0.00'}</div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-primary btn-action" onclick="viewUser('${user.user_id}')" title="View Details">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('${user.user_id}')" title="Delete User">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else {
+                document.querySelector('.table-responsive').style.display = 'block';
+                grid.style.display = 'none';
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.user_id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.balance}</td>
+                        <td>${user.balance_usdt}</td>
+                        <td>${user.gems}</td>
+                        <td>${user.my_badge}</td>
+                        <td>${user.total_withdrawal || '0.00'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-action" onclick="viewUser('${user.user_id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteUser('${user.user_id}')" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) sortDirection *= -1;
+            else sortDirection = 1;
+            sortColumn = column;
+            const keys = ['user_id', 'name', 'balance', 'balance_usdt', 'gems', 'my_badge', 'total_withdrawal'];
+            users.sort((a, b) => {
+                let valA = a[keys[column]], valB = b[keys[column]];
+                if (column === 2 || column === 3 || column === 4 || column === 6) {
+                    valA = parseFloat(valA || 0);
+                    valB = parseFloat(valB || 0);
+                }
+                return valA > valB ? sortDirection : -sortDirection;
+            });
+            renderUsers(users);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            const filtered = users.filter(user =>
+                user.name.toLowerCase().includes(search) ||
+                user.user_id.includes(search)
+            );
+            renderUsers(filtered);
+        });
+
+        async function deleteUser(userId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to delete this user?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            });
+            if (!result.isConfirmed) return;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/user-api.php/users/${userId}/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    users = users.filter(user => user.user_id !== userId);
+                    renderUsers(users);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error deleting user'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function viewInvitedByUser(invitedById) {
+            if (!invitedById) return;
+            viewUser(invitedById);
+        }
+
+        async function viewUser(userId) {
+            currentUserId = userId;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/user-api.php/users/${userId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    const user = data.result[0];
+                    currentUserData = user;
+                    document.getElementById('adminPanel').style.display = 'none';
+                    document.getElementById('userDetails').style.display = 'block';
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.getElementById('basicInfo').innerHTML = `
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong><i class="fas fa-id-card"></i> User ID:</strong>
+                                ${user.user_id}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-user"></i> Name:</strong>
+                                ${user.name}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-calendar"></i> Joined:</strong>
+                                ${new Date(user.joined_at).toLocaleDateString()}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-network-wired"></i> IP Address:</strong>
+                                ${user.ip_address || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-user-plus"></i> Invited By:</strong>
+                                ${user.invited_by ? `${user.invited_by} <button class="btn btn-sm btn-primary ms-2" onclick="viewInvitedByUser('${user.invited_by}')" title="View Inviter Details"><i class="fas fa-eye"></i></button>` : 'N/A'}
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('balanceInfo').innerHTML = `
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong><i class="fas fa-coins"></i> Balance:</strong>
+                                ${user.balance}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-coins"></i> Balance USDT:</strong>
+                                ${user.balance_usdt}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-gem"></i> Gems:</strong>
+                                ${user.gems}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-medal"></i> Badge:</strong>
+                                ${user.my_badge}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-fire"></i> 7-Day Strike:</strong>
+                                ${user.total_7_day_strike || '0'}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-money-bill"></i> Total Withdrawal:</strong>
+                                ${user.total_withdrawal || '0.00'}
+                            </div>
+                        </div>
+                    `;
+                    const referralHtml = user.reflist && user.reflist.length > 0
+                        ? user.reflist.map(ref => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${ref.name}</strong> (${ref.user_id})
+                                        <br><small class="text-muted">${ref.date}</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="viewUser('${ref.user_id}')" title="View User">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')
+                        : '<p class="text-muted">No referrals found</p>';
+                    document.getElementById('referralList').innerHTML = referralHtml;
+                    const gemsHtml = user.gems_record && user.gems_record.length > 0
+                        ? user.gems_record.map(rec => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${rec.amount}</strong> - ${rec.reason}
+                                        <br><small class="text-muted">${rec.date}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')
+                        : '<p class="text-muted">No gems records found</p>';
+                    document.getElementById('gemsRecords').innerHTML = gemsHtml;
+                    const withdrawHtml = user.withdraw_record && user.withdraw_record.length > 0
+                        ? user.withdraw_record.map(rec => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${rec.amount}</strong> - ${rec.withdraw_method}
+                                        <br><small class="text-muted">${rec.date}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')
+                        : '<p class="text-muted">No withdraw records found</p>';
+                    document.getElementById('withdrawRecords').innerHTML = withdrawHtml;
+                    const giftsHtml = user.gift_claims && user.gift_claims.length > 0
+                        ? user.gift_claims.map(gift => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${gift.gift_name}</strong> (${gift.amount})
+                                        <br><small class="text-muted">${gift.date}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')
+                        : '<p class="text-muted">No gift claims found</p>';
+                    document.getElementById('giftClaims').innerHTML = giftsHtml;
+                    history.pushState(null, '', `?user_id=${userId}`);
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to fetch user details'
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching user details'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function updateBalanceGems() {
+            const balance = document.getElementById('editBalance').value;
+            const balanceUsdt = document.getElementById('editBalanceUsdt').value;
+            const gems = document.getElementById('editGems').value;
+            if (!balance && !balanceUsdt && !gems) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Please enter at least one of balance, balance USDT, or gems'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/user-api.php/users/${currentUserId}/setbalance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        balance: balance || undefined,
+                        balance_usdt: balanceUsdt || undefined,
+                        gem: gems || undefined
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                    toggleEdit('balance');
+                    viewUser(currentUserId);
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating balance/gems'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function updateBankDetails() {
+            const bankDetails = {
+                admin_password: adminPassword,
+                holder_name: document.getElementById('bankHolderName').value,
+                account_number: document.getElementById('bankAccountNumber').value,
+                ifsc_code: document.getElementById('bankIfscCode').value
+            };
+            const filteredDetails = Object.fromEntries(Object.entries(bankDetails).filter(([_, v]) => v));
+            if (Object.keys(filteredDetails).length <= 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Please enter at least one bank detail'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/user-api.php/users/${currentUserId}/setbank`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filteredDetails)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                    toggleEdit('bank');
+                    viewUser(currentUserId);
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating bank details'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function updateBinanceDetails() {
+            const binanceDetails = {
+                admin_password: adminPassword,
+                holder_name: document.getElementById('binanceHolderName').value,
+                binance_id: document.getElementById('binanceId').value
+            };
+            const filteredDetails = Object.fromEntries(Object.entries(binanceDetails).filter(([_, v]) => v));
+            if (Object.keys(filteredDetails).length <= 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Please enter at least one binance detail'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/user-api.php/users/${currentUserId}/setbinance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filteredDetails)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                    toggleEdit('binance');
+                    viewUser(currentUserId);
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating binance details'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        document.addEventListener('shown.bs.collapse', function (e) {
+            const button = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+            if (button) button.classList.remove('collapsed');
+        });
+
+        document.addEventListener('hidden.bs.collapse', function (e) {
+            const button = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+            if (button) button.classList.add('collapsed');
+        });
+        
+        function redirect(url, vibrate) {
+            if (vibrate && navigator.vibrate) navigator.vibrate(7);
+            window.location.href = url;
+        }
+        navFooter.add(
+            {
+                theme: 'dark',
+                selectedColor: 'blue'
+            },
+            [
+                {
+                    name: "Dashboard",
+                    icon: "fa-house",
+                    onClick: (e) => redirect("index.html", true)
+                },
+                {
+                    name: "Users",
+                    icon: "fa-user",
+                    onClick: (e) => redirect("users.html", true),
+                    selected: true
+                },
+                {
+                    name: "Gift Codes",
+                    icon: "fa-gift",
+                    onClick: (e) => redirect("gift-code.html", true)
+                },
+                {
+                    name: "Task",
+                    icon: "fa-list-check",
+                    onClick: (e) => redirect("task.html", true)
+                },
+                {
+                    name: "Settings",
+                    icon: "fa-gear",
+                    onClick: (e) => redirect("settings.html", true)
+                },
+                {
+                    name: "Withdraws",
+                    icon: "fa-money-bill",
+                    onClick: (e) => redirect("withdrawals.html", true)
+                }
+            ]
+        );
+    </script>
+</body>
+</html>

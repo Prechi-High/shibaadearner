@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="nav-footer.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+       
+        .navbar {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+       
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+       
+        .details-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+       
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+       
+        .section-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+       
+        .section-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+       
+        .edit-btn, .collapse-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+       
+        .edit-btn:hover, .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+       
+        .collapse-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+       
+        .table {
+            margin: 0;
+        }
+       
+        .table th {
+            background: #f8f9fa;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 1rem;
+        }
+       
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+       
+        .btn-primary {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+       
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 86, 179, 0.3);
+        }
+       
+        .btn-action {
+            margin: 0 0.3rem;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+        }
+       
+        .btn-action:hover {
+            transform: translateY(-1px);
+        }
+       
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+       
+        .info-item {
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+       
+        .info-item strong {
+            color: #0056b3;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+       
+        .edit-section {
+            display: none;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin: 1rem;
+            background: #f8f9fa;
+        }
+       
+        .back-button {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+        }
+       
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
+        }
+       
+        .task-card {
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: white;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 86, 179, 0.05);
+            transition: all 0.3s ease;
+        }
+       
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 86, 179, 0.1);
+        }
+       
+        .task-card .btn-action {
+            margin-top: 0.75rem;
+        }
+       
+        .view-toggle {
+            margin-bottom: 1rem;
+        }
+       
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+       
+        .form-control:focus, .form-select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+       
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+       
+        .modal-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+       
+        .modal-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+        }
+       
+        .modal-body {
+            padding: 2rem;
+        }
+       
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+       
+        .loading-spinner {
+            font-size: 3rem;
+            color: #0056b3;
+            animation: spin 1s linear infinite;
+        }
+       
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+       
+        .task-image {
+            max-width: 50px;
+            height: auto;
+            border-radius: 4px;
+        }
+       
+        .task-image-large {
+            max-width: 100px;
+            height: auto;
+            border-radius: 4px;
+        }
+       
+        .inactive-status {
+            background-color: #f8d7da;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+       
+        .form-field-hidden {
+            display: none;
+        }
+       
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .main-container, .details-container {
+                padding: 1rem;
+            }
+            .back-button {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.5rem 1.25rem;
+            }
+            .table-responsive {
+                display: none;
+            }
+            .grid-view {
+                display: block;
+            }
+        }
+       
+        @media (min-width: 769px) {
+            .grid-view {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="text-center">
+            <i class="fas fa-spinner loading-spinner"></i>
+            <div class="mt-3 fw-medium">Loading...</div>
+        </div>
+    </div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>Admin Authentication
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="adminPassword" class="form-label fw-medium">Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Enter secure password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Secure Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Task Management Panel -->
+    <div id="taskPanel" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-tasks"></i>Task Management
+                </a>
+            </div>
+        </nav>
+        <div class="main-container">
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="input-group" style="max-width: 400px;">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search by name or task ID">
+                        </div>
+                        <div class="view-toggle">
+                            <button class="btn btn-primary me-2" data-bs-toggle="collapse" data-bs-target="#createTaskCollapse">
+                                <i class="fas fa-plus-circle me-2"></i>Create New Task
+                            </button>
+                            <button class="btn btn-primary" id="toggleViewBtn" onclick="toggleView()">
+                                <i class="fas fa-th me-2"></i>Grid View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="collapse" id="createTaskCollapse">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Task ID</label>
+                                    <input type="text" class="form-control" id="createTaskId" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Task Image URL</label>
+                                    <input type="text" class="form-control" id="createTaskImage" placeholder="Enter image URL">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Task Name</label>
+                                    <input type="text" class="form-control" id="createTaskName" placeholder="Enter task name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-control" id="createTaskType" onchange="toggleTaskTypeFields('create')">
+                                        <option value="channel">Channel</option>
+                                        <option value="bot">Bot</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Link</label>
+                                    <input type="text" class="form-control" id="createTaskLink" placeholder="Enter task URL">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Max Completions</label>
+                                    <input type="number" class="form-control" id="createMaxCompletion" placeholder="Enter max completions">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Reward</label>
+                                    <input type="number" step="0.001" class="form-control" id="createReward" placeholder="Enter reward amount">
+                                </div>
+                                <div class="col-md-6 mb-3 form-field-hidden" id="createChatIdField">
+                                    <label class="form-label">Chat ID</label>
+                                    <input type="text" class="form-control" id="createChatId" placeholder="Enter chat ID (e.g., -100...)">
+                                </div>
+                                <div class="col-md-6 mb-3 form-field-hidden" id="createBotTokenField">
+                                    <label class="form-label">Bot Token</label>
+                                    <input type="text" class="form-control" id="createBotToken" placeholder="Enter bot token">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-control" id="createStatus">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="createTask()">
+                                <i class="fas fa-save me-2"></i>Create Task
+                            </button>
+                            <button class="btn btn-secondary ms-2" data-bs-toggle="collapse" data-bs-target="#createTaskCollapse">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable(0)">Task ID <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(1)">Image <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(2)">Name <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(3)">Type <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(4)">Reward <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(5)">Completed/Max <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(6)">Status <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable(7)">Created At <i class="fas fa-sort"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="grid-view" id="taskGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Task Details Page -->
+    <div id="taskDetails" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-tasks"></i>Task Details
+                </a>
+            </div>
+        </nav>
+        <div class="details-container">
+            <!-- Task Information Section -->
+            <div class="card">
+                <div class="section-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>Task Information</h5>
+                    <button class="edit-btn" onclick="toggleEdit('task')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="taskInfo"></div>
+                    <div id="taskEdit" class="edit-section">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Task Image URL</label>
+                                <input type="text" class="form-control" id="editTaskImage" placeholder="Enter image URL">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Task Name</label>
+                                <input type="text" class="form-control" id="editTaskName" placeholder="Enter task name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-control" id="editTaskType" onchange="toggleTaskTypeFields('edit')">
+                                    <option value="channel">Channel</option>
+                                    <option value="bot">Bot</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Link</label>
+                                <input type="text" class="form-control" id="editTaskLink" placeholder="Enter task URL">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max Completions</label>
+                                <input type="number" class="form-control" id="editMaxCompletion" placeholder="Enter max completions">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Reward</label>
+                                <input type="number" step="0.001" class="form-control" id="editReward" placeholder="Enter reward amount">
+                            </div>
+                            <div class="col-md-6 mb-3 form-field-hidden" id="editChatIdField">
+                                <label class="form-label">Chat ID</label>
+                                <input type="text" class="form-control" id="editChatId" placeholder="Enter chat ID (e.g., -100...)">
+                            </div>
+                            <div class="col-md-6 mb-3 form-field-hidden" id="editBotTokenField">
+                                <label class="form-label">Bot Token</label>
+                                <input type="text" class="form-control" id="editBotToken" placeholder="Enter bot token">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" id="editStatus">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateTask()">
+                            <i class="fas fa-save me-2"></i>Update
+                        </button>
+                        <button class="btn btn-secondary ms-2" onclick="toggleEdit('task')">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Back Button -->
+        <button class="btn btn-primary back-button" onclick="showTaskPanel()">
+            <i class="fas fa-arrow-left me-2"></i>Back to Task List
+        </button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let tasks = [];
+        let sortDirection = 1;
+        let sortColumn = -1;
+        let currentTaskId = null;
+        let currentTaskData = null;
+        let isGridView = window.innerWidth <= 768;
+        let adminPassword = '';
+
+        function generateRandomTaskId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 12; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Cookie functions
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPassword = getCookie('admin_password');
+            const urlParams = new URLSearchParams(window.location.search);
+            const taskId = urlParams.get('task_id');
+            if (savedPassword) {
+                adminPassword = savedPassword;
+                if (taskId) {
+                    viewTask(taskId);
+                } else {
+                    document.getElementById('taskPanel').style.display = 'block';
+                    fetchTasks();
+                }
+            } else {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const response = await fetch('api/task.php/task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: password })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    adminPassword = password;
+                    setCookie('admin_password', password, 1);
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    document.getElementById('taskPanel').style.display = 'block';
+                    tasks = data.result;
+                    renderTasks(tasks);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'Welcome to the task management dashboard!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: data.message || 'Invalid admin password'
+                    });
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Unable to connect to server'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        function validateChatId(chatId) {
+            if (!chatId) return true;
+            const regex = /^-100\d+$/;
+            return regex.test(chatId);
+        }
+
+        async function createTask() {
+            const taskData = {
+                admin_password: adminPassword,
+                task_id: document.getElementById('createTaskId').value,
+                task_image: document.getElementById('createTaskImage').value,
+                name: document.getElementById('createTaskName').value,
+                type: document.getElementById('createTaskType').value,
+                link: document.getElementById('createTaskLink').value,
+                max_completion: document.getElementById('createMaxCompletion').value,
+                reward: document.getElementById('createReward').value,
+                chat_id: document.getElementById('createChatId').value || undefined,
+                bot_token: document.getElementById('createBotToken').value || undefined,
+                status: document.getElementById('createStatus').value
+            };
+            const requiredFields = ['task_id', 'task_image', 'name', 'type', 'link', 'max_completion', 'reward'];
+            const missingFields = requiredFields.filter(field => !taskData[field]);
+            if (missingFields.length > 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: `Please enter: ${missingFields.join(', ')}`
+                });
+                return;
+            }
+            if (taskData.type === 'channel' && !taskData.chat_id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Chat ID is required for channel tasks'
+                });
+                return;
+            }
+            if (taskData.type === 'bot' && !taskData.bot_token) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Bot Token is required for bot tasks'
+                });
+                return;
+            }
+            if (taskData.chat_id && !validateChatId(taskData.chat_id)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Chat ID',
+                    text: 'Chat ID must start with -100 and contain only numbers'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/task.php/task/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(taskData)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                    document.querySelectorAll('#createTaskId, #createTaskImage, #createTaskName, #createTaskLink, #createMaxCompletion, #createReward, #createChatId, #createBotToken').forEach(input => input.value = '');
+                    document.getElementById('createTaskType').value = 'channel';
+                    document.getElementById('createStatus').value = 'active';
+                    document.getElementById('createTaskId').value = generateRandomTaskId();
+                    document.querySelector('#createTaskCollapse').classList.remove('show');
+                    toggleTaskTypeFields('create');
+                    fetchTasks();
+                } else {
+                    if (data.message === 'invalid-password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error creating task'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function fetchTasks() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/task.php/task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    tasks = data.result;
+                    renderTasks(tasks);
+                } else {
+                    if (data.message === 'invalid-password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching tasks'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function renderTasks(data) {
+            const tbody = document.getElementById('taskTable');
+            const grid = document.getElementById('taskGrid');
+            tbody.innerHTML = '';
+            grid.innerHTML = '';
+            const isMobile = window.innerWidth <= 768;
+            if (isGridView || isMobile) {
+                document.querySelector('.table-responsive').style.display = 'none';
+                grid.style.display = 'block';
+                data.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+                    card.innerHTML = `
+                        <div><strong><i class="fas fa-id-card me-2"></i>Task ID:</strong> ${task.task_id}</div>
+                        <div><strong><i class="fas fa-image me-2"></i>Image:</strong><br><img src="${task.task_image}" class="task-image" alt="Task Image"></div>
+                        <div><strong><i class="fas fa-tasks me-2"></i>Name:</strong> ${task.name}</div>
+                        <div><strong><i class="fas fa-tag me-2"></i>Type:</strong> ${task.type}</div>
+                        <div><strong><i class="fas fa-coins me-2"></i>Reward:</strong> ${task.reward}</div>
+                        <div><strong><i class="fas fa-users me-2"></i>Completed/Max:</strong> ${task.completed}/${task.max_completion}</div>
+                        <div><strong><i class="fas fa-toggle-on me-2"></i>Status:</strong> <span class="${task.status === 'inactive' ? 'inactive-status' : ''}">${task.status}</span></div>
+                        <div><strong><i class="fas fa-calendar me-2"></i>Created:</strong> ${new Date(task.created_at).toLocaleDateString()}</div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-primary btn-action" onclick="viewTask('${task.task_id}')" title="View Details">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteTask('${task.task_id}')" title="Delete Task">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else {
+                document.querySelector('.table-responsive').style.display = 'block';
+                grid.style.display = 'none';
+                data.forEach(task => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${task.task_id}</td>
+                        <td><img src="${task.task_image}" class="task-image" alt="Task Image"></td>
+                        <td>${task.name}</td>
+                        <td>${task.type}</td>
+                        <td>${task.reward}</td>
+                        <td>${task.completed}/${task.max_completion}</td>
+                        <td><span class="${task.status === 'inactive' ? 'inactive-status' : ''}">${task.status}</span></td>
+                        <td>${new Date(task.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-action" onclick="viewTask('${task.task_id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteTask('${task.task_id}')" title="Delete Task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) sortDirection *= -1;
+            else sortDirection = 1;
+            sortColumn = column;
+            const keys = ['task_id', 'task_image', 'name', 'type', 'reward', 'completed', 'status', 'created_at'];
+            tasks.sort((a, b) => {
+                let valA = a[keys[column]], valB = b[keys[column]];
+                if (column === 4 || column === 5) {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                }
+                return valA > valB ? sortDirection : -sortDirection;
+            });
+            renderTasks(tasks);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            const filtered = tasks.filter(task =>
+                task.name.toLowerCase().includes(search) ||
+                task.task_id.toLowerCase().includes(search)
+            );
+            renderTasks(filtered);
+        });
+
+        async function deleteTask(taskId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to delete this task?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            });
+            if (!result.isConfirmed) return;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/task.php/task/${taskId}/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    tasks = tasks.filter(task => task.task_id !== taskId);
+                    renderTasks(tasks);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                } else {
+                    if (data.message === 'invalid-password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error deleting task'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function viewTask(taskId) {
+            currentTaskId = taskId;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/task.php/task/${taskId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    const task = data.result[0];
+                    currentTaskData = task;
+                    document.getElementById('taskPanel').style.display = 'none';
+                    document.getElementById('taskDetails').style.display = 'block';
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.getElementById('taskInfo').innerHTML = `
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong><i class="fas fa-id-card me-2"></i>Task ID:</strong>
+                                ${task.task_id}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-tasks me-2"></i>Name:</strong>
+                                ${task.name}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-image me-2"></i>Image:</strong>
+                                <img src="${task.task_image}" class="task-image-large" alt="Task Image">
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-tag me-2"></i>Type:</strong>
+                                ${task.type}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-link me-2"></i>Link:</strong>
+                                <a href="${task.link}" target="_blank">${task.link}</a>
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-users me-2"></i>Completed/Max:</strong>
+                                ${task.completed}/${task.max_completion}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-coins me-2"></i>Reward:</strong>
+                                ${task.reward}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-comment me-2"></i>Chat ID:</strong>
+                                ${task.chat_id || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-robot me-2"></i>Bot Token:</strong>
+                                ${task.bot_token || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-toggle-on me-2"></i>Status:</strong>
+                                <span class="${task.status === 'inactive' ? 'inactive-status' : ''}">${task.status}</span>
+                            </div>
+                            <div class="info-item">
+                                <strong><i class="fas fa-calendar me-2"></i>Created:</strong>
+                                ${new Date(task.created_at).toLocaleDateString()}
+                            </div>
+                        </div>
+                    `;
+                    history.pushState(null, '', `?task_id=${taskId}`);
+                } else {
+                    if (data.message === 'invalid-password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to fetch task details'
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error fetching task details'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function updateTask() {
+            const taskData = {
+                admin_password: adminPassword,
+                task_image: document.getElementById('editTaskImage').value || undefined,
+                name: document.getElementById('editTaskName').value || undefined,
+                type: document.getElementById('editTaskType').value || undefined,
+                link: document.getElementById('editTaskLink').value || undefined,
+                max_completion: document.getElementById('editMaxCompletion').value || undefined,
+                reward: document.getElementById('editReward').value || undefined,
+                chat_id: document.getElementById('editChatId').value || undefined,
+                bot_token: document.getElementById('editBotToken').value || undefined,
+                status: document.getElementById('editStatus').value || undefined
+            };
+            const filteredData = Object.fromEntries(Object.entries(taskData).filter(([_, v]) => v !== undefined));
+            if (Object.keys(filteredData).length <= 1) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Please enter at least one field to update'
+                });
+                return;
+            }
+            if (taskData.type === 'channel' && !taskData.chat_id && !currentTaskData.chat_id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Chat ID is required for channel tasks'
+                });
+                return;
+            }
+            if (taskData.type === 'bot' && !taskData.bot_token && !currentTaskData.bot_token) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Input Required',
+                    text: 'Bot Token is required for bot tasks'
+                });
+                return;
+            }
+            if (taskData.chat_id && !validateChatId(taskData.chat_id)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Chat ID',
+                    text: 'Chat ID must start with -100 and contain only numbers'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/task.php/task/${currentTaskId}/edit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filteredData)
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message
+                    });
+                    toggleEdit('task');
+                    viewTask(currentTaskId);
+                } else {
+                    if (data.message === 'invalid-password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error updating task'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function toggleView() {
+            isGridView = !isGridView;
+            const toggleBtn = document.getElementById('toggleViewBtn');
+            toggleBtn.innerHTML = isGridView
+                ? '<i class="fas fa-table me-2"></i>List View'
+                : '<i class="fas fa-th me-2"></i>Grid View';
+            renderTasks(tasks);
+        }
+
+        function toggleTaskTypeFields(prefix) {
+            const type = document.getElementById(`${prefix}TaskType`).value;
+            const chatIdField = document.getElementById(`${prefix}ChatIdField`);
+            const botTokenField = document.getElementById(`${prefix}BotTokenField`);
+            chatIdField.classList.add('form-field-hidden');
+            botTokenField.classList.add('form-field-hidden');
+            if (type === 'channel') {
+                chatIdField.classList.remove('form-field-hidden');
+            } else if (type === 'bot') {
+                botTokenField.classList.remove('form-field-hidden');
+            }
+        }
+
+        function toggleEdit(section) {
+            const editDiv = document.getElementById(section + 'Edit');
+            const isVisible = editDiv.style.display === 'block';
+            if (!isVisible && currentTaskData) {
+                document.getElementById('editTaskImage').value = currentTaskData.task_image || '';
+                document.getElementById('editTaskName').value = currentTaskData.name || '';
+                document.getElementById('editTaskType').value = currentTaskData.type || 'channel';
+                document.getElementById('editTaskLink').value = currentTaskData.link || '';
+                document.getElementById('editMaxCompletion').value = currentTaskData.max_completion || '';
+                document.getElementById('editReward').value = currentTaskData.reward || '';
+                document.getElementById('editChatId').value = currentTaskData.chat_id || '';
+                document.getElementById('editBotToken').value = currentTaskData.bot_token || '';
+                document.getElementById('editStatus').value = currentTaskData.status || 'active';
+                toggleTaskTypeFields('edit');
+            }
+            editDiv.style.display = isVisible ? 'none' : 'block';
+        }
+
+        document.addEventListener('shown.bs.collapse', function (e) {
+            const button = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+            if (button) button.classList.remove('collapsed');
+            if (e.target.id === 'createTaskCollapse') {
+                document.getElementById('createTaskId').value = generateRandomTaskId();
+                toggleTaskTypeFields('create');
+            }
+        });
+
+        document.addEventListener('hidden.bs.collapse', function (e) {
+            const button = document.querySelector(`[data-bs-target="#${e.target.id}"]`);
+            if (button) button.classList.add('collapsed');
+        });
+        
+        function redirect(url, vibrate) {
+            if (vibrate && navigator.vibrate) navigator.vibrate(7);
+            window.location.href = url;
+        }
+        navFooter.add(
+            {
+                theme: 'dark',
+                selectedColor: 'blue'
+            },
+            [
+                {
+                    name: "Dashboard",
+                    icon: "fa-house",
+                    onClick: (e) => redirect("index.html", true)
+                },
+                {
+                    name: "Users",
+                    icon: "fa-user",
+                    onClick: (e) => redirect("users.html", true)
+                },
+                {
+                    name: "Gift Codes",
+                    icon: "fa-gift",
+                    onClick: (e) => redirect("gift-code.html", true)
+                },
+                {
+                    name: "Task",
+                    icon: "fa-list-check",
+                    onClick: (e) => redirect("task.html", true),
+                    selected: true
+                },
+                {
+                    name: "Settings",
+                    icon: "fa-gear",
+                    onClick: (e) => redirect("settings.html", true)
+                },
+                {
+                    name: "Withdraws",
+                    icon: "fa-money-bill",
+                    onClick: (e) => redirect("withdrawals.html", true)
+                }
+            ]
+        );
+    </script>
+</body>
+</html>

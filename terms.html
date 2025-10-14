@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Terms and Conditions</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-color: #7c3aed;
+      --success-color: #10b981;
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #ffffff;
+      font-family: "Exo", sans-serif;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      margin-top: 70px;
+      min-height: 100vh;
+    }
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      margin-top: 20px;
+      padding-bottom: 100px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    h1 {
+      font-family: "Outfit", sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #333333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-family: "Outfit", sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333333;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    p, li {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    ul {
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+    .back-button {
+      background: green;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-family: "Exo", sans-serif;
+      font-weight: 700;
+      color: white;
+      font-size: 1rem;
+      width: 90%;
+      max-width: 300px;
+      margin: 20px auto;
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <h1>Terms and Conditions</h1>
+    <p><strong>Last Updated:</strong> August 08, 2025</p>
+    <p>Welcome to RewardApp! These Terms and Conditions ("Terms") govern your use of our Telegram Mini App ("App"). By using the App, you agree to these Terms. If you don’t agree, please do not use the App.</p>
+    <h2>1. General Terms</h2>
+    <p><strong>1.1 Agreement:</strong> By creating an account or using the App, you enter a legally binding agreement with RewardApp.</p>
+    <p><strong>1.2 Age Requirement:</strong> You must be 18 or older to use the App. By using it, you confirm you meet this age requirement.</p>
+    <p><strong>1.3 Phone Verification:</strong> A verified phone number is required to access all App features.</p>
+    <h2>2. Your Account</h2>
+    <p><strong>2.1 Account Setup:</strong> You must provide accurate and complete information to create an account.</p>
+    <p><strong>2.2 One Account Only:</strong> Creating or using multiple accounts is prohibited and may lead to termination of all your accounts.</p>
+    <p><strong>2.3 Account Suspension:</strong> We may suspend or terminate your account at our discretion if you violate these Terms or for any other reason.</p>
+    <h2>3. Rewards and Features</h2>
+    <p><strong>3.1 Task Rewards:</strong> You can earn virtual "Rupees" or "Gems" by completing tasks, such as joining sponsored Telegram channels or bots. Rewards depend on task availability and completion.</p>
+    <p><strong>3.2 Referral Program:</strong> You may earn commissions from referred users’ earnings. We may change commission rates or rules at any time.</p>
+    <p><strong>3.3 Lucky Boxes & Scratch Cards:</strong> Rewards from these features are random, and specific outcomes are not guaranteed.</p>
+    <p><strong>3.4 Gems:</strong> Gems are virtual currency earned in the App, convertible to items like lucky boxes or scratch cards as specified in the App.</p>
+    <h2>4. User-Created Tasks and Crypto Deposits</h2>
+    <p><strong>4.1 Task Creation:</strong> You can create tasks (e.g., joining a chat or bot) by depositing cryptocurrency into your account.</p>
+    <p><strong>4.2 Task Details:</strong> You must provide accurate task information (e.g., join link, chat ID, name, image URL) and confirm you have the right to share it.</p>
+    <p><strong>4.3 No Liability:</strong> RewardApp is a platform intermediary and is not responsible for the success or content of user-created tasks or third-party channels/bots.</p>
+    <p><strong>4.4 Crypto Deposits:</strong> Cryptocurrency deposits are final payments for services, not investments. You accept all risks related to crypto transactions.</p>
+    <h2>5. Purchases and No Refunds</h2>
+    <p><strong>5.1 Badges:</strong> You can buy virtual badges using Telegram Stars.</p>
+    <p><strong>5.2 No Refunds:</strong> All purchases (badges, crypto deposits) are final, with no refunds.</p>
+    <p><strong>5.3 Payment Issues:</strong> Disputes over Telegram Stars payments should be resolved with Telegram, not RewardApp.</p>
+    <h2>6. Withdrawals</h2>
+    <p><strong>6.1 Options:</strong> You can withdraw earnings via bank transfer or Binance, as available in the App.</p>
+    <p><strong>6.2 Fees and Limits:</strong> Withdrawals may have fees and minimum amounts, clearly shown in the App.</p>
+    <p><strong>6.3 Accuracy:</strong> You are responsible for providing correct bank or Binance account details. We are not liable for losses due to incorrect information.</p>
+    <h2>7. Prohibited Actions</h2>
+    <p>You must not:</p>
+    <ul>
+      <li>Use the App for illegal activities.</li>
+      <li>Engage in fraud to manipulate tasks or earnings.</li>
+      <li>Use bots, scripts, or automation to interact with the App.</li>
+      <li>Attempt to bypass App security.</li>
+      <li>Harass, spam, or harm other users.</li>
+    </ul>
+    <h2>8. Liability and Disclaimer</h2>
+    <p><strong>8.1 As-Is Service:</strong> The App is provided "as is" without warranties. We don’t guarantee it will be error-free, secure, or always available.</p>
+    <p><strong>8.2 Limited Liability:</strong> We are not liable for indirect, incidental, or consequential damages (e.g., lost profits, data) from your use of the App.</p>
+    <p><strong>8.3 Taxes:</strong> You are responsible for all taxes related to your earnings or withdrawals.</p>
+    <h2>9. Governing Law</h2>
+    <p>These Terms are governed by the laws of India. Any disputes will be resolved in the courts of Mumbai, Maharashtra.</p>
+    <button class="back-button" onclick="window.location.href='profile.html'">Back to Profile</button>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'profile.html';
+    });
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    function initApp() {
+      if (!loadingScreen || !mainContent) {
+        console.error('Required DOM elements are missing');
+        Swal.fire({
+          icon: 'error',
+          title: 'Initialization Error',
+          text: 'Required elements not found. Please refresh the page.',
+          confirmButtonColor: 'var(--primary-color)',
+          background: '#121212',
+          color: '#e0e0e0'
+        });
+        return;
+      }
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      }, 1000);
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

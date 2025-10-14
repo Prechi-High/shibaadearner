@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gems History</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --negative-color: #ef4444;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: "Exo", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      margin-top: 70px;
+      flex-direction: column;
+      padding: 20px 15px 15px 15px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes rotate {
+      0% { transform: translate(-50%, -50%) rotateZ(0deg); }
+      100% { transform: translate(-50%, -50%) rotateZ(360deg); }
+    }
+    @keyframes rotateccw {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(-360deg); }
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .gems-history-icon {
+      width: 50px;
+      height: 50px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 2px;
+    }
+    .gems-history-title {
+      font-family: "Outfit", sans-serif;
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 700;
+    }
+    .history-container {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      max-height: 700px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .history-reason {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 2px;
+    }
+    .history-date {
+      font-size: 0.9rem;
+      color: #dce3de;
+    }
+    .history-amount {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-style: italic;
+      font-family: "Poppins", sans-serif;;
+      font-size: 1.5rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .history-amount.positive {
+      color: var(--success-color);
+    }
+    .history-amount.negative {
+      color: var(--negative-color);
+    }
+    .history-amount::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background-image: url('https://iili.io/FSkOON4.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .no-history-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      background: transparent;
+    }
+    .no-history-text {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    @media (max-width: 576px) {
+      .container {
+        padding: 15px 10px 10px 10px;
+      }
+      .gems-history-title {
+        font-size: 1.5rem;
+      }
+      .history-container {
+        padding: 12px;
+      }
+      .history-item {
+        padding: 10px 0;
+      }
+      .history-reason {
+        font-size: 1rem;
+      }
+      .history-date {
+        font-size: 0.8rem;
+      }
+      .history-amount {
+        font-size: 1.2rem;
+      }
+      .history-amount::before {
+        width: 20px;
+        height: 20px;
+      }
+      .no-history-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <div class="gems-history-icon"></div>
+        <h1 class="gems-history-title">Gems History</h1>
+      </div>
+    </div>
+
+    <div class="history-container" id="historyContainer">
+      <div class="history-list" id="historyList"></div>
+      <div class="no-history-container" id="noHistoryContainer">
+        <div class="no-history-text">No gems history available</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'tasks.html';
+    });
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const historyContainer = document.getElementById('historyContainer');
+    const historyList = document.getElementById('historyList');
+    const noHistoryContainer = document.getElementById('noHistoryContainer');
+
+    // Variables
+    let userData = null;
+    let currentInitData = null;
+
+    function initApp() {
+      if (!loadingScreen || !mainContent || !historyContainer || !historyList || !noHistoryContainer) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+
+      currentInitData = tg.initData;
+      fetchGemsHistory();
+    }
+
+    async function fetchGemsHistory() {
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+
+        const [response] = await Promise.all([
+          fetch('api/get-gems-record.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              init_data: currentInitData
+            })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+
+        const data = await response.json();
+
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+
+        userData = data.result;
+        displayGemsHistory();
+
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching gems history:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+
+    function displayGemsHistory() {
+      if (!userData) {
+        console.error('userData is null');
+        showError('Data Error', 'Gems history data not available.');
+        return;
+      }
+
+      historyList.innerHTML = '';
+
+      if (userData.length > 0) {
+        historyList.style.display = 'block';
+        noHistoryContainer.style.display = 'none';
+
+        userData.forEach(record => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          const isPositive = record.amount >= 0;
+          const amountPrefix = isPositive ? '+' : '-';
+          historyItem.innerHTML = `
+            <div class="history-details">
+              <div class="history-reason">${record.reason}</div>
+              <div class="history-date">${record.date}</div>
+            </div>
+            <div class="history-amount ${isPositive ? 'positive' : 'negative'}">
+              ${amountPrefix}${Math.abs(record.amount)}
+            </div>
+          `;
+          historyList.appendChild(historyItem);
+        });
+      } else {
+        historyList.style.display = 'none';
+        noHistoryContainer.style.display = 'flex';
+      }
+    }
+
+    function showSuccess(title, text) {
+      Swal.fire({
+        icon: 'success',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

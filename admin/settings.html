@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="nav-footer.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+       
+        .navbar {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+       
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+       
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+       
+        .settings-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+       
+        .settings-header:hover {
+            background: linear-gradient(135deg, #004a99 0%, #0066cc 100%);
+        }
+       
+        .settings-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+       
+        .settings-body {
+            padding: 1.5rem;
+            display: none;
+        }
+       
+        .settings-body.show {
+            display: block;
+        }
+       
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+       
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+       
+        .form-control:focus, .form-select:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+       
+        .btn-primary {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+       
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 86, 179, 0.3);
+        }
+       
+        .badge-level {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+       
+        .reward-range {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+       
+        .remove-range {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+       
+        .add-range-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+        }
+       
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+       
+        .modal-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+       
+        .modal-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+        }
+       
+        .modal-body {
+            padding: 2rem;
+        }
+       
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+       
+        .loading-spinner {
+            font-size: 3rem;
+            color: #0056b3;
+            animation: spin 1s linear infinite;
+        }
+       
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+       
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            .settings-body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="text-center">
+            <i class="fas fa-spinner loading-spinner"></i>
+            <div class="mt-3 fw-medium">Loading...</div>
+        </div>
+    </div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>Admin Authentication
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="adminPassword" class="form-label fw-medium">Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Enter secure password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Secure Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cogs"></i>Settings Panel
+            </a>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="main-container" id="mainContent" style="display: none;">
+        <!-- Badge Settings -->
+        <div class="settings-card">
+            <div class="settings-header" onclick="toggleSection('badgeSettings')">
+                <h5 class="mb-0">
+                    <i class="fas fa-medal me-2"></i>Badge Settings
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h5>
+            </div>
+            <div class="settings-body" id="badgeSettings">
+                <p class="text-muted mb-4">Configure badge pricing and task reward increase percentages for different badge levels. Each badge level provides users with enhanced task rewards.</p>
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="mb-3">Badge Pricing</h6>
+                        <div id="badgePricing"></div>
+                        <button class="btn btn-primary" onclick="updateBadgePricing()">
+                            <i class="fas fa-save me-2"></i>Update Badge Pricing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Daily Check-in Rewards -->
+        <div class="settings-card">
+            <div class="settings-header" onclick="toggleSection('checkinSettings')">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>Daily Check-in Rewards
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h5>
+            </div>
+            <div class="settings-body" id="checkinSettings">
+                <p class="text-muted mb-4">Set daily check-in rewards for each day of the week. Users receive these rewards when they check in daily.</p>
+                <div class="row" id="checkinRewards"></div>
+                <button class="btn btn-primary" onclick="updateCheckinRewards()">
+                    <i class="fas fa-save me-2"></i>Update Check-in Rewards
+                </button>
+            </div>
+        </div>
+        <!-- Scratch Card Rewards -->
+        <div class="settings-card">
+            <div class="settings-header" onclick="toggleSection('scratchSettings')">
+                <h5 class="mb-0">
+                    <i class="fas fa-ticket-alt me-2"></i>Scratch Card Rewards
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h5>
+            </div>
+            <div class="settings-body" id="scratchSettings">
+                <p class="text-muted mb-4">Configure scratch card reward ranges based on user balance. Users with different balance ranges will receive rewards within the specified ranges.</p>
+                <div id="scratchRewards"></div>
+                <button class="btn add-range-btn" onclick="addScratchRange()">
+                    <i class="fas fa-plus me-2"></i>Add Range
+                </button>
+                <div class="mt-3">
+                    <button class="btn btn-primary" onclick="updateScratchRewards()">
+                        <i class="fas fa-save me-2"></i>Update Scratch Rewards
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Lucky Box Rewards -->
+        <div class="settings-card">
+            <div class="settings-header" onclick="toggleSection('luckyboxSettings')">
+                <h5 class="mb-0">
+                    <i class="fas fa-gift me-2"></i>Lucky Box Rewards
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h5>
+            </div>
+            <div class="settings-body" id="luckyboxSettings">
+                <p class="text-muted mb-4">Set up lucky box reward ranges based on user balance. Similar to scratch cards, users receive random rewards within their balance tier.</p>
+                <div id="luckyboxRewards"></div>
+                <button class="btn add-range-btn" onclick="addLuckyboxRange()">
+                    <i class="fas fa-plus me-2"></i>Add Range
+                </button>
+                <div class="mt-3">
+                    <button class="btn btn-primary" onclick="updateLuckyboxRewards()">
+                        <i class="fas fa-save me-2"></i>Update Lucky Box Rewards
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- General Settings -->
+        <div class="settings-card">
+            <div class="settings-header" onclick="toggleSection('generalSettings')">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>General Settings
+                    <i class="fas fa-chevron-down float-end"></i>
+                </h5>
+            </div>
+            <div class="settings-body" id="generalSettings">
+                <p class="text-muted mb-4">Configure general application settings including rewards, fees, API keys, and system parameters.</p>
+                <form id="generalSettingsForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Client Task Reward</label>
+                            <small class="form-text text-muted d-block mb-2">Reward amount given to users for completing client tasks</small>
+                            <input type="number" class="form-control" id="clientTaskReward" step="0.001">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum Withdrawal</label>
+                            <small class="form-text text-muted d-block mb-2">Minimum amount users can withdraw from their account</small>
+                            <input type="number" class="form-control" id="minWithdraw" step="0.01">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Referral Commission (%)</label>
+                            <small class="form-text text-muted d-block mb-2">Percentage commission given to users for successful referrals</small>
+                            <input type="number" class="form-control" id="referralCommission" step="0.01">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Scratch Card Price (💎)</label>
+                            <small class="form-text text-muted d-block mb-2">Cost for users to purchase a scratch card</small>
+                            <input type="number" class="form-control" id="scratchCardPrice" step="0.001">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Lucky Box Price (💎)</label>
+                            <small class="form-text text-muted d-block mb-2">Cost for users to purchase a lucky box</small>
+                            <input type="number" class="form-control" id="luckyBoxPrice" step="0.001">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Check-in Without Ads (%)</label>
+                            <small class="form-text text-muted d-block mb-2">How much percentage less reward user gets if they check-in without ads</small>
+                            <input type="number" class="form-control" id="checkInWithoutAds">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ad Task Interval</label>
+                            <small class="form-text text-muted d-block mb-2">Time interval between ad tasks (in minutes)</small>
+                            <input type="number" class="form-control" id="adTaskInterval">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ad Task Reward (💎)</label>
+                            <small class="form-text text-muted d-block mb-2">Reward amount for completing ad tasks</small>
+                            <input type="number" class="form-control" id="adTaskReward">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Price Per Members ($)</label>
+                            <small class="form-text text-muted d-block mb-2">Cost per member for users to add a task</small>
+                            <input type="number" class="form-control" id="pricePerMembers" step="0.00001">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum Order</label>
+                            <small class="form-text text-muted d-block mb-2">Minimum number of members user can choose while adding a task using USDT</small>
+                            <input type="number" class="form-control" id="minOrder">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Maximum Order</label>
+                            <small class="form-text text-muted d-block mb-2">Maximum number of members user can choose while adding a task using USDT</small>
+                            <input type="number" class="form-control" id="maxOrder">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">OxaPay API Key</label>
+                            <small class="form-text text-muted d-block mb-2">API key for OxaPay payment integration</small>
+                            <input type="text" class="form-control" id="oxapayApi">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">New Admin Password</label>
+                            <small class="form-text text-muted d-block mb-2">Leave empty to keep current admin password</small>
+                            <input type="password" class="form-control" id="newAdminPassword" placeholder="Leave empty to keep current">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="updateGeneralSettings()">
+                        <i class="fas fa-save me-2"></i>Update General Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let adminPassword = '';
+        let currentSettings = {};
+
+        // Cookie functions
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPassword = getCookie('admin_password');
+            if (savedPassword) {
+                adminPassword = savedPassword;
+                document.getElementById('mainContent').style.display = 'block';
+                loadSettings();
+            } else {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const response = await fetch('api/settings.php/getall', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: password })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    adminPassword = password;
+                    setCookie('admin_password', password, 1);
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    document.getElementById('mainContent').style.display = 'block';
+                    loadSettings();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'Welcome to the settings dashboard!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: data.message || 'Invalid admin password'
+                    });
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Unable to connect to server'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        // Load all settings
+        async function loadSettings() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/getall', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok && data.result.length > 0) {
+                    currentSettings = data.result[0];
+                    populateSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to load settings'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load settings'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Populate all settings forms
+        function populateSettings() {
+            populateBadgeSettings();
+            populateCheckinRewards();
+            populateScratchRewards();
+            populateLuckyboxRewards();
+            populateGeneralSettings();
+        }
+
+        // Populate badge settings
+        function populateBadgeSettings() {
+            const badgePricing = document.getElementById('badgePricing');
+            badgePricing.innerHTML = '';
+            if (currentSettings.badges) {
+                currentSettings.badges.forEach(badge => {
+                    badgePricing.innerHTML += `
+                        <div class="badge-level">
+                            <h6>${badge.level.toUpperCase()}</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" class="form-control" id="price_${badge.level}" value="${badge.price}" step="0.01">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Task Increase (%)</label>
+                                    <input type="number" class="form-control" id="task_increase_${badge.level}" value="${badge.task_increase}" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Populate check-in rewards
+        function populateCheckinRewards() {
+            const container = document.getElementById('checkinRewards');
+            container.innerHTML = '';
+            if (currentSettings.daily_checkin_rewards) {
+                Object.keys(currentSettings.daily_checkin_rewards).forEach(day => {
+                    const dayNum = day.replace('day_', '');
+                    container.innerHTML += `
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <label class="form-label">Day ${dayNum}</label>
+                            <input type="number" class="form-control" id="checkin_${day}" value="${currentSettings.daily_checkin_rewards[day]}" step="0.01">
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Populate scratch rewards
+        function populateScratchRewards() {
+            const container = document.getElementById('scratchRewards');
+            container.innerHTML = '';
+            if (currentSettings.scratch_reward) {
+                currentSettings.scratch_reward.forEach((reward, index) => {
+                    container.innerHTML += `
+                        <div class="reward-range" data-index="${index}">
+                            <button class="remove-range" onclick="removeScratchRange(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label">Balance Range</label>
+                                    <input type="text" class="form-control scratch-balance" value="${reward.balance}" placeholder="0 - 10">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Reward Range</label>
+                                    <input type="text" class="form-control scratch-reward" value="${reward.reward}" placeholder="50 - 60">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Populate lucky box rewards
+        function populateLuckyboxRewards() {
+            const container = document.getElementById('luckyboxRewards');
+            container.innerHTML = '';
+            if (currentSettings.luckybox_reward) {
+                currentSettings.luckybox_reward.forEach((reward, index) => {
+                    container.innerHTML += `
+                        <div class="reward-range" data-index="${index}">
+                            <button class="remove-range" onclick="removeLuckyboxRange(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label">Balance Range</label>
+                                    <input type="text" class="form-control luckybox-balance" value="${reward.balance}" placeholder="0 - 10">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Reward Range</label>
+                                    <input type="text" class="form-control luckybox-reward" value="${reward.reward}" placeholder="50 - 60">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // Populate general settings
+        function populateGeneralSettings() {
+            document.getElementById('clientTaskReward').value = currentSettings.client_task_reward || '';
+            document.getElementById('minWithdraw').value = currentSettings.min_withdraw || '';
+            document.getElementById('referralCommission').value = currentSettings.referral_commission || '';
+            document.getElementById('scratchCardPrice').value = currentSettings.scratch_card_price || '';
+            document.getElementById('luckyBoxPrice').value = currentSettings.lucky_box_price || '';
+            document.getElementById('checkInWithoutAds').value = currentSettings.check_in_without_ads || '';
+            document.getElementById('adTaskInterval').value = currentSettings.ad_task_interval || '';
+            document.getElementById('adTaskReward').value = currentSettings.ad_task_reward || '';
+            document.getElementById('pricePerMembers').value = currentSettings.price_per_members || '';
+            document.getElementById('minOrder').value = currentSettings.min_order || '';
+            document.getElementById('maxOrder').value = currentSettings.max_order || '';
+            document.getElementById('oxapayApi').value = currentSettings.oxapay_api || '';
+        }
+
+        // Update badge pricing
+        async function updateBadgePricing() {
+            const badges = {};
+            ['lv1', 'lv2', 'lv3', 'lv4', 'lv5', 'lv6'].forEach(level => {
+                const price = document.getElementById(`price_${level}`)?.value;
+                const taskIncrease = document.getElementById(`task_increase_${level}`)?.value;
+                if (price && taskIncrease) {
+                    badges[level] = {
+                        price: parseFloat(price),
+                        task_increase: parseFloat(taskIncrease)
+                    };
+                }
+            });
+            if (Object.keys(badges).length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill at least one badge level'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/set-badges-price', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        badges: badges
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Badge pricing updated successfully'
+                    });
+                    loadSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update badge pricing'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Update check-in rewards
+        async function updateCheckinRewards() {
+            const rewards = {};
+            ['day_1', 'day_2', 'day_3', 'day_4', 'day_5', 'day_6', 'day_7'].forEach(day => {
+                const value = document.getElementById(`checkin_${day}`)?.value;
+                if (value) {
+                    rewards[day] = parseFloat(value);
+                }
+            });
+            if (Object.keys(rewards).length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill at least one day reward'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/set-check-in-reward', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        ...rewards
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Check-in rewards updated successfully'
+                    });
+                    loadSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update check-in rewards'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Add scratch range
+        function addScratchRange() {
+            const container = document.getElementById('scratchRewards');
+            const index = container.children.length;
+            container.innerHTML += `
+                <div class="reward-range" data-index="${index}">
+                    <button class="remove-range" onclick="removeScratchRange(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Balance Range</label>
+                            <input type="text" class="form-control scratch-balance" placeholder="0 - 10">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Reward Range</label>
+                            <input type="text" class="form-control scratch-reward" placeholder="50 - 60">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Remove scratch range
+        function removeScratchRange(index) {
+            const element = document.querySelector(`#scratchRewards .reward-range[data-index="${index}"]`);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // Add lucky box range
+        function addLuckyboxRange() {
+            const container = document.getElementById('luckyboxRewards');
+            const index = container.children.length;
+            container.innerHTML += `
+                <div class="reward-range" data-index="${index}">
+                    <button class="remove-range" onclick="removeLuckyboxRange(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Balance Range</label>
+                            <input type="text" class="form-control luckybox-balance" placeholder="0 - 10">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Reward Range</label>
+                            <input type="text" class="form-control luckybox-reward" placeholder="50 - 60">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Remove lucky box range
+        function removeLuckyboxRange(index) {
+            const element = document.querySelector(`#luckyboxRewards .reward-range[data-index="${index}"]`);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // Update scratch rewards
+        async function updateScratchRewards() {
+            const scratchReward = [];
+            const ranges = document.querySelectorAll('#scratchRewards .reward-range');
+            ranges.forEach(range => {
+                const balance = range.querySelector('.scratch-balance').value;
+                const reward = range.querySelector('.scratch-reward').value;
+                if (balance && reward) {
+                    scratchReward.push({ balance, reward });
+                }
+            });
+            if (scratchReward.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please add at least one reward range'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/card-reward', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        scratch_reward: scratchReward
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Scratch rewards updated successfully'
+                    });
+                    loadSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update scratch rewards'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Update lucky box rewards
+        async function updateLuckyboxRewards() {
+            const luckyboxReward = [];
+            const ranges = document.querySelectorAll('#luckyboxRewards .reward-range');
+            ranges.forEach(range => {
+                const balance = range.querySelector('.luckybox-balance').value;
+                const reward = range.querySelector('.luckybox-reward').value;
+                if (balance && reward) {
+                    luckyboxReward.push({ balance, reward });
+                }
+            });
+            if (luckyboxReward.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please add at least one reward range'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/gift-reward', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        luckybox_reward: luckyboxReward
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Lucky box rewards updated successfully'
+                    });
+                    loadSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update lucky box rewards'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Update general settings
+        async function updateGeneralSettings() {
+            const settings = {};
+            const fields = [
+                'clientTaskReward', 'minWithdraw', 'referralCommission', 'scratchCardPrice',
+                'luckyBoxPrice',
+                'checkInWithoutAds', 'adTaskInterval', 'adTaskReward', 'pricePerMembers',
+                'minOrder', 'maxOrder', 'oxapayApi', 'newAdminPassword'
+            ];
+            const fieldMapping = {
+                'clientTaskReward': 'client_task_reward',
+                'minWithdraw': 'min_withdraw',
+                'referralCommission': 'referral_commission',
+                'scratchCardPrice': 'scratch_card_price',
+                'luckyBoxPrice': 'lucky_box_price',
+                'checkInWithoutAds': 'check_in_without_ads',
+                'adTaskInterval': 'ad_task_interval',
+                'adTaskReward': 'ad_task_reward',
+                'pricePerMembers': 'price_per_members',
+                'minOrder': 'min_order',
+                'maxOrder': 'max_order',
+                'oxapayApi': 'oxapay_api',
+                'newAdminPassword': 'new_admin_password'
+            };
+            fields.forEach(field => {
+                const value = document.getElementById(field).value;
+                if (value) {
+                    const apiField = fieldMapping[field];
+                    if (['clientTaskReward', 'minWithdraw', 'referralCommission', 'scratchCardPrice', 'luckyBoxPrice', 'pricePerMembers'].includes(field)) {
+                        settings[apiField] = parseFloat(value);
+                    } else if (['checkInWithoutAds', 'adTaskInterval', 'adTaskReward', 'minOrder', 'maxOrder'].includes(field)) {
+                        settings[apiField] = parseInt(value);
+                    } else {
+                        settings[apiField] = value;
+                    }
+                }
+            });
+            if (Object.keys(settings).length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill at least one field'
+                });
+                return;
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/settings.php/normal-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        admin_password: adminPassword,
+                        ...settings
+                    })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'General settings updated successfully'
+                    });
+                    if (settings.new_admin_password) {
+                        adminPassword = settings.new_admin_password;
+                        setCookie('admin_password', adminPassword, 1);
+                    }
+                    loadSettings();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message
+                        });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update general settings'
+                });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        // Toggle section
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            const icon = header.querySelector('.fa-chevron-down, .fa-chevron-up');
+            if (section.classList.contains('show')) {
+                section.classList.remove('show');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                section.classList.add('show');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            deleteCookie('admin_password');
+            location.reload();
+        }
+        
+        function redirect(url, vibrate) {
+            if (vibrate && navigator.vibrate) navigator.vibrate(7);
+            window.location.href = url;
+        }
+        navFooter.add(
+            {
+                theme: 'dark',
+                selectedColor: 'blue'
+            },
+            [
+                {
+                    name: "Dashboard",
+                    icon: "fa-house",
+                    onClick: (e) => redirect("index.html", true)
+                },
+                {
+                    name: "Users",
+                    icon: "fa-user",
+                    onClick: (e) => redirect("users.html", true)
+                },
+                {
+                    name: "Gift Codes",
+                    icon: "fa-gift",
+                    onClick: (e) => redirect("gift-code.html", true)
+                },
+                {
+                    name: "Task",
+                    icon: "fa-list-check",
+                    onClick: (e) => redirect("task.html", true)
+                },
+                {
+                    name: "Settings",
+                    icon: "fa-gear",
+                    onClick: (e) => redirect("settings.html", true),
+                    selected: true
+                },
+                {
+                    name: "Withdraws",
+                    icon: "fa-money-bill",
+                    onClick: (e) => redirect("withdrawals.html", true)
+                }
+            ]
+        );
+    </script>
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lucky Box</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
+  <!-- Gigapub ad script -->
+  <script src="https://ad.gigapub.tech/script?id=1901"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Exo:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ 
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+    }
+    body {
+      background: url("https://i.ibb.co/HQKtNRs/image-2.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 70px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: transparent;
+    }
+    .top-section {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-size: 1.1rem;
+      color: white;
+    }
+    .user-info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .user-info-item:last-child {
+      border-bottom: none;
+    }
+    .user-info-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-info-label::before {
+      content: '';
+      width: 24px;
+      height: 24px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .user-id .user-info-label::before {
+      background-image: url('https://iili.io/F8jCjlR.png');
+    }
+    .balance .user-info-label::before {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/01/USDT_Logo.png');
+    }
+    .lucky-boxes .user-info-label::before {
+      background-image: url('https://iili.io/FSkQGWX.png');
+    }
+    .user-info-value {
+      color: var(--gold-color);
+      font-family: normal;
+    }
+    .lucky-box-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+    .lucky-box {
+      width: 100%;
+      max-width: 350px;
+      aspect-ratio: 1 / 1;
+      cursor: pointer;
+    }
+    .no-lucky-box {
+      width: 100%;
+      max-width: 350px;
+      aspect-ratio: 1 / 1;
+      display: none;
+    }
+    .tap-to-open-text {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      margin-top: 10px;
+    }
+    .no-lucky-box-text {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      font-style: italic;
+      color: white;
+      margin-top: 15px;
+      display: none;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .lucky-box-highlight {
+      color: var(--gold-color);
+    }
+    .invite-button {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-weight: 700;
+      width: 70%;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      margin-top: 15px;
+      align-items: center;
+      gap: 15px;
+    }
+    .reward-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .reward-popup-overlay.active {
+      display: flex;
+    }
+    .reward-popup {
+      background: transparent;
+      width: 90%;
+      max-width: 330px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .reward-image {
+      width: 100%;
+      max-width: 300px;
+      object-fit: contain;
+      position: relative;
+    }
+    
+    /* Added styles for amount overlay on image */
+    .reward-image-container {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .reward-amount {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      font-family: normal;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      color: #B57F2E;
+      font-weight: 400;
+      padding: 8px 16px;
+      z-index: 10;
+    }
+    
+    /* Added loading state for images */
+    .image-loading {
+      opacity: 0.5;
+      filter: blur(2px);
+    }
+    
+    .image-loaded {
+      opacity: 1;
+      filter: none;
+      transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 10px;
+      }
+      .top-section {
+        padding: 10px;
+      }
+      .user-info {
+        font-size: 1rem;
+      }
+      .lucky-box, .no-lucky-box {
+        max-width: 320px;
+      }
+      .no-lucky-box-text {
+        font-size: 1rem;
+      }
+      .invite-button {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+      }
+      .reward-popup {
+        width: 95%;
+        max-width: 300px;
+      }
+      .reward-amount {
+        font-size: 1.6rem;
+        padding: 6px 12px;
+      }
+      
+      /* Added responsive styles for image container */
+      .reward-image-container {
+        max-width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <div class="user-info">
+          <div class="user-info-item user-id">
+            <div class="user-info-label">User ID</div>
+            <div class="user-info-value" id="userId">N/A</div>
+          </div>
+          <div class="user-info-item balance">
+            <div class="user-info-label">Balance</div>
+            <div class="user-info-value" id="balance">$0.00</div>
+          </div>
+          <div class="user-info-item lucky-boxes">
+            <div class="user-info-label">Lucky Boxes</div>
+            <div class="user-info-value" id="luckyBoxes">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lucky-box-container">
+      <lottie-player id="luckyBox" class="lucky-box" src="luckybox.json" background="transparent" speed="1" loop></lottie-player>
+      <lottie-player id="noLuckyBox" class="no-lucky-box" src="luckybox.json" background="transparent" speed="1" loop></lottie-player>
+      <div class="tap-to-open-text" id="tapToOpenText">Tap to open</div>
+      <div class="no-lucky-box-text" id="noLuckyBoxText">Invite friends to get <span class="lucky-box-highlight">Lucky Box</span></div>
+      <button class="invite-button" id="inviteButton" onclick="window.location.href='invitation.html'">
+        <i class="fa-solid fa-share-nodes"></i>
+        Invite Friends
+      </button>
+    </div>
+    <div class="reward-popup-overlay" id="rewardPopupOverlay">
+      <div class="reward-popup" id="rewardPopup">
+        <!-- Wrapped image in container for overlay positioning -->
+        <div class="reward-image-container">
+          <img id="rewardImage" class="reward-image image-loading" src="/placeholder.svg" alt="Reward Image">
+          <div class="reward-amount" id="rewardAmount">$0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+ 
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'index.html';
+    });
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const userId = document.getElementById('userId');
+    const balance = document.getElementById('balance');
+    const luckyBoxes = document.getElementById('luckyBoxes');
+    const luckyBox = document.getElementById('luckyBox');
+    const noLuckyBox = document.getElementById('noLuckyBox');
+    const tapToOpenText = document.getElementById('tapToOpenText');
+    const noLuckyBoxText = document.getElementById('noLuckyBoxText');
+    const inviteButton = document.getElementById('inviteButton');
+    const rewardPopupOverlay = document.getElementById('rewardPopupOverlay');
+    const rewardPopup = document.getElementById('rewardPopup');
+    const rewardImage = document.getElementById('rewardImage');
+    const rewardAmount = document.getElementById('rewardAmount');
+    // Variables
+    let userData = null;
+    let currentInitData = null;
+    let isOpening = false;
+    
+    /* Improved image preloading with better error handling and loading states */
+    let preloadedImages = new Map();
+    let preloadingComplete = false;
+    
+    function preloadImages() {
+      const imagePromises = [];
+      
+      for (let i = 1; i <= 31; i++) {
+        const promise = new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            preloadedImages.set(i, img.src);
+            resolve(i);
+          };
+          img.onerror = () => {
+            console.warn(`Failed to preload image ${i}`);
+            // Still resolve to not block other images
+            resolve(i);
+          };
+          img.src = `img/player-cards/${i}.png`;
+        });
+        imagePromises.push(promise);
+      }
+      
+      Promise.allSettled(imagePromises).then(() => {
+        preloadingComplete = true;
+        console.log(`Preloaded ${preloadedImages.size} images successfully`);
+      });
+    }
+    function initApp() {
+      if (!loadingScreen || !mainContent || !luckyBox) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      luckyBox.addEventListener('click', openLuckyBox);
+      rewardPopupOverlay.addEventListener('click', closeRewardPopup);
+      noLuckyBox.addEventListener('complete', () => {
+        setTimeout(() => {
+          noLuckyBox.play();
+        }, 100);
+      });
+      preloadImages();
+      fetchUserData();
+    }
+    async function fetchUserData() {
+      try {
+        const [response] = await Promise.all([
+          fetch('api/dashboard.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              init_data: currentInitData
+            })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) {
+          if (data.message === 'not-found') {
+            window.location.href = 'register.html';
+            return;
+          } else {
+            showError('Error', data.message);
+            return;
+          }
+        }
+        userData = data.result;
+        displayUserData();
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+    function displayUserData() {
+      if (!userData) {
+        console.error('userData is null');
+        showError('Data Error', 'User data not available.');
+        return;
+      }
+      userId.textContent = tg.initDataUnsafe?.user?.id || 'N/A';
+      balance.textContent = `$${(userData.balance || 0).toFixed(2)}`;
+      luckyBoxes.textContent = userData.lucky_boxes || 0;
+      if (userData.lucky_boxes > 0) {
+        luckyBox.style.display = 'block';
+        luckyBox.setAttribute('loop', '');
+        luckyBox.stop();
+        tapToOpenText.style.display = 'block';
+        noLuckyBox.style.display = 'none';
+        noLuckyBoxText.style.display = 'none';
+        inviteButton.style.display = 'none';
+      } else {
+        luckyBox.style.display = 'none';
+        tapToOpenText.style.display = 'none';
+        noLuckyBox.style.display = 'block';
+        noLuckyBox.setAttribute('loop', '');
+        noLuckyBox.play();
+        noLuckyBoxText.style.display = 'block';
+        inviteButton.style.display = 'flex';
+      }
+    }
+    async function openLuckyBox() {
+      if (isOpening || userData.lucky_boxes <= 0) return;
+      isOpening = true;
+
+      // Show GigaPub ad before opening the box if available
+      try {
+        if (typeof window.showGiga === 'function') {
+          await window.showGiga();
+        } else {
+          console.warn('window.showGiga is not available — continuing without ad');
+        }
+      } catch (adError) {
+        console.warn('Giga ad failed or was dismissed:', adError);
+        // Proceed to open box even if ad fails or is dismissed
+      }
+
+      // Start open animation after ad (or immediately if no ad)
+      luckyBox.removeAttribute('loop');
+      luckyBox.play();
+
+      try {
+        const response = await fetch('api/open-luckybox.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            init_data: currentInitData
+          })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          isOpening = false;
+          luckyBox.stop();
+          showError('Error', data.message);
+          return;
+        }
+        
+        /* Reduced delay and show popup immediately after animation */
+        setTimeout(() => {
+          luckyBox.stop();
+          showRewardPopup(data.result.amount);
+          userData.lucky_boxes -= 1;
+          userData.balance = parseFloat(data.result.new_balance);
+          displayUserData();
+          isOpening = false;
+        }, 1000); // Reduced from 2000ms to 1000ms
+        
+      } catch (error) {
+        isOpening = false;
+        luckyBox.stop();
+        console.error('Error opening lucky box:', error);
+        showError('Network Error', 'Failed to open lucky box. Please try again.');
+      }
+    }
+    
+    /* Improved reward popup with better image loading and immediate display */
+    function showRewardPopup(amount) {
+      const randomImage = Math.floor(Math.random() * 31) + 1;
+      const imageSrc = `img/player-cards/${randomImage}.png`;
+      
+      // Set amount immediately
+      rewardAmount.textContent = `$${parseFloat(amount).toFixed(2)}`;
+      
+      // Handle image loading with fallback
+      rewardImage.classList.add('image-loading');
+      rewardImage.onload = function() {
+        this.classList.remove('image-loading');
+        this.classList.add('image-loaded');
+      };
+      
+      rewardImage.onerror = function() {
+        console.warn(`Failed to load reward image: ${imageSrc}`);
+        // Try a fallback image or use a default
+        this.src = `img/player-cards/1.png`;
+        this.classList.remove('image-loading');
+        this.classList.add('image-loaded');
+      };
+      
+      // Use preloaded image if available, otherwise load directly
+      if (preloadedImages.has(randomImage)) {
+        rewardImage.src = preloadedImages.get(randomImage);
+      } else {
+        rewardImage.src = imageSrc;
+      }
+      
+      // Show popup immediately
+      rewardPopupOverlay.classList.add('active');
+      
+      if (typeof party !== 'undefined') {
+        party.confetti(rewardPopup, {
+          count: party.variation.range(80, 120),
+          spread: party.variation.range(50, 70),
+          size: party.variation.range(0.8, 1.2),
+          shapes: ['square', 'circle'],
+          colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#FD79A8']
+        });
+        party.sparkles(rewardPopup, {
+          count: party.variation.range(30, 50),
+          speed: party.variation.range(100, 200),
+          colors: ['#FFD700', '#FFA500', '#FF8C00']
+        });
+      }
+      
+      tg.HapticFeedback.notificationOccurred('success');
+      
+      /* Increased auto-close time to 4 seconds for better user experience */
+      setTimeout(closeRewardPopup, 4000);
+    }
+
+    function closeRewardPopup() {
+      rewardPopupOverlay.classList.remove('active');
+      tg.HapticFeedback.selectionChanged();
+    }
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

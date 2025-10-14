@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ranks</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      user-select: none;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 70px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+      position: relative;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .rank-icon {
+      width: 50px;
+      height: 50px;
+      background-image: url('img/rank2.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 5px;
+    }
+    .rank-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 600;
+    }
+    .tab-navigation {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+    .tab-button {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .tab-button.active {
+      background: rgba(255, 235, 59, 0.2);
+      border: 1px solid rgba(255, 235, 59, 0.5);
+      color: var(--gold-color);
+      font-weight: 700;
+    }
+    .rank-list-container {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 100px;
+      min-height: 200px;
+      max-height: 55vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .rank-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .rank-number {
+      font-size: 1.2rem;
+      font-weight: 600;
+      font-style: italic;
+      color: #c95e00;
+      width: 28px;
+      flex: 0 0 auto;
+    }
+    .rank-icon-png {
+      width: 30px;
+      height: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      flex: 0 0 auto;
+    }
+    .rank-1 { background-image: url('img/rank-1.png'); }
+    .rank-2 { background-image: url('img/rank-2.png'); }
+    .rank-3 { background-image: url('img/rank-3.png'); }
+    .rank-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60vw;
+    }
+    .rank-right {
+      font-size: 1rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--gold-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .my-rank-section {
+      position: fixed;
+      bottom: 20px;
+      left: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
+    }
+    .my-rank-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .my-rank-profile-pic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+    }
+    .my-rank-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+    }
+    .my-rank-bottom {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .my-rank-rank, .my-rank-invites {
+      font-size: 1rem;
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .my-rank-rank {
+      color: var(--gold-color);
+    }
+    .my-rank-invites {
+      color: var(--success-color);
+    }
+    .no-rank-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+    }
+    .no-rank-text {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      font-style: italic;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <div class="rank-icon"></div>
+        <h1 class="rank-title">Top Invitation Ranks</h1>
+      </div>
+      <div class="tab-navigation">
+        <button class="tab-button" data-period="today" id="dailyTab"><i class="fas fa-calendar-day"></i> Daily</button>
+        <button class="tab-button" data-period="this_week" id="weeklyTab"><i class="fas fa-calendar-week"></i> Weekly</button>
+        <button class="tab-button active" data-period="all_time" id="allTimeTab"><i class="fas fa-calendar"></i> All Time</button>
+      </div>
+    </div>
+    <div class="rank-list-container">
+      <div id="rankList"></div>
+    </div>
+    <div class="my-rank-section" id="myRankSection">
+      <div class="my-rank-top">
+        <div id="myProfilePic" class="my-rank-profile-pic"></div>
+        <span id="myName" class="my-rank-name"></span>
+      </div>
+      <div class="my-rank-bottom">
+        <div class="my-rank-rank"><i class="fas fa-trophy"></i> <span id="myRank"></span></div>
+        <div class="my-rank-invites"><i class="fas fa-user"></i> <span id="myInvites"></span></div>
+      </div>
+    </div>
+    <div class="no-rank-container" id="noRankContainer">
+      <div class="no-rank-text" id="noRankText">No referral activity in this period</div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => window.location.href = 'index.html');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const rankList = document.getElementById('rankList');
+    const myProfilePic = document.getElementById('myProfilePic');
+    const myName = document.getElementById('myName');
+    const myRank = document.getElementById('myRank');
+    const myInvites = document.getElementById('myInvites');
+    const noRankContainer = document.getElementById('noRankContainer');
+    const noRankText = document.getElementById('noRankText');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    let allRankData = null;
+    let currentPeriod = 'all_time';
+    let currentInitData = null;
+    function initApp() {
+      currentInitData = tg.initData;
+      tabButtons.forEach(button => button.addEventListener('click', handleTabClick));
+      fetchRanks();
+    }
+    async function handleTabClick(event) {
+      const clickedPeriod = event.currentTarget.dataset.period;
+      if (clickedPeriod === currentPeriod) return;
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      currentPeriod = clickedPeriod;
+      displayRanks();
+    }
+    async function fetchRanks() {
+      try {
+        const [response] = await Promise.all([
+          fetch('api/ranks.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ init_data: currentInitData })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) { showError('Error', data.message); return; }
+        allRankData = data.result;
+        displayRanks();
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch {
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+    function displayRanks() {
+      if (!allRankData) { showError('Data Error', 'Ranks data not available.'); return; }
+      const currentData = allRankData[currentPeriod];
+      if (!currentData) { showError('Data Error', `No data for ${currentPeriod}.`); return; }
+      rankList.innerHTML = '';
+      if (currentData.top_referrers && currentData.top_referrers.length > 0) {
+        rankList.style.display = 'block';
+        noRankContainer.style.display = 'none';
+        currentData.top_referrers.forEach((user, index) => {
+          const rankItem = document.createElement('div');
+          rankItem.className = 'rank-item';
+          let rankElement = '';
+          if (index === 0) rankElement = '<div class="rank-icon-png rank-1"></div>';
+          else if (index === 1) rankElement = '<div class="rank-icon-png rank-2"></div>';
+          else if (index === 2) rankElement = '<div class="rank-icon-png rank-3"></div>';
+          else rankElement = `<div class="rank-number">${index + 1}</div>`;
+          rankItem.innerHTML = `
+            <div class="rank-left">
+              ${rankElement}
+              <div class="rank-name">${user.name}</div>
+            </div>
+            <div class="rank-right">${user.total_invites} <i class="fa-solid fa-user"></i></div>
+          `;
+          rankList.appendChild(rankItem);
+        });
+      } else {
+        rankList.style.display = 'none';
+        noRankContainer.style.display = 'flex';
+        let periodText = currentPeriod === 'today' ? 'today' : currentPeriod === 'this_week' ? 'this week' : 'this period';
+        noRankText.textContent = `No referral activity ${periodText}`;
+      }
+      const profilePicUrl = tg.initDataUnsafe?.user?.photo_url || '';
+      myProfilePic.style.backgroundImage = `url(${profilePicUrl})`;
+      myName.textContent = tg.initDataUnsafe?.user?.first_name || 'Your Name';
+      myRank.textContent = currentData.my_rank || 'N/A';
+      myInvites.textContent = currentData.my_refers || 0;
+    }
+    function showError(title, text) {
+      Swal.fire({ icon: 'error', title, text, confirmButtonColor: 'var(--primary-color)', background: 'var(--bg-color)', color: 'var(--text-color)' });
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

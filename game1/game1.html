@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fortune Ticket</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --gold: #FFD700;
+            --gold-dark: #D4AF37;
+            --purple: #6A0DAD;
+            --purple-dark: #4B0082;
+            --text-light: #F8F9FA;
+            --text-dark: #212529;
+            --gray: #E9ECEF;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+        
+        body {
+            background: url('background.jpg') center/cover fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Animation Screen */
+        #animation-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(106, 13, 173, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 0.5s ease 4.5s forwards;
+        }
+        
+        .title-container {
+            position: relative;
+            width: 100%;
+            text-align: center;
+            height: 200px;
+        }
+        
+        .fortune-text {
+            position: absolute;
+            top: 50%;
+            left: -500px;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            animation: slideInLeft 1.5s ease 0.5s forwards;
+        }
+        
+        .ticket-text {
+            position: absolute;
+            top: 50%;
+            right: -500px;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            animation: slideInRight 1.5s ease 0.5s forwards;
+        }
+        
+        .rocket-light {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            animation: rocketLight 1s ease 2s forwards;
+        }
+        
+        @keyframes slideInLeft {
+            to { left: 45%; transform: translateX(-100%) translateY(-50%); }
+        }
+        
+        @keyframes slideInRight {
+            to { right: 45%; transform: translateX(100%) translateY(-50%); }
+        }
+        
+        @keyframes rocketLight {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        /* Main Game UI */
+        #game-container {
+            display: none;
+            opacity: 0;
+            animation: fadeIn 1s ease 5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Live Updates - Top Center */
+        .live-updates {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: none;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .update-container {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 12px 20px;
+            text-align: center;
+            animation: pulseUpdate 4s infinite;
+            opacity: 0;
+            font-size: 1.1rem;
+        }
+        
+        @keyframes pulseUpdate {
+            0% { opacity: 0; transform: scale(0.8); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+        
+        /* Top Bar with Rules */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 0 15px 0;
+            margin-bottom: 15px;
+        }
+        
+        .game-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .rules-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .rules-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .rules-btn:hover {
+            background: var(--gold);
+            color: var(--purple);
+        }
+        
+        .rules-text {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+        
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 10px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--gold);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gold);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin-top: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* User's Selected Numbers */
+        .user-selections {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--gold);
+        }
+        
+        .selections-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .selections-title {
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .selections-count {
+            background: var(--gold);
+            color: var(--purple);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .selected-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 40px;
+        }
+        
+        .selected-number {
+            background: var(--gold);
+            color: var(--purple);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-ads {
+            background: linear-gradient(to right, #4CAF50, #2E7D32);
+            color: white;
+        }
+        
+        .btn-deposit {
+            background: linear-gradient(to right, #2196F3, #0D47A1);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Number Grid */
+        .number-grid-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--gold);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .grid-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        
+        .grid-title {
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .selection-limit {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+        }
+        
+        .number-tile {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-light);
+        }
+        
+        .number-tile:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .number-tile.selected {
+            background: rgba(106, 13, 173, 0.5);
+            color: var(--gold);
+            cursor: not-allowed;
+        }
+        
+        .number-tile.winning {
+            background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid var(--gold);
+        }
+        
+        .leaderboard h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+        }
+        
+        .winner-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        
+        .winner-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+        
+        .winner-item:last-child {
+            border-bottom: none;
+        }
+        
+        .winner-name {
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .winner-prize {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: rgba(0, 0, 0, 0.7);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            padding: 25px;
+            border: 3px solid var(--gold);
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .modal-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .number-display {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .ad-progress {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            font-weight: bold;
+            color: var(--gold);
+        }
+        
+        .ad-indicator {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .ad-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .ad-dot.active {
+            background: var(--gold);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-block;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-confirm {
+            background: linear-gradient(to right, var(--gold), var(--gold-dark));
+            color: var(--purple-dark);
+        }
+        
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border: 2px solid var(--gold);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Celebration Animation */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        .celebration-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px solid var(--gold);
+            animation: celebrationAnim 3s ease-out;
+        }
+        
+        @keyframes celebrationAnim {
+            0% { opacity: 0; transform: scale(0.5); }
+            20% { opacity: 1; transform: scale(1.1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+        
+        /* Rules Modal Content */
+        .rules-list {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        
+        .rules-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .rules-list li::before {
+            content: "â€¢";
+            color: var(--gold);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+        
+        /* Countdown */
+        .countdown {
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text-light);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+            border: 2px solid var(--gold);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .fortune-text, .ticket-text {
+                font-size: 2.5rem;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .number-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            
+            .top-bar {
+                padding: 70px 0 15px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .number-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .selected-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .number-tile {
+                font-size: 0.75rem;
+            }
+            
+            .celebration-text {
+                font-size: 1.8rem;
+                padding: 15px;
+            }
+            
+            .rules-text {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animation Screen -->
+    <div id="animation-screen">
+        <div class="title-container">
+            <div class="fortune-text">FORTUNE</div>
+            <div class="ticket-text">TICKET</div>
+            <div class="rocket-light"></div>
+        </div>
+    </div>
+    
+    <!-- Main Game Container -->
+    <div id="game-container" class="container">
+        <!-- Live Updates - Top Center -->
+        <div class="live-updates">
+            <div class="update-container" id="live-update-container">
+                Welcome to Fortune Ticket! Select your lucky number!
+            </div>
+        </div>
+        
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="game-title">FORTUNE TICKET</div>
+            <div class="rules-section">
+                <div class="rules-btn" id="rules-btn">
+                    <i class="fas fa-info"></i>
+                </div>
+                <div class="rules-text">Game Rules</div>
+            </div>
+        </div>
+        
+        <!-- Stats Section -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">TOTAL TICKETS</div>
+                <div class="stat-value" id="total-tickets">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">TOTAL EARNINGS</div>
+                <div class="stat-value" id="total-earning">0.00 USDT</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">PRIZE</div>
+                <div class="stat-value" id="prize">0.30 USDT</div>
+            </div>
+        </div>
+        
+        <!-- User's Selected Numbers -->
+        <div class="user-selections">
+            <div class="selections-header">
+                <div class="selections-title">YOUR SELECTIONS</div>
+                <div class="selections-count" id="selections-count">0/10</div>
+            </div>
+            <div class="selected-numbers" id="selected-numbers">
+                <!-- Selected numbers will appear here -->
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn btn-ads" id="watch-ads-btn">
+                <i class="fas fa-ad"></i> WATCH 3 ADS +1 TICKET
+            </button>
+            <button class="action-btn btn-deposit" id="deposit-btn">
+                <i class="fas fa-wallet"></i> DEPOSIT 0.1 USDT FOR 5 TICKETS
+            </button>
+        </div>
+        
+        <!-- Number Grid -->
+        <div class="number-grid-container">
+            <div class="grid-header">
+                <div class="grid-title">SELECT YOUR NUMBER</div>
+                <div class="selection-limit">Max 10 selections per round</div>
+            </div>
+            <div class="number-grid" id="number-grid">
+                <!-- Numbers 1-1000 will be generated here -->
+            </div>
+        </div>
+        
+        <!-- Countdown -->
+        <div class="countdown" id="countdown">Next draw in: <span id="countdown-timer">00:00:00</span></div>
+        
+        <!-- Leaderboard -->
+        <div class="leaderboard">
+            <h2>RECENT WINNERS</h2>
+            <div class="winner-list" id="winner-list">
+                <!-- Winners will be added here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>CONFIRM SELECTION</h2>
+            </div>
+            <div class="modal-body">
+                <p>Do you want to select number:</p>
+                <div class="number-display" id="confirm-number">0</div>
+                <p>This number will be permanently selected.</p>
+            </div>
+            <button class="btn btn-confirm" id="confirm-btn">CONFIRM</button>
+            <button class="btn btn-cancel" id="cancel-btn">CANCEL</button>
+        </div>
+    </div>
+    
+    <!-- No Ticket Modal -->
+    <div id="no-ticket-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>NO TICKETS AVAILABLE</h2>
+            </div>
+            <div class="modal-body">
+                <p>You need a ticket to select a number!</p>
+                <p>Get tickets by:</p>
+            </div>
+            <button class="btn btn-ads" id="no-ticket-ads-btn">
+                <i class="fas fa-ad"></i> WATCH 3 ADS FOR 1 TICKET
+            </button>
+            <button class="btn btn-deposit" id="no-ticket-deposit-btn">
+                <i class="fas fa-wallet"></i> DEPOSIT 0.1 USDT FOR 5 TICKETS
+            </button>
+        </div>
+    </div>
+    
+    <!-- Ad Modal -->
+    <div id="ad-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>WATCH AD</h2>
+            </div>
+            <div class="modal-body">
+                <div class="ad-progress">Ad <span id="current-ad">1</span>/3</div>
+                <div class="ad-indicator">
+                    <div class="ad-dot active"></div>
+                    <div class="ad-dot"></div>
+                    <div class="ad-dot"></div>
+                </div>
+                <div id="ad-content">
+                    <p style="text-align: center; margin: 15px 0;">Ad loading...</p>
+                    <div id="ad-container" style="display: flex; justify-content: center; margin: 15px 0; height: 250px;">
+                        <!-- Ads will be loaded here -->
+                    </div>
+                    <p style="text-align: center; font-size: 0.9rem; opacity: 0.8; margin-top: 10px;">
+                        Please watch the full ad to earn your ticket!
+                    </p>
+                </div>
+            </div>
+            <button class="btn btn-confirm" id="next-ad-btn">NEXT AD</button>
+            <button class="btn btn-cancel" id="cancel-ad-btn">CANCEL</button>
+        </div>
+    </div>
+    
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>GAME RULES</h2>
+            </div>
+            <div class="modal-body">
+                <ul class="rules-list">
+                    <li>Select numbers from 1 to 1000 using your tickets</li>
+                    <li>You can select up to 10 numbers per round</li>
+                    <li>Each selection costs 1 ticket</li>
+                    <li>Get tickets by watching ads or depositing</li>
+                    <li>Watch 3 ads to earn 1 ticket</li>
+                    <li>Deposit 0.1 USDT to get 5 tickets</li>
+                    <li>When all 1000 numbers are selected, a winner is drawn</li>
+                    <li>The winner receives 0.3 USDT prize</li>
+                    <li>Draws happen at even hours (12, 2, 4, 6, etc.)</li>
+                    <li>Winners are added to the leaderboard</li>
+                </ul>
+            </div>
+            <button class="btn btn-confirm" id="close-rules-btn">GOT IT!</button>
+        </div>
+    </div>
+    
+    <!-- Winning Modal -->
+    <div id="winning-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>CONGRATULATIONS!</h2>
+            </div>
+            <div class="modal-body">
+                <p>You have won the prize!</p>
+                <div class="number-display" id="winning-number">0</div>
+                <p>You earned <span class="stat-value">0.30 USDT</span></p>
+            </div>
+            <button class="btn btn-confirm" id="close-winning-btn">CLOSE</button>
+        </div>
+    </div>
+    
+    <!-- Celebration Animation -->
+    <div class="celebration" id="celebration">
+        <div class="celebration-text" id="celebration-text">Great choice!</div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            tickets: 0,
+            totalEarnings: 0,
+            selectedNumbers: new Set(),
+            winningNumber: null,
+            nextDrawTime: null,
+            currentAd: 1,
+            adPlatform: 0, // 0 = BitMedia, 1 = Giga
+            users: [
+                { name: "newton", tickets: 2 },
+                { name: "crypto_king", tickets: 5 },
+                { name: "lucky_girl", tickets: 1 },
+                { name: "fortune_hunter", tickets: 3 },
+                { name: "bitcoin_max", tickets: 4 }
+            ],
+            winners: [
+                { name: "crypto_king", prize: 0.30 },
+                { name: "lucky_girl", prize: 0.30 }
+            ],
+            encouragementMessages: [
+                "You're getting closer!",
+                "Your odds are rising!",
+                "Great choice!",
+                "Lucky number selected!",
+                "Fortune favors the bold!",
+                "One step closer to winning!",
+                "Excellent selection!",
+                "Your lucky number awaits!",
+                "The stars are aligning!",
+                "Victory is near!"
+            ],
+            liveMessages: [
+                "Welcome to Fortune Ticket! Select your lucky number!",
+                "@newton bought 2 tickets",
+                "@crypto_king selected number 42",
+                "@lucky_girl bought 1 ticket",
+                "@fortune_hunter selected number 777",
+                "@bitcoin_max bought 4 tickets",
+                "New round starting soon!",
+                "Prize pool: 0.30 USDT",
+                "Only 10 selections allowed per player!",
+                "Watch ads to earn free tickets!"
+            ]
+        };
+        
+        // DOM Elements
+        const animationScreen = document.getElementById('animation-screen');
+        const gameContainer = document.getElementById('game-container');
+        const numberGrid = document.getElementById('number-grid');
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const noTicketModal = document.getElementById('no-ticket-modal');
+        const adModal = document.getElementById('ad-modal');
+        const rulesModal = document.getElementById('rules-modal');
+        const winningModal = document.getElementById('winning-modal');
+        const confirmNumber = document.getElementById('confirm-number');
+        const totalTicketsEl = document.getElementById('total-tickets');
+        const totalEarningEl = document.getElementById('total-earning');
+        const prizeEl = document.getElementById('prize');
+        const countdownEl = document.getElementById('countdown');
+        const countdownTimerEl = document.getElementById('countdown-timer');
+        const liveUpdateContainer = document.getElementById('live-update-container');
+        const winnerList = document.getElementById('winner-list');
+        const currentAdEl = document.getElementById('current-ad');
+        const adDots = document.querySelectorAll('.ad-dot');
+        const selectedNumbersEl = document.getElementById('selected-numbers');
+        const selectionsCountEl = document.getElementById('selections-count');
+        const celebrationEl = document.getElementById('celebration');
+        const celebrationTextEl = document.getElementById('celebration-text');
+        const adContainer = document.getElementById('ad-container');
+        
+     // ======================
+// BITMEDIA-ONLY AD IMPLEMENTATION WITH PRE-LOADING
+// ======================
+
+// Pre-load BitMedia ads in the background
+let bitMediaAds = [];
+let currentAdIndex = 0;
+
+function preloadBitMediaAds() {
+    // Pre-load 3 ads in hidden containers
+    for (let i = 0; i < 3; i++) {
+        const adContainer = document.createElement('div');
+        adContainer.id = `preloaded-ad-${i}`;
+        adContainer.style.display = 'none'; // Hidden but loaded
+        adContainer.style.width = '300px';
+        adContainer.style.height = '250px';
+        
+        // Create the ins element
+        const insElement = document.createElement('ins');
+        insElement.className = '68e3da339416763e95397ed3';
+        insElement.style.cssText = 'display:inline-block;width:300px;height:250px;';
+        adContainer.appendChild(insElement);
+        
+        // Create and append the script
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.innerHTML = `
+            (function(e,n,c,t,o,r,d){
+                d = n.getElementsByTagName(c)[0];
+                if (d) {
+                    var s = n.createElement(c);
+                    s.async = true;
+                    s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
+                    s.onerror = function() {
+                        if (++r < o.length) {
+                            s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
+                        }
+                    };
+                    d.parentNode.insertBefore(s, d);
+                }
+            })(window, document, "script", "68e3da339416763e95397ed3", ["cdn.bmcdn6.com"], 0);
+        `;
+        
+        adContainer.appendChild(script);
+        document.body.appendChild(adContainer);
+        bitMediaAds.push(adContainer);
+    }
+    
+    console.log("BitMedia ads pre-loaded in background");
+}
+
+// Show pre-loaded ad immediately
+function showPreloadedBitMediaAd(adNumber) {
+    return new Promise((resolve, reject) => {
+        const adContainer = document.getElementById('ad-container');
+        
+        if (currentAdIndex < bitMediaAds.length) {
+            // Clear current ad container
+            adContainer.innerHTML = '';
+            
+            // Move pre-loaded ad to visible container
+            const preloadedAd = bitMediaAds[currentAdIndex];
+            preloadedAd.style.display = 'block';
+            
+            // Clone the ad content to avoid DOM issues
+            const clonedAd = preloadedAd.cloneNode(true);
+            clonedAd.style.display = 'block';
+            adContainer.appendChild(clonedAd);
+            
+            currentAdIndex++;
+            
+            // Auto-resolve after 5 seconds (simulate ad completion)
+            // In real implementation, you'd wait for actual ad completion
+            setTimeout(() => {
+                resolve();
+            }, 5000);
+        } else {
+            // Fallback: load ad on-demand if pre-loading failed
+            loadBitMediaAdOnDemand()
+                .then(resolve)
+                .catch(reject);
+        }
+    });
+}
+
+// Fallback: Load BitMedia ad on-demand (if pre-loading fails)
+function loadBitMediaAdOnDemand() {
+    return new Promise((resolve, reject) => {
+        const adContainer = document.getElementById('ad-container');
+        adContainer.innerHTML = '';
+        
+        const insElement = document.createElement('ins');
+        insElement.className = '68e3da339416763e95397ed3';
+        insElement.style.cssText = 'display:inline-block;width:300px;height:250px;margin:0 auto;';
+        adContainer.appendChild(insElement);
+        
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.innerHTML = `
+            (function(e,n,c,t,o,r,d){
+                d = n.getElementsByTagName(c)[0];
+                if (d) {
+                    var s = n.createElement(c);
+                    s.async = true;
+                    s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
+                    s.onload = function() {
+                        if (window.bitmediaAdCallback) window.bitmediaAdCallback('loaded');
+                    };
+                    s.onerror = function() {
+                        if (window.bitmediaAdCallback) window.bitmediaAdCallback('error');
+                    };
+                    d.parentNode.insertBefore(s, d);
+                } else {
+                    if (window.bitmediaAdCallback) window.bitmediaAdCallback('error');
+                }
+            })(window, document, "script", "68e3da339416763e95397ed3", ["cdn.bmcdn6.com"], 0);
+        `;
+        
+        // Set up callback
+        window.bitmediaAdCallback = (status) => {
+            if (status === 'loaded') {
+                setTimeout(() => resolve(), 3000); // Wait 3 seconds after load
+            } else {
+                reject(new Error('BitMedia ad failed to load'));
+            }
+        };
+        
+        adContainer.appendChild(script);
+        
+        // Timeout
+        setTimeout(() => {
+            if (window.bitmediaAdCallback) {
+                delete window.bitmediaAdCallback;
+            }
+            reject(new Error('BitMedia ad timeout'));
+        }, 15000);
+    });
+}
+
+// Simplified loadAd function - BitMedia only
+async function loadAd(adNumber) {
+    const progressElement = document.getElementById('current-ad');
+    const adDots = document.querySelectorAll('.ad-dot');
+    
+    // Update progress UI
+    progressElement.textContent = adNumber;
+    adDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index < adNumber);
+    });
+    
+    adContainer.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;">
+            <div style="color:var(--gold);margin-bottom:10px;">Loading ad ${adNumber}/3...</div>
+            <div style="width:40px;height:40px;border:3px solid var(--gold);border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite;"></div>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    
+    try {
+        await showPreloadedBitMediaAd(adNumber);
+        adContainer.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--gold);">
+                <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
+                <div style="text-align:center;font-size:0.9rem;">BitMedia ad watched successfully!</div>
+            </div>
+        `;
+        return true;
+    } catch (error) {
+        console.error('BitMedia ad failed:', error);
+        adContainer.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--danger);">
+                <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✗ AD FAILED</div>
+                <div style="text-align:center;font-size:0.8rem;">${error.message || 'Ad failed to load'}</div>
+                <button class="btn btn-confirm" style="margin-top:15px;width:auto;padding:8px 16px;" onclick="retryCurrentAd(${adNumber})">
+                    RETRY
+                </button>
+            </div>
+        `;
+        return false;
+    }
+}
+
+// Retry function
+function retryCurrentAd(adNumber) {
+    loadAd(adNumber);
+}
+
+// Initialize pre-loading when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Pre-load ads after a short delay to not block initial page load
+    setTimeout(preloadBitMediaAds, 2000);
+});
+        // Initialize the game
+        function initGame() {
+            for (let i = 1; i <= 1000; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'number-tile';
+                tile.textContent = i;
+                tile.dataset.number = i;
+                tile.addEventListener('click', handleNumberClick);
+                numberGrid.appendChild(tile);
+            }
+            
+            updateUI();
+            startCountdown();
+            startLiveUpdates();
+            renderWinners();
+            renderSelectedNumbers();
+            
+            setTimeout(() => {
+                gameContainer.style.display = 'block';
+            }, 5000);
+        }
+        
+        function handleNumberClick(e) {
+            const number = parseInt(e.target.dataset.number);
+            
+            if (gameState.selectedNumbers.has(number)) return;
+            if (gameState.selectedNumbers.size >= 10) {
+                showCelebration("You've reached the selection limit (10)!");
+                return;
+            }
+            if (gameState.tickets <= 0) {
+                noTicketModal.classList.add('active');
+                return;
+            }
+            
+            confirmNumber.textContent = number;
+            confirmationModal.classList.add('active');
+            
+            document.getElementById('confirm-btn').onclick = () => {
+                selectNumber(number);
+                confirmationModal.classList.remove('active');
+            };
+            
+            document.getElementById('cancel-btn').onclick = () => {
+                confirmationModal.classList.remove('active');
+            };
+        }
+        
+        function selectNumber(number) {
+            gameState.selectedNumbers.add(number);
+            gameState.tickets--;
+            
+            const tile = document.querySelector(`.number-tile[data-number="${number}"]`);
+            tile.classList.add('selected');
+            
+            addUpdate(`You selected number ${number}`);
+            
+            const randomMessage = gameState.encouragementMessages[
+                Math.floor(Math.random() * gameState.encouragementMessages.length)
+            ];
+            showCelebration(randomMessage);
+            
+            if (gameState.selectedNumbers.size === 1000) {
+                drawWinner();
+            }
+            
+            updateUI();
+            renderSelectedNumbers();
+        }
+        
+        function drawWinner() {
+            const availableNumbers = [];
+            for (let i = 1; i <= 1000; i++) {
+                if (!gameState.selectedNumbers.has(i)) {
+                    availableNumbers.push(i);
+                }
+            }
+            
+            const winningNumber = availableNumbers.length > 0 
+                ? availableNumbers[Math.floor(Math.random() * availableNumbers.length)]
+                : Math.floor(Math.random() * 1000) + 1;
+            
+            gameState.winningNumber = winningNumber;
+            
+            const winningTile = document.querySelector(`.number-tile[data-number="${winningNumber}"]`);
+            if (winningTile) {
+                winningTile.classList.add('winning');
+            }
+            
+            if (gameState.selectedNumbers.has(winningNumber)) {
+                gameState.totalEarnings += 0.30;
+                winningModal.querySelector('#winning-number').textContent = winningNumber;
+                winningModal.classList.add('active');
+                gameState.winners.push({ name: "You", prize: 0.30 });
+                renderWinners();
+            }
+            
+            addUpdate(`ðŸŽ‰ Number ${winningNumber} wins! Prize awarded.`);
+            
+            setTimeout(() => {
+                resetGame();
+            }, 5000);
+        }
+        
+        function resetGame() {
+            gameState.selectedNumbers.clear();
+            gameState.winningNumber = null;
+            
+            document.querySelectorAll('.number-tile').forEach(tile => {
+                tile.classList.remove('selected', 'winning');
+            });
+            
+            gameState.tickets = 0;
+            updateUI();
+            renderSelectedNumbers();
+        }
+        
+        function updateUI() {
+            totalTicketsEl.textContent = gameState.tickets;
+            totalEarningEl.textContent = `${gameState.totalEarnings.toFixed(2)} USDT`;
+            prizeEl.textContent = `0.30 USDT`;
+            selectionsCountEl.textContent = `${gameState.selectedNumbers.size}/10`;
+        }
+        
+        function renderSelectedNumbers() {
+            selectedNumbersEl.innerHTML = '';
+            gameState.selectedNumbers.forEach(number => {
+                const numEl = document.createElement('div');
+                numEl.className = 'selected-number';
+                numEl.textContent = number;
+                selectedNumbersEl.appendChild(numEl);
+            });
+        }
+        
+        function startCountdown() {
+            const now = new Date();
+            const drawTime = new Date(now.getTime() + 3 * 60 * 1000);
+            gameState.nextDrawTime = drawTime;
+            
+            countdownEl.style.display = 'block';
+            updateCountdown();
+            
+            const countdownInterval = setInterval(() => {
+                updateCountdown();
+                if (new Date() >= gameState.nextDrawTime) {
+                    clearInterval(countdownInterval);
+                    drawWinner();
+                }
+            }, 1000);
+        }
+        
+        function updateCountdown() {
+            const now = new Date();
+            const diff = gameState.nextDrawTime - now;
+            
+            if (diff <= 0) {
+                countdownTimerEl.textContent = "00:00:00";
+                return;
+            }
+            
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            const hours = Math.floor(minutes / 60);
+            
+            const displayMinutes = (minutes % 60).toString().padStart(2, '0');
+            const displaySeconds = seconds.toString().padStart(2, '0');
+            const displayHours = hours.toString().padStart(2, '0');
+            
+            countdownTimerEl.textContent = `${displayHours}:${displayMinutes}:${displaySeconds}`;
+        }
+        
+        function startLiveUpdates() {
+            let currentIndex = 0;
+            
+            function showNextUpdate() {
+                liveUpdateContainer.textContent = gameState.liveMessages[currentIndex];
+                liveUpdateContainer.style.animation = 'none';
+                setTimeout(() => {
+                    liveUpdateContainer.style.animation = 'pulseUpdate 4s infinite';
+                }, 10);
+                
+                currentIndex = (currentIndex + 1) % gameState.liveMessages.length;
+            }
+            
+            showNextUpdate();
+            setInterval(showNextUpdate, 5000);
+        }
+        
+        function addUpdate(message) {
+            liveUpdateContainer.textContent = message;
+            liveUpdateContainer.style.animation = 'none';
+            setTimeout(() => {
+                liveUpdateContainer.style.animation = 'pulseUpdate 4s infinite';
+            }, 10);
+        }
+        
+        function renderWinners() {
+            winnerList.innerHTML = '';
+            gameState.winners.slice(0, 5).forEach(winner => {
+                const winnerItem = document.createElement('div');
+                winnerItem.className = 'winner-item';
+                winnerItem.innerHTML = `
+                    <span class="winner-name">@${winner.name}</span>
+                    <span class="winner-prize">${winner.prize.toFixed(2)} USDT</span>
+                `;
+                winnerList.appendChild(winnerItem);
+            });
+        }
+        
+        function showCelebration(message) {
+            celebrationTextEl.textContent = message;
+            celebrationTextEl.style.color = getRandomColor();
+            celebrationEl.style.opacity = "1";
+            celebrationEl.style.pointerEvents = "auto";
+            
+            setTimeout(() => {
+                celebrationEl.style.opacity = "0";
+                celebrationEl.style.pointerEvents = "none";
+            }, 3000);
+        }
+        
+        function getRandomColor() {
+            const colors = ["#FFD700", "#FF6B6B", "#4ECDC4", "#FF9F1C", "#2EC4B6", "#E71D36"];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Ad modal event handlers
+        document.getElementById('watch-ads-btn').onclick = () => {
+            gameState.currentAd = 1;
+            adModal.classList.add('active');
+            loadAd(gameState.currentAd);
+        };
+        
+        document.getElementById('no-ticket-ads-btn').onclick = () => {
+            noTicketModal.classList.remove('active');
+            gameState.currentAd = 1;
+            adModal.classList.add('active');
+            loadAd(gameState.currentAd);
+        };
+        
+        document.getElementById('next-ad-btn').onclick = async () => {
+            if (gameState.currentAd < 3) {
+                gameState.currentAd++;
+                await loadAd(gameState.currentAd);
+            } else {
+                gameState.tickets++;
+                adModal.classList.remove('active');
+                addUpdate("You earned 1 ticket by watching ads!");
+                updateUI();
+            }
+        };
+        
+        document.getElementById('cancel-ad-btn').onclick = () => {
+            adModal.classList.remove('active');
+        };
+        
+        // Deposit functionality
+        document.getElementById('deposit-btn').onclick = () => {
+            gameState.tickets += 5;
+            addUpdate("You deposited 0.1 USDT and received 5 tickets!");
+            updateUI();
+        };
+        
+        document.getElementById('no-ticket-deposit-btn').onclick = () => {
+            noTicketModal.classList.remove('active');
+            gameState.tickets += 5;
+            addUpdate("You deposited 0.1 USDT and received 5 tickets!");
+            updateUI();
+        };
+        
+        // Rules modal
+        document.getElementById('rules-btn').onclick = () => {
+            rulesModal.classList.add('active');
+        };
+        
+        document.getElementById('close-rules-btn').onclick = () => {
+            rulesModal.classList.remove('active');
+        };
+        
+        // Close modals
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.onclick = () => {
+                btn.closest('.modal').classList.remove('active');
+            };
+        });
+        
+        document.getElementById('close-winning-btn').onclick = () => {
+            winningModal.classList.remove('active');
+        };
+        
+        // Initialize the game after page load
+        window.onload = initGame;
+    </script>
+</body>
+</html>

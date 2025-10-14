@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cash Out</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --warning-color: #f59e0b;
+      --error-color: #dc3545;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 70px;
+      box-sizing: border-box;
+      padding-bottom: 100px;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .cashout-icon {
+      width: 30px;
+      height: 30px;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/01/USDT_Logo.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin: 5px;
+    }
+    .cashout-title {
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 700;
+    }
+    .stats-section {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+    .stat-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark-accent);
+    }
+    .stat-value.success {
+      color: var(--success-color);
+    }
+    .stat-value.pending {
+      color: var(--warning-color);
+    }
+    .withdrawal-record-btn {
+      background: rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      color: black;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .withdrawal-methods {
+      margin-bottom: 25px;
+    }
+    .method-option {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    .method-option.selected {
+      border-color: var(--dark-accent);
+      box-shadow: 0 0 15px rgba(245, 124, 0, 0.3);
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .method-header {
+      padding: 15px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .method-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .method-icon {
+      width: 30px;
+      height: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .usdt-icon {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/01/USDT_Logo.png');
+    }
+    .method-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+    .method-subtitle {
+      font-size: 0.9rem;
+      color: #ebfaeb;
+      margin: 0;
+    }
+    .method-details {
+      padding: 0 20px;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .method-details.expanded {
+      max-height: 500px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .method-info-display {
+      transition: all 0.3s ease;
+    }
+    .method-info-display.hidden {
+      display: none;
+    }
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      word-break: break-all;
+    }
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      font-size: 0.95rem;
+      color: white;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .detail-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-align: right;
+    }
+    .edit-btn {
+      background: rgba(0,0,0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 8px 15px;
+      color: var(--gold-color);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    .edit-form {
+      display: none;
+      margin-top: 0;
+      padding: 0;
+    }
+    .edit-form.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .btn-save, .btn-cancel {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-save {
+      background: var(--success-color);
+      color: white;
+    }
+    .btn-cancel {
+      background: #6b7280;
+      color: white;
+    }
+    .cashout-button {
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      border: none;
+      padding: 15px 30px;
+      border-radius: 12px;
+      font-weight: 600;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      width: 100%;
+      margin-top: 20px;
+    }
+    .cashout-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+<div class="modal fade" id="amountModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px;">
+      <div class="modal-header">
+        <h5 class="modal-title">Enter Withdrawal Amount</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="amountModalError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="mb-2" style="font-weight:600;">
+          Min: <span id="minAmountLabel">$0</span> &nbsp;•&nbsp;
+          Max: <span id="maxAmountLabel">$0</span>
+        </div>
+        <label class="form-label">Amount ($)</label>
+        <input type="number" class="form-input" id="amountInput" inputmode="decimal" step="0.01" min="0" placeholder="Enter amount">
+        <div id="amountError" class="text-danger small mt-1"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="confirmAmountBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-screen" id="loadingScreen">
+  <span class="loader"></span>
+</div>
+
+<div class="container" id="mainContent" style="display: none;">
+  <div class="fixed-header">
+    <div class="top-section">
+      <div class="cashout-icon"></div>
+      <h1 class="cashout-title">Cash Out</h1>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <div class="stat-item">
+      <span class="stat-label">Your Balance:</span>
+      <span class="stat-value" id="balance">$--.--</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Withdrawable:</span>
+      <span class="stat-value" id="toBeCashedOut">$0.00</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Success Withdrawal:</span>
+      <span class="stat-value success" id="successWithdrawal">$0.00</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Under Review:</span>
+      <span class="stat-value pending" id="underReview">$0.00</span>
+    </div>
+  </div>
+
+  <button class="withdrawal-record-btn" id="withdrawalRecordBtn">
+    <span>Withdrawal Record</span>
+    <i class="fas fa-arrow-right"></i>
+  </button>
+
+  <div style="text-align: center; margin-bottom: 15px;">
+    <h3 style="color: white; font-size: 1.2rem; font-style: italic; font-weight: 600; margin: 0;">Select Withdraw Method</h3>
+  </div>
+
+  <div class="withdrawal-methods">
+    <div class="method-option" id="usdtMethod">
+      <div class="method-header" onclick="toggleMethod('usdt')">
+        <div class="method-info">
+          <div class="method-icon usdt-icon"></div>
+          <div>
+            <div class="method-name">USDT</div>
+            <p class="method-subtitle">BEP20 Network</p>
+          </div>
+        </div>
+        <i class="fas fa-chevron-down" id="usdtChevron"></i>
+      </div>
+      <div class="method-details" id="usdtDetails">
+        <div class="method-info-display">
+          <div class="detail-item">
+            <span class="detail-label">Address:</span>
+            <span class="detail-value" id="usdtAddress">-</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Withdrawal Fee:</span>
+            <span class="detail-value" id="usdtFee">0%</span>
+          </div>
+          <button class="edit-btn" id="usdtEditBtn" onclick="showEditForm('usdt')">
+            <i class="fas fa-pencil-alt"></i>
+            Edit
+          </button>
+        </div>
+        <div class="edit-form" id="usdtEditForm">
+          <div class="form-group">
+            <label class="form-label">USDT Address (BEP20)</label>
+            <input type="text" class="form-input" id="editUsdtAddress" placeholder="Enter your address">
+          </div>
+          <div class="form-buttons">
+            <button class="btn-cancel" onclick="hideEditForm('usdt')">Cancel</button>
+            <button class="btn-save" onclick="saveAddressDetails()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="cashout-button" id="cashoutButton" onclick="processCashout()">
+    Cash Out Now
+  </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.BackButton.show();
+  tg.BackButton.onClick(() => window.location.href = 'index.html');
+
+  const loadingScreen = document.getElementById('loadingScreen');
+  const mainContent = document.getElementById('mainContent');
+  const cashoutButton = document.getElementById('cashoutButton');
+  
+  let userData = null;
+  let currentInitData = null;
+  let selectedMethod = null;
+  
+  function initApp() {
+    currentInitData = tg.initData;
+    document.getElementById('withdrawalRecordBtn').addEventListener('click', () => {
+      window.location.href = 'withdraw-records.html';
+    });
+    fetchWithdrawDetails();
+    initAmountModal();
+  }
+
+  async function fetchWithdrawDetails() {
+    loadingScreen.style.display = 'flex';
+    mainContent.style.display = 'none';
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const [response] = await Promise.all([
+        fetch('api/get-withdraw-details.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ init_data: currentInitData }),
+          signal: controller.signal
+        }).finally(() => clearTimeout(timeoutId)),
+        new Promise(resolve => setTimeout(resolve, 1500))
+      ]);
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.message || 'API error');
+      userData = data.result;
+      displayWithdrawData();
+    } catch (error) {
+      console.error('Error fetching details:', error);
+      const errorTitle = error.name === 'AbortError' ? 'Network Timeout' : 'Network Error';
+      const errorMessage = error.name === 'AbortError' ? 'Request took too long.' : 'Failed to connect to server.';
+      showError(errorTitle, errorMessage);
+    } finally {
+      loadingScreen.style.display = 'none';
+      mainContent.style.display = 'block';
+    }
+  }
+
+  function displayWithdrawData() {
+    if (!userData) return;
+    document.getElementById('balance').textContent = `$${Number(userData.balance || 0).toFixed(2)}`;
+    document.getElementById('toBeCashedOut').textContent = `$${Number(userData.to_be_withdrawn || 0).toFixed(2)}`;
+    document.getElementById('successWithdrawal').textContent = `$${Number(userData.total_success || 0).toFixed(2)}`;
+    document.getElementById('underReview').textContent = `$${Number(userData.total_pending || 0).toFixed(2)}`;
+    document.getElementById('usdtAddress').textContent = userData.address || '-';
+    document.getElementById('usdtFee').textContent = `${userData.withdraw_fee || 0}%`;
+    updateCashoutButton();
+  }
+
+  function toggleMethod(method) {
+    if (method !== 'usdt') return;
+    const usdtMethod = document.getElementById('usdtMethod');
+    const usdtDetails = document.getElementById('usdtDetails');
+    const usdtChevron = document.getElementById('usdtChevron');
+    
+    if (selectedMethod === 'usdt') {
+      const isExpanded = usdtDetails.classList.contains('expanded');
+      usdtDetails.classList.toggle('expanded', !isExpanded);
+      usdtChevron.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+    } else {
+      usdtMethod.classList.add('selected');
+      usdtDetails.classList.add('expanded');
+      usdtChevron.style.transform = 'rotate(180deg)';
+      selectedMethod = 'usdt';
+    }
+    updateCashoutButton();
+    tg.HapticFeedback.selectionChanged();
+  }
+
+  function showEditForm(method) {
+    const editForm = document.getElementById(`${method}EditForm`);
+    const infoDisplay = document.querySelector(`#${method}Details .method-info-display`);
+    if (infoDisplay) infoDisplay.classList.add('hidden');
+    editForm.classList.add('active');
+    if (method === 'usdt') {
+        document.getElementById('editUsdtAddress').value = userData.address || '';
+    }
+  }
+
+  function hideEditForm(method) {
+    const editForm = document.getElementById(`${method}EditForm`);
+    const infoDisplay = document.querySelector(`#${method}Details .method-info-display`);
+    editForm.classList.remove('active');
+    if (infoDisplay) infoDisplay.classList.remove('hidden');
+  }
+
+  async function saveAddressDetails() {
+    const address = document.getElementById('editUsdtAddress').value.trim();
+    if (!address) {
+      showError('Validation Error', 'Please enter your USDT address.');
+      return;
+    }
+    try {
+      const response = await fetch('api/set-address.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ init_data: currentInitData, address: address })
+      });
+      const data = await response.json();
+      if (!data.ok) {
+        showError('Error', data.message);
+        return;
+      }
+      userData.address = address;
+      document.getElementById('usdtAddress').textContent = address;
+      hideEditForm('usdt');
+      updateCashoutButton();
+      showSuccess('Success', data.message || 'Address saved successfully.');
+      tg.HapticFeedback.notificationOccurred('success');
+    } catch (error) {
+      console.error('Error saving address:', error);
+      showError('Network Error', 'Failed to save address. Please try again.');
+    }
+  }
+
+  function updateCashoutButton() {
+    const hasAddress = userData && userData.address;
+    const hasBalance = userData && Number(userData.balance) >= Number(userData.min_withdraw);
+    cashoutButton.disabled = !(selectedMethod === 'usdt' && hasAddress && hasBalance);
+  }
+
+  function processCashout() {
+    if (cashoutButton.disabled) {
+      if (!selectedMethod) showError('Selection Required', 'Please select a withdrawal method.');
+      else if (!userData?.address) showError('Address Required', 'Please set your USDT address first.');
+      else if (Number(userData?.balance || 0) < Number(userData?.min_withdraw || 0)) {
+        showError('Insufficient Balance', `Minimum withdrawal amount is $${Number(userData?.min_withdraw || 0).toFixed(2)}.`);
+      }
+      return;
+    }
+    showAmountModal();
+  }
+
+  function showError(title, text) {
+    Swal.fire({
+      icon: 'error',
+      title: title,
+      text: text,
+      confirmButtonColor: 'var(--primary-color)',
+      background: 'var(--bg-color)',
+      color: 'var(--text-color)'
+    });
+  }
+
+  function showSuccess(title, text) {
+    Swal.fire({
+      icon: 'success',
+      title: title,
+      text: text,
+      confirmButtonColor: 'var(--primary-color)',
+      background: 'var(--bg-color)',
+      color: 'var(--text-color)'
+    });
+  }
+
+  let amountModal, confirmAmountBtn, amountInput, amountModalError, minAmountLabel, maxAmountLabel, amountError;
+  function initAmountModal() {
+    const modalEl = document.getElementById('amountModal');
+    if (!modalEl) return;
+    amountModal = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    confirmAmountBtn = document.getElementById('confirmAmountBtn');
+    amountInput = document.getElementById('amountInput');
+    amountModalError = document.getElementById('amountModalError');
+    minAmountLabel = document.getElementById('minAmountLabel');
+    maxAmountLabel = document.getElementById('maxAmountLabel');
+    amountError = document.getElementById('amountError');
+    confirmAmountBtn.addEventListener('click', submitCashout);
+    amountInput.addEventListener('input', validateAmount);
+  }
+
+  function showAmountModal() {
+    clearAmountModalError();
+    const min = Number(userData?.min_withdraw || 0);
+    const max = Number(userData?.balance || 0);
+    minAmountLabel.textContent = `$${min.toFixed(2)}`;
+    maxAmountLabel.textContent = `$${max.toFixed(2)}`;
+    amountInput.value = '';
+    amountInput.min = String(min);
+    amountInput.max = String(max);
+    amountInput.placeholder = `Enter amount`;
+    validateAmount();
+    amountModal.show();
+  }
+
+  function validateAmount() {
+    const amount = parseFloat(amountInput.value);
+    const min = Number(userData?.min_withdraw || 0);
+    const max = Number(userData?.balance || 0);
+    let isValid = true;
+    let errorMsg = '';
+
+    if (isNaN(amount) || amount <= 0) {
+        isValid = false;
+        errorMsg = 'Please enter a valid amount.';
+    } else if (amount < min) {
+        isValid = false;
+        errorMsg = `Amount must be at least $${min.toFixed(2)}`;
+    } else if (amount > max) {
+        isValid = false;
+        errorMsg = 'Amount exceeds your available balance.';
+    }
+
+    amountError.textContent = errorMsg;
+    confirmAmountBtn.disabled = !isValid;
+  }
+
+  function clearAmountModalError() {
+    amountModalError.classList.add('d-none');
+    amountModalError.textContent = '';
+    amountError.textContent = '';
+    confirmAmountBtn.disabled = false;
+  }
+  
+  function showAmountModalError(msg) {
+    amountModalError.textContent = msg;
+    amountModalError.classList.remove('d-none');
+  }
+
+  async function submitCashout() {
+    validateAmount();
+    if(confirmAmountBtn.disabled) {
+        showAmountModalError('Invalid amount entered.');
+        return;
+    }
+    
+    const amount = parseFloat(amountInput.value);
+
+    confirmAmountBtn.disabled = true;
+    confirmAmountBtn.textContent = 'Requesting…';
+    try {
+      const resp = await fetch('api/cashout.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          init_data: currentInitData,
+          method: selectedMethod,
+          amount: amount
+        })
+      });
+      const data = await resp.json();
+      if (!data.ok) {
+        showAmountModalError(data.message || 'Request failed.');
+        tg.HapticFeedback.notificationOccurred('error');
+        return;
+      }
+      amountModal.hide();
+      showSuccess('Cashout Requested', data.message || 'Your withdrawal request has been submitted.');
+      tg.HapticFeedback.notificationOccurred('success');
+      setTimeout(fetchWithdrawDetails, 1500);
+    } catch (e) {
+      showAmountModalError('Network error. Please try again.');
+    } finally {
+        confirmAmountBtn.disabled = false;
+        confirmAmountBtn.textContent = 'Confirm';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

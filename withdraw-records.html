@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Withdraw History</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00; /* Yellow for pending */
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --paid-color: #10b981; /* Green for paid */
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --rejected-color: #ef4444; /* Red for rejected */
+    }
+    body {
+      background: url("https://i.ibb.co/HQKtNRs/image-2.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 70px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: transparent;
+    }
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .withdraw-history-title {
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 700;
+    }
+    .summary-section {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      color: white;
+    }
+    .total-withdraw, .total-success, .total-pending {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .total-title {
+      font-weight: 700;
+    }
+    .total-amount {
+      font-family: sans-serif;
+    }
+    .total-withdraw .total-amount {
+      color: var(--gold-color);
+    }
+    .total-success .total-amount {
+      color: var(--paid-color);
+    }
+    .total-pending .total-amount {
+      color: var(--dark-accent);
+    }
+    .history-container {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      min-height: 200px;
+      max-height: 700px;
+      position: relative;
+    }
+    .history-list {
+      position: absolute;
+      top: 15px;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .history-method {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+    .history-date {
+      font-size: 0.9rem;
+      color: #dce3de;
+    }
+    .history-amount {
+      font-family: sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+    .history-amount.paid {
+      color: var(--paid-color);
+    }
+    .history-amount.pending {
+      color: var(--dark-accent);
+    }
+    .history-amount.rejected {
+      color: var(--rejected-color);
+    }
+    .no-history-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
+    .no-history-text {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    @media (max-width: 576px) {
+      .container {
+        padding: 10px;
+      }
+      .withdraw-history-title {
+        font-size: 1.5rem;
+      }
+      .summary-section {
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .total-withdraw, .total-success, .total-pending {
+        flex: 1;
+        min-width: 100px;
+      }
+      .history-container {
+        padding: 10px;
+      }
+      .history-item {
+        padding: 8px 0;
+      }
+      .history-method {
+        font-size: 1rem;
+      }
+      .history-date {
+        font-size: 0.8rem;
+      }
+      .history-amount {
+        font-size: 1.2rem;
+      }
+      .no-history-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <h1 class="withdraw-history-title">Withdraw History</h1>
+      </div>
+    </div>
+    <div class="summary-section">
+      <div class="total-withdraw">
+        <div class="total-title">Total</div>
+        <div class="total-amount" id="totalWithdraw">$0.00</div>
+      </div>
+      <div class="total-success">
+        <div class="total-title">Paid</div>
+        <div class="total-amount" id="totalSuccess">$0.00</div>
+      </div>
+      <div class="total-pending">
+        <div class="total-title">Pending</div>
+        <div class="total-amount" id="totalPending">$0.00</div>
+      </div>
+    </div>
+    <div class="history-container" id="historyContainer">
+      <div class="history-list" id="historyList"></div>
+      <div class="no-history-container" id="noHistoryContainer">
+        <div class="no-history-text">No withdraw history available</div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'cashout.html';
+    });
+    
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const totalWithdraw = document.getElementById('totalWithdraw');
+    const totalSuccess = document.getElementById('totalSuccess');
+    const totalPending = document.getElementById('totalPending');
+    const historyContainer = document.getElementById('historyContainer');
+    const historyList = document.getElementById('historyList');
+    const noHistoryContainer = document.getElementById('noHistoryContainer');
+    
+    let withdrawData = null;
+    let currentInitData = null;
+    
+    function initApp() {
+      if (!loadingScreen || !mainContent || !historyContainer || !historyList || !noHistoryContainer) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      fetchWithdrawHistory();
+    }
+    
+    async function fetchWithdrawHistory() {
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        const [response] = await Promise.all([
+          fetch('api/withdraw-records.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              init_data: currentInitData
+            })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+        withdrawData = data.result;
+        displayWithdrawHistory();
+      } catch (error) {
+        console.error('Error fetching withdraw history:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      }
+    }
+    
+    function displayWithdrawHistory() {
+      if (!withdrawData) {
+        console.error('withdrawData is null');
+        showError('Data Error', 'Withdraw history data not available.');
+        return;
+      }
+      const totalPaidValue = parseFloat(withdrawData.total_success || 0);
+      const totalPendingValue = parseFloat(withdrawData.total_pending || 0);
+      totalWithdraw.textContent = `$${(totalPaidValue + totalPendingValue).toFixed(2)}`;
+      totalSuccess.textContent = `$${totalPaidValue.toFixed(2)}`;
+      totalPending.textContent = `$${totalPendingValue.toFixed(2)}`;
+      historyList.innerHTML = '';
+      if (withdrawData.history && withdrawData.history.length > 0) {
+        historyList.style.display = 'block';
+        noHistoryContainer.style.display = 'none';
+        withdrawData.history.forEach(record => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          const statusClass = record.status === 'paid' ? 'paid' : record.status === 'pending' ? 'pending' : 'rejected';
+          historyItem.innerHTML = `
+            <div class="history-details">
+              <div class="history-method">${record.method.charAt(0).toUpperCase() + record.method.slice(1)}</div>
+              <div class="history-date">${record.date}</div>
+            </div>
+            <div class="history-amount ${statusClass}">
+              $${parseFloat(record.amount).toFixed(2)}
+            </div>
+          `;
+          historyList.appendChild(historyItem);
+        });
+      } else {
+        historyList.style.display = 'none';
+        noHistoryContainer.style.display = 'flex';
+      }
+    }
+    
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+    
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

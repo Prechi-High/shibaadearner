@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Referral Statistics</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Exo", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    /* Hide scrollbars */
+    body::-webkit-scrollbar,
+    .scrollable::-webkit-scrollbar {
+      display: none;
+    }
+
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 20px;
+      padding-bottom: 100px;
+      box-sizing: border-box;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+
+    .today-earning-display {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px 0;
+    }
+
+    .today-amount {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--gold-color);
+      margin: 0;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .today-amount::before {
+      content: '';
+      width: 50px;
+      height: 50px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .today-label {
+      font-size: 1.3rem;
+      color: white;
+      margin-top: 10px;
+      opacity: 0.9;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-family: "Outfit", sans-serif;
+      font-size: 1.4rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--primary-color), var(--success-color));
+      border-radius: 2px;
+    }
+
+    .chart-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      height: 300px;
+    }
+
+    .history-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      max-height: 800px;
+      overflow-y: auto;
+    }
+
+    .history-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .user-date {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+      margin: 2px 0 0 0;
+    }
+
+    .earning-amount {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--gold-color);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .earning-amount::before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .no-data {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 40px 20px;
+      font-size: 1rem;
+    }
+
+    .no-data i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .stats-list-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .stat-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+    }
+
+    .stat-list-label {
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .stat-list-value {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .stat-list-value i {
+      color: var(--gold-color);
+      font-size: 1.1rem;
+    }
+
+    .stat-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      margin: 0;
+    }
+
+    /* Team Subordinate Statistics Styles */
+    .team-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 0 5px;
+    }
+
+    .team-size-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold-color);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .team-size-display i {
+      font-size: 1.4rem;
+    }
+
+    .team-levels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 15px;
+      padding: 10px 0;
+    }
+
+    .level-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 15px 10px;
+      text-align: center;
+      transition: all 0.3s ease;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .level-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .level-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .level-count {
+      color: var(--gold-color);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .level-item.empty {
+      opacity: 0.5;
+    }
+
+    .level-item.empty .level-count {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    @media (max-width: 576px) {
+      .today-amount {
+        font-size: 3rem;
+      }
+      
+      .today-amount::before {
+        width: 55px;
+        height: 55px;
+      }
+
+      .team-levels-grid {
+        gap: 10px;
+      }
+
+      .level-item {
+        padding: 12px 8px;
+        min-height: 70px;
+      }
+
+      .level-label {
+        font-size: 0.8rem;
+      }
+
+      .level-count {
+        font-size: 1.2rem;
+      }
+
+      .team-size-display {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+
+  <div class="container" id="mainContent" style="display: none;">
+    <!--  Today's Earning Display -->
+    <div class="today-earning-display">
+      <div class="today-amount" id="todayAmount">0</div>
+      <div class="today-label">Today's Earning</div>
+    </div>
+
+     <!-- Invite Statistics Section -->
+    <div class="section-title">Invite Statistics</div>
+    <div class="stats-list-card">
+      <div class="stat-list-item">
+        <span class="stat-list-label">Total Invites</span>
+        <div class="stat-list-value">
+          <span id="totalInvites">0</span>
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-list-item">
+        <span class="stat-list-label">Today's Invites</span>
+        <div class="stat-list-value">
+          <span id="todayInvites">0</span>
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-list-item">
+        <span class="stat-list-label">This Week</span>
+        <div class="stat-list-value">
+          <span id="weeklyInvites">0</span>
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-list-item">
+        <span class="stat-list-label">This Month</span>
+        <div class="stat-list-value">
+          <span id="monthlyInvites">0</span>
+          <i class="fas fa-user"></i>
+        </div>
+      </div>
+    </div>
+
+     <!-- Team Subordinate Statistics Section -->
+    <div class="section-title">Team Subordinate Statistics</div>
+    <div class="stats-list-card">
+      <div class="team-header">
+        <span class="stat-list-label">Team Overview</span>
+        <div class="team-size-display">
+          <i class="fas fa-users"></i>
+          <span id="teamSize">0</span>
+          <span>Members</span>
+        </div>
+      </div>
+      <div class="team-levels-grid" id="teamLevelsGrid">
+       <!--   Level items will be generated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Earning Statistics Section -->
+    <div class="section-title">Earning Statistics</div>
+    <div class="stats-list-card">
+      <div class="stat-list-item">
+        <span class="stat-list-label">Total Earnings</span>
+        <div class="stat-list-value">
+          <span id="totalEarnings">0</span>
+          <i class="fas fa-gem"></i>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-list-item">
+        <span class="stat-list-label">This Week</span>
+        <div class="stat-list-value">
+          <span id="weeklyEarnings">0</span>
+          <i class="fas fa-gem"></i>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-list-item">
+        <span class="stat-list-label">This Month</span>
+        <div class="stat-list-value">
+          <span id="monthlyEarnings">0</span>
+          <i class="fas fa-gem"></i>
+        </div>
+      </div>
+    </div>
+
+  <!--    Earnings Chart -->
+    <div class="section-title">Earnings Overview</div>
+    <div class="chart-container">
+      <canvas id="earningsChart"></canvas>
+    </div>
+
+   <!--   Earning History -->
+    <div class="section-title">Earning History</div>
+    <div class="history-container" id="historyContainer">
+      <div class="no-data">
+        <i class="fas fa-chart-line"></i>
+        <div>No earning history available</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.location.href = 'profile.html';
+    });
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const todayAmount = document.getElementById('todayAmount');
+    const totalInvites = document.getElementById('totalInvites');
+    const totalEarnings = document.getElementById('totalEarnings');
+    const weeklyInvites = document.getElementById('weeklyInvites');
+    const weeklyEarnings = document.getElementById('weeklyEarnings');
+    const monthlyInvites = document.getElementById('monthlyInvites');
+    const monthlyEarnings = document.getElementById('monthlyEarnings');
+    const historyContainer = document.getElementById('historyContainer');
+    const teamSize = document.getElementById('teamSize');
+    const teamLevelsGrid = document.getElementById('teamLevelsGrid');
+
+    // Variables
+    let currentInitData = null;
+    let statsData = null;
+    let earningsChart = null;
+
+    function initApp() {
+      if (!loadingScreen || !mainContent) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+
+      currentInitData = tg.initData;
+      fetchStatsData();
+    }
+
+    async function fetchStatsData() {
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+
+        const [response] = await Promise.all([
+          fetch('api/ref-stats.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              init_data: currentInitData
+            })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+
+        const data = await response.json();
+        
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+
+        statsData = data.result;
+        displayStatsData();
+        displayTeamSubordinateStats();
+        createEarningsChart();
+        
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching stats data:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+
+    function displayStatsData() {
+      if (!statsData) return;
+
+      const { invite_stats, earning_stats } = statsData;
+
+      // Update today's earning
+      todayAmount.textContent = earning_stats.earning_today || 0;
+
+      // Update invite statistics
+      totalInvites.textContent = invite_stats.total_invite || 0;
+      document.getElementById('todayInvites').textContent = invite_stats.invite_today || 0;
+      weeklyInvites.textContent = invite_stats.invite_this_week || 0;
+      monthlyInvites.textContent = invite_stats.invite_this_month || 0;
+
+      // Update earning statistics
+      totalEarnings.textContent = earning_stats.total_earning || 0;
+      weeklyEarnings.textContent = earning_stats.earning_this_week || 0;
+      monthlyEarnings.textContent = earning_stats.earning_this_month || 0;
+
+      // Display earning history
+      displayEarningHistory(earning_stats.earning_history || []);
+    }
+
+    function displayTeamSubordinateStats() {
+      if (!statsData || !statsData.team_subordinate) return;
+
+      const { team_subordinate } = statsData;
+      
+      // Update team size
+      teamSize.textContent = team_subordinate.team_size || 0;
+
+      // Generate level grid
+      generateTeamLevelsGrid(team_subordinate.levels || {});
+    }
+
+    function generateTeamLevelsGrid(levels) {
+      teamLevelsGrid.innerHTML = '';
+
+      // Create 10 level items (2 rows x 5 columns)
+      for (let i = 1; i <= 10; i++) {
+        const levelKey = `level_${i}`;
+        const levelCount = levels[levelKey] || 0;
+        
+        const levelItem = document.createElement('div');
+        levelItem.className = `level-item ${levelCount === 0 ? 'empty' : ''}`;
+        
+        levelItem.innerHTML = `
+          <div class="level-label">Level ${i}</div>
+          <div class="level-count">${levelCount}</div>
+        `;
+        
+        teamLevelsGrid.appendChild(levelItem);
+      }
+    }
+
+    function displayEarningHistory(history) {
+      if (!history || history.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="no-data">
+            <i class="fas fa-chart-line"></i>
+            <div>No earning history available</div>
+          </div>
+        `;
+        return;
+      }
+
+      historyContainer.innerHTML = '';
+      
+      history.forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const userInitial = item.from_user.charAt(0).toUpperCase();
+        
+        historyItem.innerHTML = `
+          <div class="history-user">
+            <div class="user-avatar">${userInitial}</div>
+            <div class="user-info">
+              <div class="user-name">${item.from_user}</div>
+              <div class="user-date">${item.date}</div>
+            </div>
+          </div>
+          <div class="earning-amount">${item.amount}</div>
+        `;
+        
+        historyContainer.appendChild(historyItem);
+      });
+    }
+
+    function createEarningsChart() {
+      const ctx = document.getElementById('earningsChart').getContext('2d');
+      
+      // Destroy existing chart if it exists
+      if (earningsChart) {
+        earningsChart.destroy();
+      }
+
+      const chartData = generateChartData();
+
+      earningsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartData.labels,
+          datasets: [{
+            label: 'Daily Earnings',
+            data: chartData.data,
+            borderColor: '#ffd700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#ffd700',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.2)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: {
+                  size: 12
+                }
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'rgba(255, 255, 255, 0.2)'
+              },
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.8)',
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          elements: {
+            point: {
+              hoverBackgroundColor: '#ffd700'
+            }
+          }
+        }
+      });
+    }
+
+    function generateChartData() {
+      if (!statsData || !statsData.earning_stats.earning_history) {
+        return { labels: [], data: [] };
+      }
+
+      const history = statsData.earning_stats.earning_history;
+      const dateMap = new Map();
+      
+      // Group earnings by date
+      history.forEach(item => {
+        const date = item.date;
+        if (dateMap.has(date)) {
+          dateMap.set(date, dateMap.get(date) + parseFloat(item.amount));
+        } else {
+          dateMap.set(date, parseFloat(item.amount));
+        }
+      });
+
+      // Sort dates and prepare chart data
+      const sortedDates = Array.from(dateMap.keys()).sort((a, b) => {
+        const dateA = new Date(a.split('/').reverse().join('-'));
+        const dateB = new Date(b.split('/').reverse().join('-'));
+        return dateA - dateB;
+      });
+
+      const labels = sortedDates.map(date => {
+        const [day, month, year] = date.split('/');
+        const dateObj = new Date(year, month - 1, day);
+        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+
+      const data = sortedDates.map(date => dateMap.get(date));
+
+      return { labels, data };
+    }
+
+    function showSuccess(title, text) {
+      Swal.fire({
+        icon: 'success',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

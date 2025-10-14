@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .contact-button {
+            padding: 12px 24px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .contact-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <a id="mailto-button" class="contact-button">Contact Us</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get email from URL parameter (e.g., ?mailto=hello@example.com)
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('mailto') || 'contact@example.com'; // Fallback email
+            
+            const mailtoButton = document.getElementById('mailto-button');
+            mailtoButton.href = `${email}`;
+        });
+    </script>
+</body>
+</html>

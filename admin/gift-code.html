@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gift Code Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="nav-footer.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f6f5 0%, #e8e9e8 100%);
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+       
+        .navbar {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+        
+        .main-container {
+            margin-top: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 74, 153, 0.1);
+            border: none;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #004a99 0%, #0066cc 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+        }
+        
+        .card-header h4 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #004a99 0%, #0066cc 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 74, 153, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            font-weight: 600;
+            color: #495057;
+            padding: 1rem;
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f1f3f4;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #004a99;
+            box-shadow: 0 0 0 0.2rem rgba(0, 74, 153, 0.25);
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #004a99 0%, #0066cc 100%);
+            color: white;
+            border: none;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .badge-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .badge-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            color: #212529;
+        }
+        
+        .badge-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+        }
+        
+        .search-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .claimed-users {
+            max-height: 100px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 0.5rem;
+        }
+        
+        .claimed-user-id {
+            display: inline-block;
+            background: #004a99;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin: 0.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-lock me-2"></i>Admin Authentication
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="adminPassword" class="form-label">Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-gift me-2"></i>Gift Code Management
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid main-container" id="mainContent" style="display: none;">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="totalCodes">0</div>
+                    <div class="stats-label">Total Gift Codes</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="activeCodes">0</div>
+                    <div class="stats-label">Active Codes</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="totalClaims">0</div>
+                    <div class="stats-label">Total Claims</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="totalRewards">$0</div>
+                    <div class="stats-label">Total Rewards</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Actions -->
+        <div class="search-container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search gift codes...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success" onclick="showCreateModal()">
+                        <i class="fas fa-plus me-2"></i>Create Gift Code
+                    </button>
+                    <button class="btn btn-primary" onclick="loadGiftCodes()">
+                        <i class="fas fa-refresh me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gift Codes Table -->
+        <div class="admin-card">
+            <div class="card-header">
+                <h4><i class="fas fa-gift me-2"></i>Gift Codes Management</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Gift Code</th>
+                                <th>Gift Name</th>
+                                <th>Reward Amount</th>
+                                <th>Usage</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="giftCodesTable">
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading gift codes...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Gift Code Modal -->
+    <div class="modal fade" id="createGiftCodeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Create New Gift Code
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createGiftCodeForm">
+                        <div class="mb-3">
+                            <label for="giftCode" class="form-label">Gift Code *</label>
+                            <input type="text" class="form-control" id="giftCode" required 
+                                   placeholder="e.g., WELCOME2025" style="text-transform: uppercase;">
+                            <div class="form-text">Must be unique. Use uppercase letters and numbers.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="giftName" class="form-label">Gift Name *</label>
+                            <input type="text" class="form-control" id="giftName" required 
+                                   placeholder="e.g., Welcome Bonus">
+                            <div class="form-text">Descriptive name for the gift code.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="totalUser" class="form-label">Maximum Users *</label>
+                            <input type="number" class="form-control" id="totalUser" required 
+                                   min="1" placeholder="100">
+                            <div class="form-text">Maximum number of users who can claim this code.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rewardAmount" class="form-label">Reward Amount *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="rewardAmount" required 
+                                       min="0" step="0.01" placeholder="50.00">
+                            </div>
+                            <div class="form-text">Amount users will receive when claiming this code.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="createGiftCode()">
+                        <i class="fas fa-plus me-2"></i>Create Gift Code
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Code Details Modal -->
+    <div class="modal fade" id="giftCodeDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-gift me-2"></i>Gift Code Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="giftCodeDetailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let adminPassword = '';
+        let giftCodes = [];
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPassword = getCookie('admin_password');
+            if (savedPassword) {
+                adminPassword = savedPassword;
+                document.getElementById('mainContent').style.display = 'block';
+                loadGiftCodes();
+            } else {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            // Test password with a simple API call
+            fetch('api/gift-code.php/get', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    admin_password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    adminPassword = password;
+                    setCookie('admin_password', password, 1);
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    document.getElementById('mainContent').style.display = 'block';
+                    loadGiftCodes();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'Welcome to the admin panel!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Failed',
+                        text: 'Invalid admin password'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Unable to connect to server'
+                });
+            });
+        });
+
+        // Load gift codes
+        function loadGiftCodes() {
+            fetch('api/gift-code.php/get', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    admin_password: adminPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    giftCodes = data.result;
+                    displayGiftCodes(giftCodes);
+                    updateStatistics();
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading gift codes:', error);
+                document.getElementById('giftCodesTable').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Error loading gift codes: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Display gift codes in table
+        function displayGiftCodes(codes) {
+            const tbody = document.getElementById('giftCodesTable');
+            
+            if (codes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-gift me-2"></i>No gift codes found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = codes.map(code => {
+                const claimedCount = Array.isArray(code.claimed) ? code.claimed.length : 0;
+                const usagePercent = (claimedCount / code.total_user * 100).toFixed(1);
+                const isActive = claimedCount < code.total_user;
+                
+                return `
+                    <tr>
+                        <td>
+                            <strong>${code.gift_code}</strong>
+                        </td>
+                        <td>${code.gift_name}</td>
+                        <td>
+                            <span class="badge badge-success">$${parseFloat(code.reward_amount).toFixed(2)}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">${claimedCount}/${code.total_user}</span>
+                                <div class="progress flex-grow-1" style="height: 6px;">
+                                    <div class="progress-bar ${usagePercent >= 100 ? 'bg-danger' : usagePercent >= 80 ? 'bg-warning' : 'bg-success'}" 
+                                         style="width: ${Math.min(usagePercent, 100)}%"></div>
+                                </div>
+                                <small class="ms-2 text-muted">${usagePercent}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
+                                ${isActive ? 'Active' : 'Exhausted'}
+                            </span>
+                        </td>
+                        <td>
+                            <small class="text-muted">${new Date(code.created_at).toLocaleDateString()}</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="showGiftCodeDetails('${code.gift_code}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteGiftCode('${code.gift_code}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalCodes = giftCodes.length;
+            const activeCodes = giftCodes.filter(code => {
+                const claimedCount = Array.isArray(code.claimed) ? code.claimed.length : 0;
+                return claimedCount < code.total_user;
+            }).length;
+            const totalClaims = giftCodes.reduce((sum, code) => {
+                return sum + (Array.isArray(code.claimed) ? code.claimed.length : 0);
+            }, 0);
+            const totalRewards = giftCodes.reduce((sum, code) => {
+                const claimedCount = Array.isArray(code.claimed) ? code.claimed.length : 0;
+                return sum + (claimedCount * parseFloat(code.reward_amount));
+            }, 0);
+
+            document.getElementById('totalCodes').textContent = totalCodes;
+            document.getElementById('activeCodes').textContent = activeCodes;
+            document.getElementById('totalClaims').textContent = totalClaims;
+            document.getElementById('totalRewards').textContent = `$${totalRewards.toFixed(2)}`;
+        }
+
+        // Show create modal
+        function showCreateModal() {
+            document.getElementById('createGiftCodeForm').reset();
+            new bootstrap.Modal(document.getElementById('createGiftCodeModal')).show();
+        }
+
+        // Create gift code
+        function createGiftCode() {
+            const form = document.getElementById('createGiftCodeForm');
+            const formData = new FormData(form);
+            
+            const giftCodeData = {
+                admin_password: adminPassword,
+                gift_code: document.getElementById('giftCode').value.toUpperCase(),
+                gift_name: document.getElementById('giftName').value,
+                total_user: parseInt(document.getElementById('totalUser').value),
+                reward_amount: parseFloat(document.getElementById('rewardAmount').value),
+                claimed: []
+            };
+
+            fetch('api/gift-code.php/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(giftCodeData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('createGiftCodeModal')).hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Gift code created successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    loadGiftCodes();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error creating gift code:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to create gift code'
+                });
+            });
+        }
+
+        // Show gift code details
+        function showGiftCodeDetails(giftCode) {
+            const code = giftCodes.find(c => c.gift_code === giftCode);
+            if (!code) return;
+
+            const claimedCount = Array.isArray(code.claimed) ? code.claimed.length : 0;
+            const usagePercent = (claimedCount / code.total_user * 100).toFixed(1);
+            
+            const detailsContent = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Basic Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Gift Code:</strong></td><td>${code.gift_code}</td></tr>
+                            <tr><td><strong>Gift Name:</strong></td><td>${code.gift_name}</td></tr>
+                            <tr><td><strong>Reward Amount:</strong></td><td>$${parseFloat(code.reward_amount).toFixed(2)}</td></tr>
+                            <tr><td><strong>Created At:</strong></td><td>${new Date(code.created_at).toLocaleString()}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Usage Statistics</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Total Users:</strong></td><td>${code.total_user}</td></tr>
+                            <tr><td><strong>Claimed:</strong></td><td>${claimedCount}</td></tr>
+                            <tr><td><strong>Remaining:</strong></td><td>${code.total_user - claimedCount}</td></tr>
+                            <tr><td><strong>Usage:</strong></td><td>${usagePercent}%</td></tr>
+                        </table>
+                    </div>
+                </div>
+                ${claimedCount > 0 ? `
+                    <div class="mt-3">
+                        <h6 class="text-primary">Claimed by Users</h6>
+                        <div class="claimed-users">
+                            ${code.claimed.map(userId => `<span class="claimed-user-id">${userId}</span>`).join('')}
+                        </div>
+                    </div>
+                ` : '<div class="alert alert-info mt-3">No users have claimed this gift code yet.</div>'}
+            `;
+
+            document.getElementById('giftCodeDetailsContent').innerHTML = detailsContent;
+            new bootstrap.Modal(document.getElementById('giftCodeDetailsModal')).show();
+        }
+
+        // Delete gift code
+        function deleteGiftCode(giftCode) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Delete gift code "${giftCode}"? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`api/gift-code.php/delete/${giftCode}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            admin_password: adminPassword
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Gift code has been deleted.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            loadGiftCodes();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting gift code:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete gift code'
+                        });
+                    });
+                }
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredCodes = giftCodes.filter(code => 
+                code.gift_code.toLowerCase().includes(searchTerm) ||
+                code.gift_name.toLowerCase().includes(searchTerm)
+            );
+            displayGiftCodes(filteredCodes);
+        });
+
+        // Auto-uppercase gift code input
+        document.getElementById('giftCode').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Logout function
+        function logout() {
+            deleteCookie('admin_password');
+            location.reload();
+        }
+
+        // Cookie functions
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+        
+        function redirect(url, vibrate) {
+            if (vibrate && navigator.vibrate) navigator.vibrate(7);
+            window.location.href = url;
+        }
+        navFooter.add(
+            {
+                theme: 'dark',
+                selectedColor: 'blue'
+            },
+            [
+                {
+                    name: "Dashboard",
+                    icon: "fa-house",
+                    onClick: (e) => redirect("index.html", true)
+                },
+                {
+                    name: "Users",
+                    icon: "fa-user",
+                    onClick: (e) => redirect("users.html", true)
+                },
+                {
+                    name: "Gift Codes",
+                    icon: "fa-gift",
+                    onClick: (e) => redirect("gift-code.html", true),
+                    selected: true
+                },
+                {
+                    name: "Task",
+                    icon: "fa-list-check",
+                    onClick: (e) => redirect("task.html", true)
+                },
+                {
+                    name: "Settings",
+                    icon: "fa-gear",
+                    onClick: (e) => redirect("settings.html", true)
+                },
+                {
+                    name: "Withdraws",
+                    icon: "fa-money-bill",
+                    onClick: (e) => redirect("withdrawals.html", true)
+                }
+            ]
+        );
+    </script>
+</body>
+</html>

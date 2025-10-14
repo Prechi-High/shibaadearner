@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Badges System</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <script src="https://cdn.jsdelivr.net/npm/party-js@2.2.0/lib/party.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --badge-gradient-1: linear-gradient(135deg, #8B5CF6, #A78BFA);
+      --badge-gradient-2: linear-gradient(135deg, #06B6D4, #67E8F9);
+      --badge-gradient-3: linear-gradient(135deg, #10B981, #6EE7B7);
+      --badge-gradient-4: linear-gradient(135deg, #F59E0B, #FCD34D);
+      --badge-gradient-5: linear-gradient(135deg, #EF4444, #FCA5A5);
+      --badge-gradient-6: linear-gradient(135deg, #EC4899, #F9A8D4);
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Exo", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-top: 70px;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    body::-webkit-scrollbar,
+    .scrollable::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 20px;
+      padding-bottom: 100px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .profile-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .profile-picture {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 700;
+      object-fit: cover;
+    }
+    .profile-picture.initial {
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+    }
+    .profile-info {
+      text-align: left;
+    }
+    .profile-name {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .profile-id {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin: 5px 0 0 0;
+    }
+    .profile-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      margin: 15px 0;
+    }
+    .profile-badge {
+      color: var(--gold-color);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .profile-motivation {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .badge-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    .badge-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--badge-gradient);
+    }
+    .badge-card.current {
+      border: 2px solid var(--gold-color);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+      transform: scale(1.02);
+    }
+    .badge-card.current::after {
+      content: 'CURRENT';
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--gold-color);
+      color: var(--text-dark);
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-card.acquired::after {
+      content: 'ACQUIRED';
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--success-color);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .badge-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+      background: var(--badge-gradient);
+    }
+    .badge-info h3 {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .badge-info p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin: 5px 0 0 0;
+    }
+    .badge-benefits {
+      margin-bottom: 20px;
+    }
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: white;
+      font-size: 0.95rem;
+    }
+    .benefit-icon {
+      width: 20px;
+      height: 20px;
+      background: var(--success-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .badge-price {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 15px;
+    }
+    .price-amount {
+      color: var(--gold-color);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .upgrade-button {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+      border: none;
+      border-radius: 12px;
+      padding: 15px 20px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+    .upgrade-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+    }
+    .star-icon {
+      width: 20px;
+      height: 20px;
+    }
+    .max-level {
+      text-align: center;
+      color: var(--gold-color);
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 15px;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 12px;
+    }
+    .badge-card[data-level="lv0"] .badge-icon,
+    .badge-card[data-level="lv0"]::before {
+      background: linear-gradient(135deg, #6B7280, #9CA3AF);
+    }
+    .badge-card[data-level="lv1"] .badge-icon,
+    .badge-card[data-level="lv1"]::before {
+      background: var(--badge-gradient-1);
+    }
+    .badge-card[data-level="lv2"] .badge-icon,
+    .badge-card[data-level="lv2"]::before {
+      background: var(--badge-gradient-2);
+    }
+    .badge-card[data-level="lv3"] .badge-icon,
+    .badge-card[data-level="lv3"]::before {
+      background: var(--badge-gradient-3);
+    }
+    .badge-card[data-level="lv4"] .badge-icon,
+    .badge-card[data-level="lv4"]::before {
+      background: var(--badge-gradient-4);
+    }
+    .badge-card[data-level="lv5"] .badge-icon,
+    .badge-card[data-level="lv5"]::before {
+      background: var(--badge-gradient-5);
+    }
+    .badge-card[data-level="lv6"] .badge-icon,
+    .badge-card[data-level="lv6"]::before {
+      background: var(--badge-gradient-6);
+    }
+    @media (max-width: 768px) {
+      .badges-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .profile-name {
+        font-size: 1.2rem;
+      }
+      .profile-picture {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+      .badge-card {
+        padding: 20px;
+      }
+      .badge-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+      .badge-info h3 {
+        font-size: 1.2rem;
+      }
+    }
+    .celebration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="profile-section">
+      <div class="profile-header">
+        <img class="profile-picture" id="profilePicture" alt="Profile Picture">
+        <div class="profile-info">
+          <h3 class="profile-name" id="profileName">Loading...</h3>
+          <p class="profile-id" id="profileId"></p>
+        </div>
+      </div>
+      <div class="profile-divider"></div>
+      <div class="profile-badge" id="currentBadge">Your Badge: Loading...</div>
+      <div class="profile-divider"></div>
+      <div class="profile-motivation">Upgrade your badges to the maximum to maximize your earnings</div>
+    </div>
+    <div class="badges-grid" id="badgesGrid">
+      <!-- Badge cards will be generated by JavaScript -->
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.history.back();
+    });
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const badgesGrid = document.getElementById('badgesGrid');
+    const profilePicture = document.getElementById('profilePicture');
+    const profileName = document.getElementById('profileName');
+    const profileId = document.getElementById('profileId');
+    const currentBadge = document.getElementById('currentBadge');
+
+    // Variables
+    let currentInitData = null;
+    let badgesData = null;
+
+    // Badge icons and names mapping
+    const badgeIcons = {
+      'lv0': 'fas fa-circle',
+      'lv1': 'fas fa-star',
+      'lv2': 'fas fa-gem',
+      'lv3': 'fas fa-crown',
+      'lv4': 'fas fa-trophy',
+      'lv5': 'fas fa-medal',
+      'lv6': 'fas fa-fire'
+    };
+    const badgeNames = {
+      'lv0': 'No Badge',
+      'lv1': 'Bronze Star',
+      'lv2': 'Silver Gem',
+      'lv3': 'Gold Crown',
+      'lv4': 'Platinum Trophy',
+      'lv5': 'Diamond Medal',
+      'lv6': 'Legendary Fire'
+    };
+
+    function initApp() {
+      if (!loadingScreen || !mainContent || !badgesGrid || !profilePicture || !profileName || !profileId || !currentBadge) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      const user = tg.initDataUnsafe.user;
+      if (user) {
+        profileName.textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+        profileId.textContent = `ID: ${user.id || 'Unknown'}`;
+        if (user.photo_url) {
+          profilePicture.src = user.photo_url;
+        } else {
+          profilePicture.classList.add('initial');
+          profilePicture.outerHTML = `<div class="profile-picture initial" id="profilePicture">${user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U'}</div>`;
+        }
+      }
+      fetchBadgesData();
+      tg.onEvent('invoiceClosed', handleInvoiceClosed);
+    }
+
+    async function fetchBadgesData() {
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        const [response] = await Promise.all([
+          fetch('api/badges.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ init_data: currentInitData })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+        badgesData = data.result;
+        displayProfileBadge();
+        displayBadges();
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching badges data:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+
+    function displayProfileBadge() {
+      if (!badgesData) return;
+      currentBadge.textContent = `Your Badge: ${badgeNames[badgesData.my_badge] || 'None'}`;
+    }
+
+    function displayBadges() {
+      if (!badgesData) return;
+      const { my_badge, levels } = badgesData;
+      badgesGrid.innerHTML = '';
+      const currentLevelIndex = my_badge === 'lv0' ? -1 : levels.findIndex(l => l.level === my_badge);
+      levels.forEach((badge, index) => {
+        const isCurrent = badge.level === my_badge;
+        const isMaxLevel = badge.level === 'lv6';
+        const isAcquired = currentLevelIndex >= index;
+        const canUpgrade = index === currentLevelIndex + 1;
+        const badgeCard = document.createElement('div');
+        badgeCard.className = `badge-card ${isCurrent ? 'current' : ''} ${isAcquired && !isCurrent ? 'acquired' : ''}`;
+        badgeCard.setAttribute('data-level', badge.level);
+        badgeCard.innerHTML = `
+          <div class="badge-header">
+            <div class="badge-icon">
+              <i class="${badgeIcons[badge.level]}"></i>
+            </div>
+            <div class="badge-info">
+              <h3>${badgeNames[badge.level]}</h3>
+              <p>Level ${badge.level.replace('lv', '')}</p>
+            </div>
+          </div>
+          <div class="badge-benefits">
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-plus"></i>
+              </div>
+              <span>+${badge.task_increase}% Task Rewards</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-star"></i>
+              </div>
+              <span>Exclusive ${badgeNames[badge.level]} Status</span>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-icon">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <span>Enhanced Profile Badge</span>
+            </div>
+          </div>
+          ${canUpgrade ? `
+            <div class="badge-price">
+              <svg class="star-icon" viewBox="0 0 24 24" fill="none">
+                <defs>
+                  <linearGradient id="paint0_linear_${badge.level}" x1="2.00049" y1="9.54915" x2="21.4697" y2="14.2014" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFD700"/>
+                    <stop offset="1" stop-color="#FFA500"/>
+                  </linearGradient>
+                </defs>
+                <path d="M8.7221 7.50194L11.1473 2.67049C11.4277 2.11345 12.106 1.88988 12.6593 2.17029C12.8753 2.28018 13.0496 2.45828 13.1595 2.67807L15.452 7.339C15.6377 7.72173 16.0053 7.97941 16.4259 8.02867L21.2195 8.60465C21.8712 8.68423 22.3373 9.27916 22.2615 9.93473C22.2274 10.2038 22.1062 10.4539 21.9129 10.6433L18.1198 14.3835C17.9644 14.535 17.8924 14.7472 17.9189 14.9632L18.5517 20.0107C18.6427 20.7345 18.1311 21.3938 17.4111 21.4848C17.1383 21.5189 16.8655 21.4696 16.623 21.337L12.6176 19.1467C12.3258 18.9876 11.9772 18.9838 11.6854 19.1353L7.53223 21.265C6.94867 21.5643 6.23627 21.3294 5.93691 20.742C5.82322 20.5222 5.78533 20.2759 5.81944 20.0334L6.14911 17.7143C6.31205 16.5813 7.01309 15.5961 8.02864 15.0769L12.6365 12.7237C12.7578 12.6631 12.807 12.5115 12.7464 12.3865C12.6972 12.2917 12.5948 12.2349 12.4887 12.25L6.85015 13.061C5.98996 13.1822 5.1184 12.9397 4.4401 12.3865L2.56436 10.8555C2.03006 10.4198 1.9429 9.624 2.37868 9.08591C2.58331 8.83581 2.87509 8.67286 3.1934 8.63118L8.00591 8.01351C8.31285 7.97183 8.58189 7.78236 8.7221 7.50194Z" fill="url(#paint0_linear_${badge.level})"></path>
+              </svg>
+              <span class="price-amount">${badge.price}</span>
+            </div>
+            <button class="upgrade-button" onclick="upgradeBadge('${badge.level}', ${badge.price})">
+              UPGRADE TO ${badge.level.toUpperCase()} WITH
+              <svg class="star-icon" viewBox="0 0 24 24" fill="none">
+                <defs>
+                  <linearGradient id="paint0_linear_upgrade_${badge.level}" x1="2.00049" y1="9.54915" x2="21.4697" y2="14.2014" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFD700"/>
+                    <stop offset="1" stop-color="#FFA500"/>
+                  </linearGradient>
+                </defs>
+                <path d="M8.7221 7.50194L11.1473 2.67049C11.4277 2.11345 12.106 1.88988 12.6593 2.17029C12.8753 2.28018 13.0496 2.45828 13.1595 2.67807L15.452 7.339C15.6377 7.72173 16.0053 7.97941 16.4259 8.02867L21.2195 8.60465C21.8712 8.68423 22.3373 9.27916 22.2615 9.93473C22.2274 10.2038 22.1062 10.4539 21.9129 10.6433L18.1198 14.3835C17.9644 14.535 17.8924 14.7472 17.9189 14.9632L18.5517 20.0107C18.6427 20.7345 18.1311 21.3938 17.4111 21.4848C17.1383 21.5189 16.8655 21.4696 16.623 21.337L12.6176 19.1467C12.3258 18.9876 11.9772 18.9838 11.6854 19.1353L7.53223 21.265C6.94867 21.5643 6.23627 21.3294 5.93691 20.742C5.82322 20.5222 5.78533 20.2759 5.81944 20.0334L6.14911 17.7143C6.31205 16.5813 7.01309 15.5961 8.02864 15.0769L12.6365 12.7237C12.7578 12.6631 12.807 12.5115 12.7464 12.3865C12.6972 12.2917 12.5948 12.2349 12.4887 12.25L6.85015 13.061C5.98996 13.1822 5.1184 12.9397 4.4401 12.3865L2.56436 10.8555C2.03006 10.4198 1.9429 9.624 2.37868 9.08591C2.58331 8.83581 2.87509 8.67286 3.1934 8.63118L8.00591 8.01351C8.31285 7.97183 8.58189 7.78236 8.7221 7.50194Z" fill="url(#paint0_linear_upgrade_${badge.level})"></path>
+              </svg>
+              ${badge.price}
+            </button>
+          ` : isCurrent && isMaxLevel ? `
+            <div class="max-level">
+              <i class="fas fa-crown"></i> Maximum Level Reached
+            </div>
+          ` : ''}
+        `;
+        badgesGrid.appendChild(badgeCard);
+      });
+    }
+
+    async function upgradeBadge(level, price) {
+      try {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        button.disabled = true;
+        const response = await fetch('api/badge-invoice.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ init_data: currentInitData })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          button.innerHTML = originalText;
+          button.disabled = false;
+          return;
+        }
+        tg.openInvoice(data.result, (status) => {
+          console.log('Invoice callback:', status);
+        });
+        button.innerHTML = originalText;
+        button.disabled = false;
+      } catch (error) {
+        console.error('Error creating invoice:', error);
+        showError('Network Error', 'Failed to create invoice. Please try again later.');
+        const button = event.target;
+        button.innerHTML = button.getAttribute('data-original-text') || 'UPGRADE';
+        button.disabled = false;
+      }
+    }
+
+    function handleInvoiceClosed(eventData) {
+      console.log('Invoice closed:', eventData);
+      if (eventData.status === 'paid') {
+        showCelebration();
+        showSuccess('Upgrade Successful!', 'Your badge has been upgraded successfully!');
+        setTimeout(() => {
+          fetchBadgesData();
+        }, 2000);
+      } else if (eventData.status === 'cancelled') {
+        showInfo('Payment Cancelled', 'You cancelled the payment process.');
+      } else if (eventData.status === 'failed') {
+        showError('Payment Failed', 'The payment could not be processed. Please try again.');
+      } else if (eventData.status === 'pending') {
+        showInfo('Payment Pending', 'Your payment is being processed. Please wait...');
+      }
+    }
+
+    function showCelebration() {
+      party.confetti(document.body, {
+        count: party.variation.range(20, 40),
+        spread: party.variation.range(50, 100)
+      });
+      setTimeout(() => {
+        party.sparkles(document.querySelector('.profile-section'), {
+          count: party.variation.range(10, 20)
+        });
+      }, 500);
+      setTimeout(() => {
+        party.confetti(document.body, {
+          count: party.variation.range(15, 25),
+          spread: party.variation.range(30, 60)
+        });
+      }, 1000);
+    }
+
+    function showSuccess(title, text) {
+      Swal.fire({
+        icon: 'success',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    function showInfo(title, text) {
+      Swal.fire({
+        icon: 'info',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

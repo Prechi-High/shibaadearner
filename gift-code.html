@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Claim Gift</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Exo:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      margin-top: 20px;
+      padding-bottom: 100px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .thumbnail {
+      width: 100%;
+      background: url("img/gift-thumnail.jpg") center center / cover no-repeat;
+      border-radius: 15px;
+      border: solid 2px yellow;
+      margin-bottom: 30px;
+      margin-top: 70px;
+    }
+    .section-title {
+      font-size: 1.4rem;
+      color: white;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, var(--primary-color), var(--success-color));
+      border-radius: 2px;
+    }
+    .claim-section {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    .claim-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .claim-instruction {
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      text-align: center;
+    }
+    .gift-code-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    .gift-code-input:focus {
+      border-color: var(--primary-color);
+    }
+    .receive-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .receive-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+    }
+    .receive-button:disabled {
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .history-container {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .history-container::-webkit-scrollbar {
+      display: none;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    .history-info {
+      flex: 1;
+    }
+    .history-name {
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .history-date {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+      margin: 2px 0 0 0;
+    }
+    .history-amount {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--gold-color);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .history-amount::before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .no-data {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 40px 20px;
+      font-size: 1rem;
+    }
+    .no-data i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    @media (max-width: 576px) {
+      .thumbnail {
+        height: 150px;
+      }
+      .section-title {
+        font-size: 1.2rem;
+      }
+      .claim-instruction {
+        font-size: 0.9rem;
+      }
+      .gift-code-input {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+      .receive-button {
+        font-size: 1rem;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="thumbnail"></div>
+    <div class="section-title">Claim Gift</div>
+    <div class="claim-section">
+      <div class="claim-form">
+        <div class="claim-instruction">Enter your gift code to receive your gift</div>
+        <input type="text" id="giftCodeInput" class="gift-code-input" placeholder="Enter Gift Code" autocomplete="off">
+        <button class="receive-button" id="receiveButton">RECEIVE</button>
+      </div>
+    </div>
+    <div class="section-title">History</div>
+    <div class="history-container" id="historyContainer">
+      <div class="no-data">
+        <i class="fas fa-gift"></i>
+        <div>No gift claim history available</div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    tg.BackButton.onClick(function() {
+      window.history.back();
+    });
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const giftCodeInput = document.getElementById('giftCodeInput');
+    const receiveButton = document.getElementById('receiveButton');
+    const historyContainer = document.getElementById('historyContainer');
+
+    // Variables
+    let currentInitData = null;
+
+    function initApp() {
+      if (!loadingScreen || !mainContent || !giftCodeInput || !receiveButton || !historyContainer) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      fetchGiftHistory();
+      setupClaimButton();
+    }
+
+    async function fetchGiftHistory() {
+      try {
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        const [response] = await Promise.all([
+          fetch('api/gift-history.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ init_data: currentInitData })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+        displayGiftHistory(data.result);
+        loadingScreen.style.display = 'none';
+        mainContent.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching gift history:', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later.');
+      } finally {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }, 1000);
+      }
+    }
+
+    function displayGiftHistory(history) {
+      if (!history || history.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="no-data">
+            <i class="fas fa-gift"></i>
+            <div>No gift claim history available</div>
+          </div>
+        `;
+        return;
+      }
+      historyContainer.innerHTML = '';
+      // Sort history by date (newest to oldest)
+      const sortedHistory = history.sort((a, b) => {
+        const dateA = new Date(a.date.split('/').reverse().join('-'));
+        const dateB = new Date(b.date.split('/').reverse().join('-'));
+        return dateB - dateA;
+      });
+      sortedHistory.forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerHTML = `
+          <div class="history-info">
+            <div class="history-name">${item.gift_name}</div>
+            <div class="history-date">${item.date}</div>
+          </div>
+          <div class="history-amount">${item.amount}</div>
+        `;
+        historyContainer.appendChild(historyItem);
+      });
+    }
+
+    function setupClaimButton() {
+      receiveButton.onclick = async () => {
+        const giftCode = giftCodeInput.value.trim();
+        if (!giftCode) {
+          showError('Invalid Input', 'Please enter a valid gift code.');
+          return;
+        }
+        try {
+          receiveButton.disabled = true;
+          receiveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+          const response = await fetch('api/claim-gift.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ init_data: currentInitData, gift_code: giftCode })
+          });
+          const data = await response.json();
+          receiveButton.disabled = false;
+          receiveButton.innerHTML = 'RECEIVE';
+          if (!data.ok) {
+            showError('Error', data.message);
+            return;
+          }
+          showSuccess('Success', data.message);
+          giftCodeInput.value = '';
+          fetchGiftHistory();
+        } catch (error) {
+          console.error('Error claiming gift:', error);
+          showError('Network Error', 'Failed to claim gift. Please try again later.');
+          receiveButton.disabled = false;
+          receiveButton.innerHTML = 'RECEIVE';
+        }
+      };
+    }
+
+    function showSuccess(title, text) {
+      Swal.fire({
+        icon: 'success',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

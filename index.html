@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Main Dashboard</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?58"></script>
+  <script src="profile-button.js"></script>
+  <script src=" https://sad.adsgram.ai/js/sad.min.js "></script>
+  
+  <script src="https://ad.gigapub.tech/script?id=1901"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com ">
+  <link rel="preconnect" href="https://fonts.gstatic.com " crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Exo:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link href=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css " rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css ">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js "></script>
+  <script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js "></script>
+  <style>
+    :root {
+      --primary-bg: #ffeb3b;
+      --dark-accent: #f57c00;
+      --text-dark: #212121;
+      --text-light: #555;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --success-color: #10b981;
+      --primary-color: #7c3aed;
+      --text-color: #e0e0e0;
+      --bg-color: #121212;
+      --gold-color: #ffd700;
+      --warning-color: #f59e0b;
+    }
+    body {
+      background: url("img/background.jpg") center center fixed;
+      background-size: cover;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      color: var(--text-dark);
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .loading-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #a722f6;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: yellow;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    .scratch-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2001;
+    }
+    .fixed-header {
+      flex-shrink: 0;
+      padding-bottom: 20px;
+    }
+    .top-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7%;
+    }
+    .top-button {
+      background: none;
+      border: none;
+      margin-top: 60px;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .top-icon {
+      width: 200px;
+      height: 200px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      pointer-events: none;
+    }
+    .rank-icon {
+      background-image: url('img/rank.png');
+    }
+    .invitation-icon {
+      background-image: url('img/invitation.png');
+    }
+    .cashout-icon {
+      background-image: url('img/cashout.png');
+    }
+    .progress-container {
+      padding: 15px;
+      border-radius: 20px;
+      margin-bottom: 5px;
+    }
+    .balance-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 5px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #FFCC21;
+    }
+    .balance-display::before {
+      content: '';
+      width: 30px;
+      height: 30px;
+      background-image: url('img/double-coin.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      margin-right: 8px;
+    }
+    .progress-bar-container {
+      position: relative;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      margin-bottom: 5px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f2c80a, #f27e0a);
+      border-radius: 25px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .progress-info {
+      text-align: center;
+      font-size: 0.9rem;
+      color: white;
+      font-style: italic;
+      font-weight: 700;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+    }
+    .action-button {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      animation: float 2s ease-in-out infinite;
+    }
+    .action-button:nth-child(1) { animation-delay: 0s; }
+    .action-button:nth-child(2) { animation-delay: 0.2s; }
+    .action-button:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .action-icon {
+      width: 100px;
+      height: 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      pointer-events: none;
+    }
+    .invite-icon {
+      background-image: url('img/lucky-box.png');
+    }
+    .checkin-icon {
+      background-image: url('img/check-in.png');
+    }
+    .tasks-icon {
+      background-image: url('img/extra-task.png');
+    }
+    .scratch-card-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .scratch-cards-scrollable {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 70px;
+      padding-right: 5px;
+    }
+    .scratch-cards-scrollable::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scratch-cards-scrollable::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    .scratch-cards-scrollable::-webkit-scrollbar-thumb {
+      background: rgba(245, 124, 0, 0.6);
+      border-radius: 3px;
+    }
+    .scratch-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding-bottom: 20px;
+    }
+    .scratch-card {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      border-radius: 15px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .scratch-card.active {
+      transform: scale(1.05);
+      filter: brightness(1.3);
+      border: solid purple 2px;
+    }
+    .scratch-card.zero {
+      opacity: 0.7;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #e6f2ff, #cce5ff, #e6f2ff);
+    }
+    .scratch-card-shimmer {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      to { left: 100%; }
+    }
+    .no-scratch-card {
+      width: 99vw;
+      max-width: 390px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background-image: url('img/envelop-Animation.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 15px;
+      opacity: 1;
+    }
+    .no-scratch-text {
+      text-align: center;
+      font-style: italic;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+      margin-top: 10px;
+      color: white;
+      font-size: 19px;
+    }
+    .yellow-text {
+      color: #FFCC21;
+    }
+    .scratch-popup-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 330px;
+      height: 330px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      z-index: 2000;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .scratch-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      filter: brightness(1.3);
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 1999;
+      display: none;
+    }
+    .scratch-popup-overlay.active {
+      display: block;
+      filter: brightness(1.3);
+    }
+    .scratch-popup-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      cursor: pointer;
+      border-radius: 12px;
+    }
+    .scratch-prize-reveal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+    .scratch-prize-reveal.visible {
+      opacity: 1.3;
+    }
+    .scratch-prize-amount {
+      font-size: 2.1rem;
+      color: green;
+      font-weight: bold;
+      padding: 0px 30px;
+      border-radius: 15px;
+      margin-bottom: 0;
+    }
+    .scratch-prize-text {
+      display: none;
+    }
+    .scratch-prize-icon {
+      display: none;
+    }
+    .celebration-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .checkin-modal .modal-content {
+      background: white;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .checkin-modal .modal-header {
+      background: var(--dark-accent);
+      border-bottom: none;
+      padding: 15px 20px;
+    }
+    .checkin-modal .modal-title {
+      font-style: italic;
+      font-weight: 800;
+      color: white;
+      font-size: 1.5rem;
+      width: 100%;
+      text-align: center;
+    }
+    .checkin-modal .btn-close {
+      background: none;
+      color: white;
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+    .checkin-modal .modal-body {
+      padding: 20px;
+    }
+    .checkin-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .checkin-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+    .checkin-box {
+      position: relative;
+      border-radius: 10px;
+      padding: 15px 10px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 2px solid var(--dark-accent);
+      transition: all 0.3s ease;
+      transform: scale(1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+    }
+    .checkin-row.first-row .checkin-box {
+      flex: 1;
+    }
+    .checkin-row.second-row .checkin-box:not(.premium) {
+      flex: 1;
+    }
+    .checkin-row.second-row .checkin-box.premium {
+      flex: 2;
+    }
+    .checkin-box.today {
+      background: linear-gradient(135deg, var(--primary-bg), #fff176);
+      border: 2px solid var(--dark-accent);
+    }
+    .checkin-box.premium {
+      background: linear-gradient(135deg, var(--gold-color), #ffa500);
+      border: 3px solid #d12de0;
+      color: var(--text-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .checkin-box.claimed {
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      border: 3px solid var(--success-color);
+      color: white;
+      opacity: 0.95;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .checkin-box.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      border: 2px solid #d1d5db;
+      color: #6b7280;
+    }
+    .checkin-day {
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      font-weight: 700;
+      position: relative;
+      z-index: 2;
+    }
+    .checkin-reward {
+      font-size: 0.95rem;
+      font-weight: bold;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+    .checkin-today-badge {
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark-accent);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      font-weight: 600;
+      z-index: 3;
+    }
+    .checkin-footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .checkin-message {
+      color: var(--text-dark);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    .checkin-btn {
+      background: linear-gradient(135deg, var(--dark-accent), #e65100);
+      border: none;
+      padding: 12px 35px;
+      border-radius: 25px;
+      font-weight: 700;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+    .checkin-btn:active {
+      transform: scale(0.98);
+    }
+    .checkin-btn-alt {
+      background: none;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    .checkin-btn-alt:active {
+      transform: scale(0.98);
+    }
+    .countdown-timer {
+      color: var(--warning-color);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 15px 0;
+    }
+    .gem-animation-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .gem-animation-overlay.active {
+      display: flex;
+    }
+    .gem-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .gem-icon {
+      width: 120px;
+      height: 120px;
+      background-image: url('img/gem.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
+      animation: gemShine 2s ease-in-out infinite;
+    }
+    .gem-icon::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      right: -20px;
+      bottom: -20px;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: shine 2s ease-in-out infinite;
+    }
+    .gem-amount {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 20px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    @keyframes gemFlyToCorner {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(200px, -300px) scale(0.2); opacity: 0; }
+    }
+    .gem-amount-fly {
+      animation: gemFlyToCorner 1.5s ease-in-out forwards;
+    }
+    @media (max-width: 576px) {
+      .top-button { padding: 0; }
+      .top-icon { width: 90px; height: 90px; }
+      .scratch-card, .no-scratch-card { max-width: 280px; }
+      .action-buttons { gap: 60px; }
+      .action-icon { width: 80px; height: 80px; }
+      .checkin-modal .modal-dialog { margin: 10px; }
+      .balance-display { font-size: 1.5rem; }
+      .checkin-box { padding: 12px 8px; min-height: 70px; }
+      .checkin-day { font-size: 0.8rem; }
+      .checkin-reward { font-size: 0.9rem; }
+      .scratch-popup-container { width: 300px; height: 300px; }
+      .container { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <span class="loader"></span>
+  </div>
+  <div class="container" id="mainContent" style="display: none;">
+    <div class="fixed-header">
+      <div class="top-section">
+        <button class="top-button" onclick="window.location.href='ranks.html'">
+          <div class="top-icon rank-icon"></div>
+        </button>
+        <button class="top-button" onclick="window.location.href='invitation.html'">
+          <div class="top-icon invitation-icon"></div>
+        </button>
+        <button class="top-button" onclick="window.location.href='cashout.html'">
+          <div class="top-icon cashout-icon"></div>
+        </button>
+      </div>
+      <div class="progress-container">
+        <div class="balance-display" id="balanceDisplay">$0.00</div>
+        <div class="progress-bar-container">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-info" id="progressInfo">Only $50 to cash out of $100</div>
+      </div>
+      <div class="action-buttons">
+        <button class="action-button" onclick="window.location.href='lucky-box.html'">
+          <div class="action-icon invite-icon"></div>
+        </button>
+        <button class="action-button" id="checkInButton">
+          <div class="action-icon checkin-icon"></div>
+        </button>
+        <button class="action-button" onclick="window.location.href='tasks.html'">
+          <div class="action-icon tasks-icon"></div>
+        </button>
+      </div>
+    </div>
+    <div class="scratch-card-container">
+      <div class="scratch-cards-scrollable">
+        <div class="scratch-card-grid" id="scratchCardGrid"></div>
+        <div class="no-scratch-card" id="noScratchCard"></div>
+        <div class="no-scratch-text" id="noScratchText" style="display: none;">Invite friend to win <span class="yellow-text">scratch card</span></div>
+      </div>
+    </div>
+    <div class="scratch-popup-overlay" id="scratchPopupOverlay">
+      <div class="scratch-popup-container" id="scratchPopupContainer">
+        <div class="scratch-loading" id="scratchLoading" style="display: none;">
+          <span class="loader"></span>
+        </div>
+        <canvas class="scratch-popup-canvas" id="scratchPopupCanvas"></canvas>
+        <div class="scratch-prize-reveal" id="scratchPrizeReveal">
+          <div class="scratch-prize-amount" id="scratchPrizeAmount">$0</div>
+          <div class="scratch-prize-text" id="scratchPrizeText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade checkin-modal" id="checkInModal" tabindex="-1" aria-labelledby="checkInModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="checkInModalLabel">Daily Rewards</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="checkin-grid" id="checkInGrid"></div>
+          <div class="checkin-footer" id="checkInFooter"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="celebration-container" id="celebrationContainer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js "></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11 "></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    if (tg.platform === 'android' || tg.platform === 'ios') {
+      tg.requestFullscreen();
+    }
+    tg.BackButton.hide();
+    tg.enableClosingConfirmation();
+    tg.disableVerticalSwipes();
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const progressInfo = document.getElementById('progressInfo');
+    const progressFill = document.getElementById('progressFill');
+    const checkInButton = document.getElementById('checkInButton');
+    const scratchCardGrid = document.getElementById('scratchCardGrid');
+    const noScratchCard = document.getElementById('noScratchCard');
+    const noScratchText = document.getElementById('noScratchText');
+    const scratchPopupOverlay = document.getElementById('scratchPopupOverlay');
+    const scratchPopupContainer = document.getElementById('scratchPopupContainer');
+    const scratchLoading = document.getElementById('scratchLoading');
+    const scratchPopupCanvas = document.getElementById('scratchPopupCanvas');
+    const scratchPrizeReveal = document.getElementById('scratchPrizeReveal');
+    const scratchPrizeAmount = document.getElementById('scratchPrizeAmount');
+    const scratchPrizeText = document.getElementById('scratchPrizeText');
+    const checkInModal = new bootstrap.Modal(document.getElementById('checkInModal'));
+    const AdController = window.Adsgram.init({ blockId: "13443" });
+    let userData = null;
+    let currentInitData = null;
+    let scratchingInProgress = false;
+    let partyEffectActive = false;
+    let currentScratchAmount = 0;
+    const scratchImages = [
+      'img/cards/1.jpg',
+      'img/cards/2.jpg',
+      'img/cards/3.jpg',
+      'img/cards/4.jpg',
+      'img/cards/5.jpg'
+    ];
+    const prizeImages = [
+      'img/fc/1.jpg',
+      'img/fc/2.jpg',
+      'img/fc/3.jpg',
+      'img/fc/4.jpg',
+      'img/fc/5.jpg',
+      'img/fc/6.jpg',
+      'img/fc/7.jpg',
+      'img/fc/8.jpg',
+      'img/fc/9.jpg'
+    ];
+    function initApp() {
+      if (!loadingScreen || !mainContent) {
+        console.error('Required DOM elements are missing');
+        showError('Initialization Error', 'Required elements not found. Please refresh the page.');
+        return;
+      }
+      currentInitData = tg.initData;
+      fetchUserData();
+      if (checkInButton) {
+        checkInButton.addEventListener('click', showCheckInPopup);
+      }
+    }
+    function stopCelebration() {
+      if (partyEffectActive) {
+        partyEffectActive = false;
+        resetScratchCard();
+        scratchPopupOverlay.classList.remove('active');
+        fetchUserData();
+      }
+    }
+    function resetScratchCard() {
+      if (scratchPopupCanvas && scratchPrizeReveal) {
+        const ctx = scratchPopupCanvas.getContext('2d');
+        ctx.clearRect(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        scratchPrizeReveal.classList.remove('visible');
+        scratchingInProgress = false;
+        scratchPopupContainer.style.backgroundImage = 'none';
+        scratchLoading.style.display = 'none';
+      }
+    }
+    async function fetchUserData() {
+      try {
+        const [response] = await Promise.all([
+          fetch('api/dashboard.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify({ init_data: currentInitData })
+          }),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
+        const data = await response.json();
+        if (!data.ok) {
+          if (data.message === 'not-found') {
+            window.location.href = 'register.html';
+            return;
+          } else {
+            showError('Error', data.message);
+            return;
+          }
+        }
+        userData = data.result;
+        displayUserData();
+        updateProgressBar();
+        renderScratchCards();
+        if (loadingScreen && mainContent) {
+          loadingScreen.style.display = 'none';
+          mainContent.style.display = 'block';
+        }
+        if (userData && !userData.checked_in) {
+          setTimeout(showCheckInPopup, 1000);
+        }
+      } catch (error) {
+        console.error('Error fetching user ', error);
+        showError('Network Error', 'Failed to connect to server. Please try again later. ' + error);
+      } finally {
+        setTimeout(() => {
+          if (loadingScreen && mainContent) {
+            loadingScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+          }
+        }, 1000);
+      }
+    }
+    function displayUserData() {
+      if (!userData) {
+        console.error('userData is null');
+        showError('Data Error', 'User data not available.');
+        return;
+      }
+      const balance = userData.balance ? userData.balance.toFixed(2) : '0.00';
+      if (balanceDisplay) {
+        balanceDisplay.textContent = "$ " + balance;
+      }
+    }
+    function updateProgressBar() {
+      if (!userData) {
+        console.error('userData is null');
+        return;
+      }
+      const balance = parseFloat(userData.balance) || 0;
+      const minWithdraw = userData.min_withdraw || 100;
+      const remaining = Math.max(0, minWithdraw - balance);
+      if (balanceDisplay) {
+        balanceDisplay.textContent = "$ " + balance.toFixed(2);
+      }
+      if (progressInfo && progressFill) {
+        if (balance >= minWithdraw) {
+          progressInfo.innerHTML = `<b>Ready to cash out!</b>`;
+          progressFill.style.width = '100%';
+        } else {
+          progressInfo.innerHTML = `Only <b><span class="yellow-text">$${remaining.toFixed(2)}</span></b> to cash out of $${minWithdraw.toFixed(2)}</b>`;
+          const progressPercent = minWithdraw > 0 ? (balance / minWithdraw) * 100 : 0;
+          progressFill.style.width = `${Math.min(100, progressPercent)}%`;
+        }
+      }
+    }
+    function renderScratchCards() {
+      if (!scratchCardGrid || !noScratchCard || !noScratchText) {
+        console.error('Scratch card elements not found');
+        return;
+      }
+      const cardCount = userData.scratch_cards || 0;
+      scratchCardGrid.innerHTML = '';
+      if (cardCount > 0) {
+        scratchCardGrid.style.display = 'grid';
+        noScratchCard.style.display = 'none';
+        noScratchText.style.display = 'none';
+        for (let i = 0; i < cardCount; i++) {
+          const randomImage = scratchImages[Math.floor(Math.random() * scratchImages.length)];
+          const scratchCard = document.createElement('div');
+          scratchCard.className = 'scratch-card';
+          scratchCard.style.backgroundImage = `url('${randomImage}')`;
+          scratchCard.dataset.image = randomImage;
+          scratchCard.innerHTML = '<div class="scratch-card-shimmer"></div>';
+          scratchCard.addEventListener('click', () => showScratchPopup(randomImage));
+          scratchCardGrid.appendChild(scratchCard);
+        }
+      } else {
+        scratchCardGrid.style.display = 'none';
+        noScratchCard.style.display = 'flex';
+        noScratchText.style.display = 'block';
+      }
+    }
+    async function showScratchPopup(imageUrl) {
+      if (scratchingInProgress || partyEffectActive) return;
+      scratchingInProgress = true;
+      scratchPopupOverlay.classList.add('active');
+      scratchLoading.style.display = 'flex';
+
+      // Play GigaPub ad before letting user scratch
+      if (typeof window.showGiga === 'function') {
+        try {
+          await window.showGiga();
+        } catch (e) {
+          // Ad failed / was closed — reset UI and abort
+          scratchingInProgress = false;
+          scratchPopupOverlay.classList.remove('active');
+          scratchLoading.style.display = 'none';
+          console.error('GigaPub ad error:', e);
+          showError('Ad Error', 'Failed to play ad. Please try again.');
+          return;
+        }
+      } else {
+        // If gigapub API not available, log and continue (optional fallback)
+        console.warn('window.showGiga is not available — proceeding without ad.');
+      }
+
+      try {
+        const response = await fetch('api/scratch.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', },
+          body: JSON.stringify({ init_data: currentInitData })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          scratchingInProgress = false;
+          scratchPopupOverlay.classList.remove('active');
+          scratchLoading.style.display = 'none';
+          showError('Error', data.message);
+          return;
+        }
+        currentScratchAmount = parseFloat(data.result.amount);
+        // Enforce 1-second delay for loading
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        initializeScratchCard(currentScratchAmount, imageUrl);
+      } catch (error) {
+        scratchingInProgress = false;
+        scratchPopupOverlay.classList.remove('active');
+        scratchLoading.style.display = 'none';
+        console.error('Error scratching card:', error);
+        showError('Connection Error', 'Failed to connect to the server. Please try again.');
+        fetchUserData();
+      }
+    }
+    function initializeScratchCard(amount, imageUrl) {
+      const rect = scratchPopupContainer.getBoundingClientRect();
+      scratchPopupCanvas.width = rect.width;
+      scratchPopupCanvas.height = rect.height;
+      const ctx = scratchPopupCanvas.getContext('2d');
+      const randomPrizeImage = prizeImages[Math.floor(Math.random() * prizeImages.length)];
+      scratchPrizeReveal.style.backgroundImage = `url('${randomPrizeImage}')`;
+      scratchPrizeAmount.textContent = `$${amount.toFixed(2)}`;
+      scratchPrizeText.innerHTML = '';
+      scratchPrizeReveal.classList.add('visible');
+      createScratchOverlay(ctx, imageUrl);
+      scratchLoading.style.display = 'none';
+    }
+    function createScratchOverlay(ctx, imageUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = imageUrl;
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        startScratchingInteraction();
+      };
+      img.onerror = function() {
+        const gradient = ctx.createLinearGradient(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        gradient.addColorStop(0, '#FFD700');
+        gradient.addColorStop(0.3, '#FFA500');
+        gradient.addColorStop(0.5, '#FF8C00');
+        gradient.addColorStop(0.7, '#FFA500');
+        gradient.addColorStop(1, '#FFD700');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        ctx.globalCompositeOperation = 'overlay';
+        for (let i = 0; i < 50; i++) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3})`;
+          ctx.fillRect(Math.random() * scratchPopupCanvas.width, Math.random() * scratchPopupCanvas.height, 3, 3);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#8B4513';
+        ctx.font = `bold ${Math.min(scratchPopupCanvas.width / 12, 18)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('SCRATCH TO WIN', scratchPopupCanvas.width / 2, scratchPopupCanvas.height / 2 - 15);
+        ctx.font = `${Math.min(scratchPopupCanvas.width / 10, 24)}px Arial`;
+        ctx.fillText('ðŸ’°', scratchPopupCanvas.width / 2, scratchPopupCanvas.height / 2 + 15);
+        startScratchingInteraction();
+      };
+    }
+    function startScratchingInteraction() {
+      const ctx = scratchPopupCanvas.getContext('2d');
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 30;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      let isScratching = false;
+      let lastX = 0;
+      let lastY = 0;
+      let totalPixels = scratchPopupCanvas.width * scratchPopupCanvas.height;
+      let scratchedPixels = 0;
+      let lastCheck = 0;
+      function getEventPos(e) {
+        const rect = scratchPopupCanvas.getBoundingClientRect();
+        const scaleX = scratchPopupCanvas.width / rect.width;
+        const scaleY = scratchPopupCanvas.height / rect.height;
+        const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+        return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+      }
+      function startScratch(e) {
+        if (!scratchingInProgress || partyEffectActive) return;
+        isScratching = true;
+        const pos = getEventPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
+        ctx.fill();
+        e.preventDefault();
+      }
+      function scratch(e) {
+        if (!isScratching || !scratchingInProgress || partyEffectActive) return;
+        const pos = getEventPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 15, 0, Math.PI * 2);
+        ctx.fill();
+        lastX = pos.x;
+        lastY = pos.y;
+        if (Date.now() - lastCheck > 100) {
+          checkScratchedPercentage();
+          lastCheck = Date.now();
+        }
+        e.preventDefault();
+      }
+      function stopScratch(e) {
+        isScratching = false;
+        e && e.preventDefault();
+      }
+      function checkScratchedPercentage() {
+        if (partyEffectActive) return;
+        const imageData = ctx.getImageData(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        scratchedPixels = 0;
+        for (let i = 3; i < imageData.data.length; i += 4) {
+          if (imageData.data[i] === 0) {
+            scratchedPixels++;
+          }
+        }
+        const scratchedPercentage = (scratchedPixels / (totalPixels / 4)) * 100;
+        if (scratchedPercentage >= 250) {
+          tg.HapticFeedback.notificationOccurred('success');
+          revealPrize();
+        }
+      }
+      function revealPrize() {
+        if (partyEffectActive) return;
+        partyEffectActive = true;
+        ctx.clearRect(0, 0, scratchPopupCanvas.width, scratchPopupCanvas.height);
+        scratchPopupContainer.style.backgroundImage = 'none';
+        createPartyEffect();
+        setTimeout(() => {
+          if (partyEffectActive) {
+            stopCelebration();
+          }
+        }, 3000);
+        removeEventListeners();
+      }
+      function removeEventListeners() {
+        scratchPopupCanvas.removeEventListener('mousedown', startScratch);
+        scratchPopupCanvas.removeEventListener('mousemove', scratch);
+        scratchPopupCanvas.removeEventListener('mouseup', stopScratch);
+        scratchPopupCanvas.removeEventListener('mouseleave', stopScratch);
+        scratchPopupCanvas.removeEventListener('touchstart', startScratch);
+        scratchPopupCanvas.removeEventListener('touchmove', scratch);
+        scratchPopupCanvas.removeEventListener('touchend', stopScratch);
+        scratchPopupCanvas.removeEventListener('touchcancel', stopScratch);
+      }
+      scratchPopupCanvas.addEventListener('mousedown', startScratch);
+      scratchPopupCanvas.addEventListener('mousemove', scratch);
+      scratchPopupCanvas.addEventListener('mouseup', stopScratch);
+      scratchPopupCanvas.addEventListener('mouseleave', stopScratch);
+      scratchPopupCanvas.addEventListener('touchstart', startScratch);
+      scratchPopupCanvas.addEventListener('touchmove', scratch);
+      scratchPopupCanvas.addEventListener('touchend', stopScratch);
+      scratchPopupCanvas.addEventListener('touchcancel', stopScratch);
+    }
+    function createPartyEffect() {
+      if (typeof party !== 'undefined' && partyEffectActive) {
+        party.confetti(scratchPopupContainer, {
+          count: party.variation.range(80, 120),
+          spread: party.variation.range(50, 70),
+          size: party.variation.range(0.8, 1.2),
+          shapes: ['square', 'circle'],
+          colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#FD79A8']
+        });
+        party.sparkles(scratchPopupContainer, {
+          count: party.variation.range(30, 50),
+          speed: party.variation.range(100, 200),
+          colors: ['#FFD700', '#FFA500', '#FF8C00']
+        });
+      }
+    }
+    function showGemAnimation(amount) {
+      const overlay = document.createElement('div');
+      overlay.className = 'gem-animation-overlay active';
+      overlay.innerHTML = `
+        <div class="gem-container">
+          <div class="gem-icon" id="animatedGem"></div>
+          <div class="gem-amount" id="animatedAmount">+${amount} gems</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      setTimeout(() => {
+        const gem = document.getElementById('animatedGem');
+        const amountText = document.getElementById('animatedAmount');
+        if (gem) {
+          gem.style.animation = 'gemFlyToCorner 1.5s ease-in-out forwards';
+        }
+        if (amountText) {
+          amountText.style.animation = 'gemFlyToCorner 1.5s ease-in-out forwards';
+        }
+        setTimeout(() => {
+          document.body.removeChild(overlay);
+        }, 1500);
+      }, 2000);
+      tg.HapticFeedback.notificationOccurred('success');
+    }
+    function startCountdown(targetDate) {
+      const timerElement = document.getElementById('countdownTimer');
+      if (!timerElement) return;
+      function updateTimer() {
+        const now = new Date().getTime();
+        const distance = targetDate.getTime() - now;
+        if (distance < 0) {
+          timerElement.textContent = "Come back tomorrow in 00:00:00";
+          return;
+        }
+        const hours = Math.floor(distance / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        timerElement.textContent = `Come back tomorrow in ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+    function showCheckInPopup() {
+      if (!userData || !userData.check_in_rewards) {
+        console.error('userData or check_in_rewards is null');
+        showError('Data Error', 'Check-in data not available.');
+        return;
+      }
+      const checkInDay = userData.check_in_day || 1;
+      const checkedIn = userData.checked_in || false;
+      const rewards = userData.check_in_rewards;
+      const checkInGrid = document.getElementById('checkInGrid');
+      const checkInFooter = document.getElementById('checkInFooter');
+      if (!checkInGrid || !checkInFooter) {
+        console.error('Check-in modal elements not found');
+        return;
+      }
+      checkInGrid.innerHTML = '';
+      const firstRow = document.createElement('div');
+      firstRow.className = 'checkin-row first-row';
+      for (let day = 1; day <= 4; day++) {
+        const reward = rewards[`day_${day}`] || 0;
+        const isClaimed = day < checkInDay || (day === checkInDay && checkedIn);
+        const isToday = day === checkInDay;
+        const isLocked = day > checkInDay;
+        const box = document.createElement('div');
+        box.className = `checkin-box ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isLocked ? 'locked' : ''}`;
+        box.innerHTML = `
+          <div class="checkin-day">Day ${day}</div>
+          <div class="checkin-reward">${reward} <i class="fas fa-gem"></i></div>
+          ${isToday && !checkedIn ? '<div class="checkin-today-badge">Today</div>' : ''}
+        `;
+        firstRow.appendChild(box);
+      }
+      const secondRow = document.createElement('div');
+      secondRow.className = 'checkin-row second-row';
+      for (let day = 5; day <= 7; day++) {
+        const reward = rewards[`day_${day}`] || 0;
+        const isClaimed = day < checkInDay;
+        const isToday = day === checkInDay && day !== 7;
+        const isLocked = day > checkInDay;
+        const isPremium = day === 7;
+        const box = document.createElement('div');
+        box.className = `checkin-box ${isPremium ? 'premium' : ''} ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''} ${isLocked ? 'locked' : ''}`;
+        box.innerHTML = `
+          <div class="checkin-day">Day ${day}</div>
+          <div class="checkin-reward">${reward} <i class="fas fa-gem"></i></div>
+          ${isClaimed ? '<div class="checkin-check"><i class="fa-solid fa-check"></i></div>' : ''}
+          ${isToday && !checkedIn ? '<div class="checkin-today-badge">Today</div>' : ''}
+        `;
+        secondRow.appendChild(box);
+      }
+      checkInGrid.appendChild(firstRow);
+      checkInGrid.appendChild(secondRow);
+      if (checkedIn) {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        checkInFooter.innerHTML = `
+          <div class="checkin-message">You have already checked in today!</div>
+          <div class="countdown-timer" id="countdownTimer">Come back tomorrow in 00:00:00</div>
+        `;
+        startCountdown(tomorrow);
+      } else {
+        const fullReward = rewards[`day_${checkInDay}`] || 0;
+        const reductionPercent = userData.check_in_without_ads || 60;
+        const reducedReward = Math.floor(fullReward * reductionPercent / 100);
+        checkInFooter.innerHTML = `
+          <div class="checkin-message">Watch an ad to claim your daily reward!</div>
+          <button class="checkin-btn" id="claimRewardBtn">
+            <i class="fa-solid fa-rectangle-ad"></i> Watch Ad to Claim
+          </button>
+          <button class="checkin-btn-alt" id="claimWithoutAdBtn"> Claim ${reducedReward} only </button>
+        `;
+      }
+      checkInModal.show();
+      if (!checkedIn) {
+        const claimBtn = document.getElementById('claimRewardBtn');
+        const claimWithoutAdBtn = document.getElementById('claimWithoutAdBtn');
+        if (claimBtn) {
+          claimBtn.addEventListener('click', claimCheckInReward);
+        }
+        if (claimWithoutAdBtn) {
+          claimWithoutAdBtn.addEventListener('click', claimWithoutAd);
+        }
+      }
+    }
+    async function claimCheckInReward() {
+      AdController.show()
+        .then(async (result) => {
+          const response = await fetch('api/check-in.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify({ init_data: currentInitData, ad_watched: true })
+          });
+          const data = await response.json();
+          if (!data.ok) {
+            showError('Error', data.message);
+            return;
+          }
+          checkInModal.hide();
+          showGemAnimation(data.result.reward);
+          setTimeout(() => {
+            fetchUserData();
+          }, 3000);
+        })
+        .catch((result) => {
+          showError('Ad Error', `Failed to load ad: ${result.description}`);
+        });
+    }
+    async function claimWithoutAd() {
+      try {
+        const response = await fetch('api/check-in.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', },
+          body: JSON.stringify({ init_data: currentInitData, ad_watched: false })
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          showError('Error', data.message);
+          return;
+        }
+        checkInModal.hide();
+        showGemAnimation(data.result.reward);
+        setTimeout(() => {
+          fetchUserData();
+        }, 3000);
+      } catch (error) {
+        console.error('Error checking in without ad:', error);
+        showError('Error', 'Failed to check in. Please try again.');
+      }
+    }
+    function showError(title, text) {
+      Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        confirmButtonColor: 'var(--primary-color)',
+        background: 'var(--bg-color)',
+        color: 'var(--text-color)'
+      });
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+    profile.init({ position: "center", auto_open: true, redirect_url: "profile.html" });
+  </script>
+</body>
+</html>

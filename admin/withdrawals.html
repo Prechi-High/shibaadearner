@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Management - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="nav-footer.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #e3f2fd !important;
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            padding: 1.25rem;
+            border: none;
+        }
+        
+        .card-header h4 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .controls-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 86, 179, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            color: white;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            border-radius: 6px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-copy {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
+        
+        .table {
+            font-size: 0.9rem;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: #0056b3;
+            padding: 0.75rem 0.5rem;
+            cursor: pointer;
+        }
+        
+        .table td {
+            padding: 0.75rem 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-paid {
+            background: #d1edff;
+            color: #0c5460;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .method-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .withdraw-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+        }
+        
+        .withdraw-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .withdraw-id {
+            font-weight: 600;
+            color: #0056b3;
+            font-size: 0.9rem;
+        }
+        
+        .withdraw-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #28a745;
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            font-size: 3rem;
+            color: #0056b3;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0056b3;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .form-switch .form-check-input {
+            width: 2.5em;
+            height: 1.25em;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="text-center">
+            <i class="fas fa-spinner loading-spinner"></i>
+            <div class="mt-3 fw-medium">Loading withdrawals...</div>
+        </div>
+    </div>
+    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shield-alt me-2"></i>Admin Authentication
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-4">
+                            <label for="adminPassword" class="form-label fw-medium">Admin Password</label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Enter secure password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Secure Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="withdrawDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>Withdrawal Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="withdrawDetailsContent">
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-money-bill-wave"></i>Withdraw Management
+            </a>
+        </div>
+    </nav>
+    <div class="main-container" id="mainContent" style="display: none;">
+        <div class="stats-summary">
+            <div class="stat-item">
+                <div class="stat-number" id="totalWithdrawals">0</div>
+                <div class="stat-label">Total Withdrawals</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="paidCount">0</div>
+                <div class="stat-label">Paid</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="rejectedCount">0</div>
+                <div class="stat-label">Rejected</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalAmount">$0</div>
+                <div class="stat-label">Total Amount</div>
+            </div>
+        </div>
+        <div class="controls-section">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-2">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by ID, user name, or address...">
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pendingOnlyToggle">
+                        <label class="form-check-label" for="pendingOnlyToggle">Show Pending Only</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="listViewBtn" onclick="switchView('list')">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="gridViewBtn" onclick="switchView('grid')">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="admin-card">
+            <div class="card-header">
+                <h4><i class="fas fa-money-bill-wave me-2"></i>Withdrawals</h4>
+            </div>
+            <div class="card-body p-0">
+                <div id="listView" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">ID <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(1)">User <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(2)">Amount / Method <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(3)">Address <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(4)">Date <i class="fas fa-sort"></i></th>
+                                <th onclick="sortTable(5)">Status <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsTableBody">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="gridView" class="grid-view p-3" style="display: none;">
+                    </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let adminPassword = '';
+        let withdrawalsData = [];
+        let filteredData = [];
+        let currentView = 'list';
+        let sortDirection = 1;
+        let sortColumn = 0;
+
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        function deleteCookie(name) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPassword = getCookie('admin_password');
+            if (savedPassword) {
+                adminPassword = savedPassword;
+                document.getElementById('mainContent').style.display = 'block';
+                loadWithdrawals();
+            } else {
+                new bootstrap.Modal(document.getElementById('loginModal')).show();
+            }
+            document.getElementById('searchInput').addEventListener('input', filterWithdrawals);
+            document.getElementById('pendingOnlyToggle').addEventListener('change', filterWithdrawals);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            try {
+                const response = await fetch('api/withdraw.php/get', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin_password: password })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    adminPassword = password;
+                    setCookie('admin_password', password, 1);
+                    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                    document.getElementById('mainContent').style.display = 'block';
+                    loadWithdrawals();
+                    Swal.fire({
+                        icon: 'success', title: 'Login Successful', text: 'Welcome!',
+                        timer: 2000, showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Login Failed', text: data.message || 'Invalid admin password' });
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Unable to connect to server' });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        });
+
+        async function loadWithdrawals() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch('api/withdraw.php/get', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    withdrawalsData = data.result;
+                    updateStatistics();
+                    filterWithdrawals();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to load withdrawals' });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Error Loading', text: 'Failed to load withdrawals' });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function updateStatistics() {
+            const total = withdrawalsData.length;
+            const pending = withdrawalsData.filter(w => w.status === 'pending').length;
+            const paid = withdrawalsData.filter(w => w.status === 'paid').length;
+            const rejected = withdrawalsData.filter(w => w.status === 'rejected').length;
+            const totalAmount = withdrawalsData.reduce((sum, w) => sum + parseFloat(w.amount), 0);
+            document.getElementById('totalWithdrawals').textContent = total;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('paidCount').textContent = paid;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('totalAmount').textContent = '$' + totalAmount.toFixed(2);
+        }
+
+        function filterWithdrawals() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const pendingOnly = document.getElementById('pendingOnlyToggle').checked;
+
+            filteredData = withdrawalsData.filter(w => {
+                const matchesSearch = !searchTerm ||
+                    w.id.toString().includes(searchTerm) ||
+                    (w.user_name && w.user_name.toLowerCase().includes(searchTerm)) ||
+                    (w.address && w.address.toLowerCase().includes(searchTerm)) ||
+                    w.amount.toString().includes(searchTerm);
+                const matchesPending = !pendingOnly || w.status === 'pending';
+                return matchesSearch && matchesPending;
+            });
+
+            if (sortColumn !== -1) {
+                const keys = ['id', 'user_name', 'amount', 'address', 'date', 'status'];
+                const key = keys[sortColumn];
+                filteredData.sort((a, b) => {
+                    let valA = a[key] || '', valB = b[key] || '';
+                    if (key === 'amount' || key === 'id') {
+                        valA = parseFloat(valA);
+                        valB = parseFloat(valB);
+                    } else if (key === 'date') {
+                        valA = new Date(valA);
+                        valB = new Date(valB);
+                    }
+                    if (valA < valB) return -sortDirection;
+                    if (valA > valB) return sortDirection;
+                    return 0;
+                });
+            }
+            
+            if (currentView === 'list') displayListView();
+            else displayGridView();
+        }
+
+        function sortTable(column) {
+            sortDirection = (sortColumn === column) ? -sortDirection : 1;
+            sortColumn = column;
+            filterWithdrawals();
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+                Toast.fire({ icon: 'success', title: 'Copied!' });
+            });
+        }
+
+        function displayListView() {
+            const tbody = document.getElementById('withdrawalsTableBody');
+            tbody.innerHTML = '';
+            filteredData.forEach(w => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${w.id}</td>
+                    <td>
+                        <div>
+                            <strong>${w.user_name || 'Unknown'}</strong><br>
+                            <small class="text-muted">ID: ${w.user_id}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="withdraw-amount">$${parseFloat(w.amount).toFixed(2)}</span><br>
+                        <span class="method-badge">${w.withdraw_method}</span>
+                    </td>
+                    <td>
+                        <span style="font-family: monospace; font-size: 0.85rem;">${w.address}</span>
+                        <button class="btn btn-copy btn-sm" onclick="copyToClipboard('${w.address}')"><i class="fas fa-copy"></i></button>
+                    </td>
+                    <td>${w.date}</td>
+                    <td><span class="status-badge status-${w.status}">${w.status}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-info" onclick="viewDetails(${w.id})" title="View Details"><i class="fas fa-eye"></i></button>
+                            ${w.status === 'pending' ? `
+                                <button class="btn btn-success" onclick="updateStatus(${w.id}, 'paid')" title="Mark as Paid"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-danger" onclick="updateStatus(${w.id}, 'rejected')" title="Reject"><i class="fas fa-times"></i></button>
+                            ` : w.status !== 'pending' ? `
+                                <button class="btn btn-warning" onclick="updateStatus(${w.id}, 'pending')" title="Mark as Pending"><i class="fas fa-clock"></i></button>
+                            ` : ''}
+                            <button class="btn btn-danger" onclick="deleteWithdrawal(${w.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayGridView() {
+            const gridContainer = document.getElementById('gridView');
+            gridContainer.innerHTML = '';
+            filteredData.forEach(w => {
+                const card = document.createElement('div');
+                card.className = 'withdraw-card';
+                card.innerHTML = `
+                    <div class="withdraw-card-header">
+                        <div class="withdraw-id">ID: ${w.id} (${w.withdraw_id})</div>
+                        <span class="status-badge status-${w.status}">${w.status}</span>
+                    </div>
+                    <div class="mb-2">
+                        <strong>${w.user_name || 'Unknown'}</strong><br>
+                        <small class="text-muted">User ID: ${w.user_id}</small>
+                    </div>
+                    <div class="mb-2">
+                        <div class="withdraw-amount">$${parseFloat(w.amount).toFixed(2)}</div>
+                        <small class="text-muted">via ${w.withdraw_method}</small>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">${w.date}</small>
+                    </div>
+                    <div class="btn-group w-100">
+                        <button class="btn btn-info btn-sm" onclick="viewDetails(${w.id})" title="View Details"><i class="fas fa-eye"></i></button>
+                        ${w.status === 'pending' ? `
+                            <button class="btn btn-success btn-sm" onclick="updateStatus(${w.id}, 'paid')" title="Mark as Paid"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="updateStatus(${w.id}, 'rejected')" title="Reject"><i class="fas fa-times"></i></button>
+                        ` : w.status !== 'pending' ? `
+                            <button class="btn btn-warning btn-sm" onclick="updateStatus(${w.id}, 'pending')" title="Mark as Pending"><i class="fas fa-clock"></i></button>
+                        ` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteWithdrawal(${w.id})" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+
+        function switchView(view) {
+            currentView = view;
+            if (view === 'list') {
+                document.getElementById('listView').style.display = 'block';
+                document.getElementById('gridView').style.display = 'none';
+                document.getElementById('listViewBtn').classList.add('active');
+                document.getElementById('gridViewBtn').classList.remove('active');
+                displayListView();
+            } else {
+                document.getElementById('listView').style.display = 'none';
+                document.getElementById('gridView').style.display = 'block';
+                document.getElementById('listViewBtn').classList.remove('active');
+                document.getElementById('gridViewBtn').classList.add('active');
+                displayGridView();
+            }
+        }
+
+        function viewDetails(withdrawId) {
+            const w = withdrawalsData.find(w => w.id === withdrawId);
+            if (!w) return;
+            const content = document.getElementById('withdrawDetailsContent');
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle me-2"></i>Withdrawal Info</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>ID:</strong></td><td>${w.id}</td></tr>
+                            <tr><td><strong>Withdraw ID:</strong></td><td>${w.withdraw_id}</td></tr>
+                            <tr><td><strong>Amount:</strong></td><td>$${parseFloat(w.amount).toFixed(2)}</td></tr>
+                            <tr><td><strong>Method:</strong></td><td>${w.withdraw_method}</td></tr>
+                            <tr><td><strong>Date:</strong></td><td>${w.date}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="status-badge status-${w.status}">${w.status}</span></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user me-2"></i>User & Payment</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>User ID:</strong></td><td>${w.user_id}</td></tr>
+                            <tr><td><strong>User Name:</strong></td><td>${w.user_name || 'Unknown'}</td></tr>
+                            <tr><td colspan="2"><strong>Address:</strong></td></tr>
+                            <tr><td colspan="2" style="word-break: break-all;">
+                                ${w.address} <button class="btn btn-copy" onclick="copyToClipboard('${w.address}')"><i class="fas fa-copy"></i></button>
+                            </td></tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+            new bootstrap.Modal(document.getElementById('withdrawDetailsModal')).show();
+        }
+
+        async function updateStatus(withdrawId, newStatus) {
+            const result = await Swal.fire({
+                title: `Mark as ${newStatus}?`,
+                text: `Are you sure you want to mark this as ${newStatus}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, mark as ${newStatus}`
+            });
+            if (!result.isConfirmed) return;
+            
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/withdraw.php/${newStatus}/${withdrawId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({ icon: 'success', title: 'Status Updated', timer: 2000, showConfirmButton: false });
+                    loadWithdrawals();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Update Failed', text: data.message });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Update Failed', text: 'An error occurred' });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        async function deleteWithdrawal(withdrawId) {
+            const result = await Swal.fire({
+                title: 'Delete Withdrawal?', text: 'This action cannot be undone!',
+                icon: 'warning', showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!', confirmButtonColor: '#dc3545'
+            });
+            if (!result.isConfirmed) return;
+            
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const response = await fetch(`api/withdraw.php/delete/${withdrawId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ admin_password: adminPassword })
+                });
+                const data = await response.json();
+                if (data.ok) {
+                    Swal.fire({ icon: 'success', title: 'Deleted!', timer: 2000, showConfirmButton: false });
+                    loadWithdrawals();
+                } else {
+                    if (data.message === 'Invalid admin password') {
+                        deleteCookie('admin_password');
+                        new bootstrap.Modal(document.getElementById('loginModal')).show();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Delete Failed', text: data.message });
+                    }
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Delete Failed', text: 'An error occurred' });
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        function redirect(url, vibrate) {
+            if (vibrate && navigator.vibrate) navigator.vibrate(7);
+            window.location.href = url;
+        }
+        navFooter.add(
+            {
+                theme: 'dark',
+                selectedColor: 'blue'
+            },
+            [
+                { name: "Dashboard", icon: "fa-house", onClick: (e) => redirect("index.html", true) },
+                { name: "Users", icon: "fa-user", onClick: (e) => redirect("users.html", true) },
+                { name: "Gift Codes", icon: "fa-gift", onClick: (e) => redirect("gift-code.html", true) },
+                { name: "Task", icon: "fa-list-check", onClick: (e) => redirect("task.html", true) },
+                { name: "Settings", icon: "fa-gear", onClick: (e) => redirect("settings.html", true) },
+                { name: "Withdraws", icon: "fa-money-bill", onClick: (e) => redirect("withdrawals.html", true), selected: true }
+            ]
+        );
+    </script>
+</body>
+</html>
