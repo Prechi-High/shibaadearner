@@ -15,7 +15,7 @@ try {
 }
 
 // === TELEGRAM BOT ===
-$BOT_TOKEN = "8230737550:AAFjKJhOCpDuD3jI3NimuQt72kJ8N4fmvh0";
+$BOT_TOKEN = "8241010521:AAGIiN4JPQ8vpU9enrnqSKYiRK1imYeRxuM";
 $API_URL = "https://api.telegram.org/bot" . $BOT_TOKEN . "/";
 
 // === GAME SETTINGS ===
