@@ -848,7 +848,7 @@
         }
       } catch (error) {
         console.error('Error fetching user ', error);
-        showError('Network Error', 'Failed to connect to server. Please try again later. ' + error);
+        showError('Network Error', 'Failed to connect to pablos server. Please try again later. ' + error);
       } finally {
         setTimeout(() => {
           if (loadingScreen && mainContent) {
@@ -929,7 +929,7 @@
         try {
           await window.showGiga();
         } catch (e) {
-          // Ad failed / was closed � reset UI and abort
+          // Ad failed / was closed  reset UI and abort
           scratchingInProgress = false;
           scratchPopupOverlay.classList.remove('active');
           scratchLoading.style.display = 'none';
@@ -939,7 +939,7 @@
         }
       } else {
         // If gigapub API not available, log and continue (optional fallback)
-        console.warn('window.showGiga is not available � proceeding without ad.');
+        console.warn('window.showGiga is not available  proceeding without ad.');
       }
 
       try {
@@ -1013,7 +1013,7 @@
         ctx.textBaseline = 'middle';
         ctx.fillText('SCRATCH TO WIN', scratchPopupCanvas.width / 2, scratchPopupCanvas.height / 2 - 15);
         ctx.font = `${Math.min(scratchPopupCanvas.width / 10, 24)}px Arial`;
-        ctx.fillText('💰', scratchPopupCanvas.width / 2, scratchPopupCanvas.height / 2 + 15);
+        ctx.fillText('ð°', scratchPopupCanvas.width / 2, scratchPopupCanvas.height / 2 + 15);
         startScratchingInteraction();
       };
     }
@@ -1321,4 +1321,5 @@
     profile.init({ position: "center", auto_open: true, redirect_url: "profile.html" });
   </script>
 </body>
+
 </html>
