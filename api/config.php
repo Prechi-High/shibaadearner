@@ -23,7 +23,7 @@ define('BOT_TOKEN', $BOT_TOKEN);
 define('DEPOSIT_WALLET', '0xYourUSDTWalletAddressHere'); // ← REPLACE THIS
 
 // Optional: Keep your existing constants if used elsewhere
-define('WEB_APP_LINK', "https://shibaadearner.top/lumora/app/");
+define('WEB_APP_LINK', "https://shibaadearner.top/");
 define('WELCOME_SCRATCH_CARDS', 3);
 define('BOT_USERNAME', "LumoraHubBot");
 define('NOTIFICATION_CHANNEL_ID', "-1003167874029");
