@@ -5,10 +5,15 @@ require 'config.php';
 require 'init_data_check.php';
 
 // ✅ Read JSON
-$input = json_decode(file_get_contents('php://input'), true);
-if (!$input) {
-    echo json_encode(['ok' => false, 'message' => 'Invalid JSON input.']); exit;
+// 🛑 MODIFICATION: Change from POST JSON input to GET parameter
+$init_data = $_GET['init_data'] ?? ''; 
+
+if (empty($init_data)) {
+    echo json_encode(['ok' => false, 'message' => 'Missing parameter: init_data']); exit;
 }
+
+// ... rest of the code remains the same
+
 
 $init_data = $input['init_data'] ?? '';
 if (empty($init_data)) {
