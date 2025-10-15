@@ -817,18 +817,20 @@
     }
     async function fetchUserData() {
       try {
+        // 🛑 MODIFICATION 1: Change method to GET and construct the URL with init_data as a query parameter
+        const apiUrl = `api/dashboard.php?init_data=${encodeURIComponent(currentInitData)}`;
+        
         const [response] = await Promise.all([
-          fetch('api/dashboard.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({ init_data: currentInitData })
+          fetch(apiUrl, {
+            method: 'GET', // 🛑 MODIFICATION 2: Changed to GET
+            // 🛑 MODIFICATION 3: Removed 'Content-Type: application/json' and 'body'
+            // GET requests should not have a body
           }),
           new Promise(resolve => setTimeout(resolve, 1000))
         ]);
 
-        // 🛑 CRITICAL FIX: Check for non-200 HTTP status before parsing JSON
+        // CRITICAL FIX: Check for non-200 HTTP status before parsing JSON
         if (!response.ok) {
-            // Throw a new error that includes the actual HTTP status
             throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
         }
         
@@ -855,8 +857,8 @@
           setTimeout(showCheckInPopup, 1000);
         }
       } catch (error) {
-        // The catch block will now receive the proper error (e.g., 'HTTP Error: 405 Method Not Allowed')
         console.error('Error fetching user ', error);
+        // This will now show the specific HTTP 405 error if it occurs
         showError('Network Error', 'Failed to connect to pablos server. Please try again later. ' + error);
       } finally {
         setTimeout(() => {
@@ -1332,4 +1334,5 @@
 </body>
 
 </html>
+
 
