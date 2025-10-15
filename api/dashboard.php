@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: application/json');
 
-//require 'config.php';
-//require 'init_data_check.php';
+require 'config.php';
+require 'init_data_check.php';
 
 // ✅ Read JSON
 $input = json_decode(file_get_contents('php://input'), true);
@@ -80,4 +80,5 @@ echo json_encode([
         'check_in_without_ads' => $check_in_without_ads
     ]
 ]);
+
 
