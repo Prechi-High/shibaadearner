@@ -825,7 +825,15 @@
           }),
           new Promise(resolve => setTimeout(resolve, 1000))
         ]);
+
+        // 🛑 CRITICAL FIX: Check for non-200 HTTP status before parsing JSON
+        if (!response.ok) {
+            // Throw a new error that includes the actual HTTP status
+            throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        
         if (!data.ok) {
           if (data.message === 'not-found') {
             window.location.href = 'register.html';
@@ -847,6 +855,7 @@
           setTimeout(showCheckInPopup, 1000);
         }
       } catch (error) {
+        // The catch block will now receive the proper error (e.g., 'HTTP Error: 405 Method Not Allowed')
         console.error('Error fetching user ', error);
         showError('Network Error', 'Failed to connect to pablos server. Please try again later. ' + error);
       } finally {
@@ -1323,3 +1332,4 @@
 </body>
 
 </html>
+
