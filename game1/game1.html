@@ -997,150 +997,15 @@
         const adContainer = document.getElementById('ad-container');
         
      // ======================
-// BITMEDIA-ONLY AD IMPLEMENTATION WITH PRE-LOADING
+        // ======================
+// GIGA AD IMPLEMENTATION
 // ======================
 
-// Pre-load BitMedia ads in the background
-let bitMediaAds = [];
-let currentAdIndex = 0;
-
-function preloadBitMediaAds() {
-    // Pre-load 3 ads in hidden containers
-    for (let i = 0; i < 3; i++) {
-        const adContainer = document.createElement('div');
-        adContainer.id = `preloaded-ad-${i}`;
-        adContainer.style.display = 'none'; // Hidden but loaded
-        adContainer.style.width = '300px';
-        adContainer.style.height = '250px';
-        
-        // Create the ins element
-        const insElement = document.createElement('ins');
-        insElement.className = '68e3da339416763e95397ed3';
-        insElement.style.cssText = 'display:inline-block;width:300px;height:250px;';
-        adContainer.appendChild(insElement);
-        
-        // Create and append the script
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.innerHTML = `
-            (function(e,n,c,t,o,r,d){
-                d = n.getElementsByTagName(c)[0];
-                if (d) {
-                    var s = n.createElement(c);
-                    s.async = true;
-                    s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
-                    s.onerror = function() {
-                        if (++r < o.length) {
-                            s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
-                        }
-                    };
-                    d.parentNode.insertBefore(s, d);
-                }
-            })(window, document, "script", "68e3da339416763e95397ed3", ["cdn.bmcdn6.com"], 0);
-        `;
-        
-        adContainer.appendChild(script);
-        document.body.appendChild(adContainer);
-        bitMediaAds.push(adContainer);
-    }
-    
-    console.log("BitMedia ads pre-loaded in background");
-}
-
-// Show pre-loaded ad immediately
-function showPreloadedBitMediaAd(adNumber) {
-    return new Promise((resolve, reject) => {
-        const adContainer = document.getElementById('ad-container');
-        
-        if (currentAdIndex < bitMediaAds.length) {
-            // Clear current ad container
-            adContainer.innerHTML = '';
-            
-            // Move pre-loaded ad to visible container
-            const preloadedAd = bitMediaAds[currentAdIndex];
-            preloadedAd.style.display = 'block';
-            
-            // Clone the ad content to avoid DOM issues
-            const clonedAd = preloadedAd.cloneNode(true);
-            clonedAd.style.display = 'block';
-            adContainer.appendChild(clonedAd);
-            
-            currentAdIndex++;
-            
-            // Auto-resolve after 5 seconds (simulate ad completion)
-            // In real implementation, you'd wait for actual ad completion
-            setTimeout(() => {
-                resolve();
-            }, 5000);
-        } else {
-            // Fallback: load ad on-demand if pre-loading failed
-            loadBitMediaAdOnDemand()
-                .then(resolve)
-                .catch(reject);
-        }
-    });
-}
-
-// Fallback: Load BitMedia ad on-demand (if pre-loading fails)
-function loadBitMediaAdOnDemand() {
-    return new Promise((resolve, reject) => {
-        const adContainer = document.getElementById('ad-container');
-        adContainer.innerHTML = '';
-        
-        const insElement = document.createElement('ins');
-        insElement.className = '68e3da339416763e95397ed3';
-        insElement.style.cssText = 'display:inline-block;width:300px;height:250px;margin:0 auto;';
-        adContainer.appendChild(insElement);
-        
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.innerHTML = `
-            (function(e,n,c,t,o,r,d){
-                d = n.getElementsByTagName(c)[0];
-                if (d) {
-                    var s = n.createElement(c);
-                    s.async = true;
-                    s.src = "https://" + o[r] + "/js/" + t + ".js?v=" + (new Date().getTime());
-                    s.onload = function() {
-                        if (window.bitmediaAdCallback) window.bitmediaAdCallback('loaded');
-                    };
-                    s.onerror = function() {
-                        if (window.bitmediaAdCallback) window.bitmediaAdCallback('error');
-                    };
-                    d.parentNode.insertBefore(s, d);
-                } else {
-                    if (window.bitmediaAdCallback) window.bitmediaAdCallback('error');
-                }
-            })(window, document, "script", "68e3da339416763e95397ed3", ["cdn.bmcdn6.com"], 0);
-        `;
-        
-        // Set up callback
-        window.bitmediaAdCallback = (status) => {
-            if (status === 'loaded') {
-                setTimeout(() => resolve(), 3000); // Wait 3 seconds after load
-            } else {
-                reject(new Error('BitMedia ad failed to load'));
-            }
-        };
-        
-        adContainer.appendChild(script);
-        
-        // Timeout
-        setTimeout(() => {
-            if (window.bitmediaAdCallback) {
-                delete window.bitmediaAdCallback;
-            }
-            reject(new Error('BitMedia ad timeout'));
-        }, 15000);
-    });
-}
-
-// Simplified loadAd function - BitMedia only
-
-    async function loadAd(adNumber) {
+async function loadAd(adNumber) {
     const progressElement = document.getElementById('current-ad');
     const adDots = document.querySelectorAll('.ad-dot');
-    
+    const adContainer = document.getElementById('ad-container');
+
     // Update progress UI
     progressElement.textContent = adNumber;
     adDots.forEach((dot, index) => {
@@ -1161,6 +1026,7 @@ function loadBitMediaAdOnDemand() {
     `;
 
     try {
+        // ✅ Load Giga ad using placement "main" and ID 3604
         await window.showGiga("main", 3604)
             .then(() => {
                 adContainer.innerHTML = `
@@ -1185,17 +1051,6 @@ function loadBitMediaAdOnDemand() {
         return false;
     }
 }
-
-// Retry function
-function retryCurrentAd(adNumber) {
-    loadAd(adNumber);
-}
-
-// Initialize pre-loading when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Pre-load ads after a short delay to not block initial page load
-    setTimeout(preloadBitMediaAds, 2000);
-});
         // Initialize the game
         function initGame() {
             for (let i = 1; i <= 1000; i++) {
@@ -1492,5 +1347,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
