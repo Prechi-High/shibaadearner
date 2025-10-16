@@ -1136,37 +1136,8 @@ function loadBitMediaAdOnDemand() {
 }
 
 // Simplified loadAd function - BitMedia only
-async function loadAd(adNumber) {
-    const progressElement = document.getElementById('current-ad');
-    const adDots = document.querySelectorAll('.ad-dot');
-    
-    // Update progress UI
-    progressElement.textContent = adNumber;
-    adDots.forEach((dot, index) => {
-        dot.classList.toggle('active', index < adNumber);
-    });
-    
-    adContainer.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;">
-            <div style="color:var(--gold);margin-bottom:10px;">Loading ad ${adNumber}/3...</div>
-            <div style="width:40px;height:40px;border:3px solid var(--gold);border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite;"></div>
-        </div>
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
-    `;
-    
-    try {
-        await showPreloadedBitMediaAd(adNumber);
-        adContainer.innerHTML = `
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--gold);">
-                <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
-                <div style="text-align:center;font-size:0.9rem;">BitMedia ad watched successfully!</div>
-            </div>
-async function loadAd(adNumber) {
+
+    async function loadAd(adNumber) {
     const progressElement = document.getElementById('current-ad');
     const adDots = document.querySelectorAll('.ad-dot');
     
@@ -1213,8 +1184,7 @@ async function loadAd(adNumber) {
         `;
         return false;
     }
-        }
-
+}
 
 // Retry function
 function retryCurrentAd(adNumber) {
@@ -1522,3 +1492,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
