@@ -1166,22 +1166,55 @@ async function loadAd(adNumber) {
                 <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
                 <div style="text-align:center;font-size:0.9rem;">BitMedia ad watched successfully!</div>
             </div>
-        `;
-        return true;
+async function loadAd(adNumber) {
+    const progressElement = document.getElementById('current-ad');
+    const adDots = document.querySelectorAll('.ad-dot');
+    
+    // Update progress UI
+    progressElement.textContent = adNumber;
+    adDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index < adNumber);
+    });
+
+    adContainer.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;">
+            <div style="color:var(--gold);margin-bottom:10px;">Loading ad ${adNumber}/3...</div>
+            <div style="width:40px;height:40px;border:3px solid var(--gold);border-radius:50%;border-top-color:transparent;animation:spin 1s linear infinite;"></div>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+
+    try {
+        await window.showGiga("main", 3604)
+            .then(() => {
+                adContainer.innerHTML = `
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--gold);">
+                        <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
+                        <div style="text-align:center;font-size:0.9rem;">Giga ad watched successfully!</div>
+                    </div>
+                `;
+                return true;
+            })
+            .catch(e => {
+                throw new Error("Giga ad failed or was closed early");
+            });
     } catch (error) {
-        console.error('BitMedia ad failed:', error);
+        console.error('Giga ad failed:', error);
         adContainer.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--danger);">
                 <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✗ AD FAILED</div>
-                <div style="text-align:center;font-size:0.8rem;">${error.message || 'Ad failed to load'}</div>
-                <button class="btn btn-confirm" style="margin-top:15px;width:auto;padding:8px 16px;" onclick="retryCurrentAd(${adNumber})">
-                    RETRY
-                </button>
+                <div style="text-align:center;font-size:0.8rem;">${error.message}</div>
             </div>
         `;
         return false;
     }
-}
+        }
+
 
 // Retry function
 function retryCurrentAd(adNumber) {
@@ -1487,4 +1520,5 @@ document.addEventListener('DOMContentLoaded', function() {
         window.onload = initGame;
     </script>
 </body>
+
 </html>
