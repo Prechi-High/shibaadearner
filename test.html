@@ -171,5 +171,21 @@
       appendLog("showGiga type: " + typeof window.showGiga);
     });
   </script>
+  
+<script src="https://ad.gigapub.tech/script?id=3604"></script>
+
+    <script>
+      // Wait a bit and then test what exists on window
+      window.addEventListener("load", async () => {
+        console.log("Initial showGiga:", typeof window.showGiga);
+        // wait up to 10 s for the SDK to register itself
+        for (let i = 0; i < 10; i++) {
+          if (typeof window.showGiga === "function") break;
+          console.log("⏳ waiting…");
+          await new Promise(r => setTimeout(r, 1000));
+        }
+        console.log("Final showGiga:", typeof window.showGiga);
+      });
+    </script>
 </body>
 </html>
