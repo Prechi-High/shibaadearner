@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giga Ad Visual Test</title>
+  <style>
+    body {
+      background: #111;
+      color: #f5f5f5;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    button {
+      background: #f0c420;
+      color: #222;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover { background: #ffdb4d; }
+    #log {
+      margin-top: 20px;
+      padding: 15px;
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      text-align: left;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+
+    /* Fullscreen fallback overlay */
+    #fallbackOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      color: #ffd700;
+      font-size: 2rem;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      flex-direction: column;
+    }
+    #fallbackOverlay button {
+      margin-top: 20px;
+      background: #ffd700;
+      color: #111;
+      font-size: 1.2rem;
+    }
+  </style>
+
+  <!-- ✅ Giga SDK Loader -->
+  <script data-project-id="3604">
+    !function(){
+      var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
+      var d=['https://ad.gigapub.tech','https://ru-ad.gigapub.tech'],i=0,t,sc;
+      function l(){
+        sc=document.createElement('script');
+        sc.async=true;
+        sc.src=d[i]+'/script?id='+p;
+        clearTimeout(t);
+        t=setTimeout(function(){
+          sc.onload=sc.onerror=null;
+          sc.src='';
+          if(++i<d.length)l();
+        },15000);
+        sc.onload=function(){clearTimeout(t)};
+        sc.onerror=function(){clearTimeout(t);if(++i<d.length)l()};
+        document.head.appendChild(sc);
+      }
+      l();
+    }();
+  </script>
+
+  <!-- ✅ Fallback definition -->
+  <script>
+    const adShow = function() {
+      showFallbackOverlay();
+      appendLog("⚠️ Fallback ad triggered — showing simulated ad overlay.");
+      return new Promise(resolve => {
+        setTimeout(() => {
+          hideFallbackOverlay();
+          appendLog("✅ Fallback ad finished (simulated success).");
+          resolve();
+        }, 5000);
+      });
+    };
+    window.AdGigaFallback = adShow;
+
+    if (window.showGiga === undefined)
+      window.showGiga = () => window.AdGigaFallback();
+  </script>
+</head>
+
+<body>
+  <h1>🎥 Giga Ad SDK Visual Test</h1>
+  <p>Press the button to show a Giga ad (ID: <strong>3604</strong>).</p>
+  <button id="showAdBtn">Show Giga Ad</button>
+  <div id="log"></div>
+
+  <!-- Fallback fullscreen overlay -->
+  <div id="fallbackOverlay">
+    <div>⚠️ Giga fallback active<br>(no real ad loaded)</div>
+    <button onclick="hideFallbackOverlay()">Close</button>
+  </div>
+
+  <script>
+    const logBox = document.getElementById("log");
+    const fallbackOverlay = document.getElementById("fallbackOverlay");
+
+    function appendLog(msg) {
+      console.log(msg);
+      logBox.textContent += msg + "\n";
+    }
+
+    function showFallbackOverlay() {
+      fallbackOverlay.style.display = "flex";
+    }
+
+    function hideFallbackOverlay() {
+      fallbackOverlay.style.display = "none";
+    }
+
+    async function waitForGigaReady(retries = 10) {
+      while (typeof window.showGiga !== 'function' && retries-- > 0) {
+        appendLog("⏳ Waiting for Giga SDK to load...");
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      if (typeof window.showGiga !== 'function') {
+        appendLog("❌ SDK not loaded after waiting — using fallback.");
+        return false;
+      }
+      appendLog("✅ Giga SDK ready.");
+      return true;
+    }
+
+    document.getElementById("showAdBtn").addEventListener("click", async () => {
+      appendLog("\n🔹 Button clicked.");
+
+      const ready = await waitForGigaReady();
+      if (!ready) {
+        appendLog("⚠️ Will use fallback (fake ad overlay).");
+      }
+
+      try {
+        appendLog("🎬 Calling window.showGiga(3604)...");
+        await window.showGiga(3604); // or ("main", 3604)
+        appendLog("✅ Ad watched successfully!");
+      } catch (err) {
+        appendLog("❌ Ad failed: " + err.message);
+      }
+    });
+
+    window.addEventListener("load", () => {
+      appendLog("🌐 Page loaded. Checking SDK...");
+      appendLog("showGiga type: " + typeof window.showGiga);
+    });
+  </script>
+</body>
+</html>
