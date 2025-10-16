@@ -1,9 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/dashboard.php",
-      "destination": "/api/dashboard.php",
-      "methods": ["GET", "POST"]
-    }
-  ]
-}
