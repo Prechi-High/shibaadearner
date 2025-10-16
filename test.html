@@ -1,85 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giga Ad Visual Test</title>
-  <style>
-    body {
-      background: #111;
-      color: #f5f5f5;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    button {
-      background: #f0c420;
-      color: #222;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    button:hover { background: #ffdb4d; }
-    #log {
-      margin-top: 20px;
-      padding: 15px;
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 8px;
-      text-align: left;
-      font-family: monospace;
-      white-space: pre-wrap;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giga Ad Android Diagnostic</title>
+<style>
+  body {
+    font-family: system-ui, Arial;
+    background: #111;
+    color: #f5f5f5;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 { color: #ffd700; }
+  button {
+    background: #ffd700;
+    color: #111;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 25px;
+    cursor: pointer;
+  }
+  button:active { background: #ffcc00; }
+  #status {
+    margin-top: 30px;
+    font-family: monospace;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    color: gold;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    z-index: 9999;
+    flex-direction: column;
+  }
+  #overlay button {
+    margin-top: 20px;
+    background: gold;
+    color: #111;
+    padding: 10px 20px;
+  }
+</style>
 
-    /* Fullscreen fallback overlay */
-    #fallbackOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      z-index: 9999;
-      color: #ffd700;
-      font-size: 2rem;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-      flex-direction: column;
+<!-- ✅ Enhanced Giga SDK Loader (includes fallback servers) -->
+<script data-project-id="3604">
+!function(){
+  var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
+  var d=['https://ad.gigapub.tech','https://ru-ad.gigapub.tech','https://eu-ad.gigapub.tech'],i=0,t,sc;
+  function l(){
+    sc=document.createElement('script');
+    sc.async=true;
+    sc.src=d[i]+'/script?id='+p;
+    clearTimeout(t);
+    t=setTimeout(function(){
+      sc.onload=sc.onerror=null;
+      sc.src='';
+      if(++i<d.length)l();
+    },15000);
+    sc.onload=function(){clearTimeout(t)};
+    sc.onerror=function(){clearTimeout(t);if(++i<d.length)l()};
+    document.head.appendChild(sc);
+  }
+  l();
+}();
+</script>
+
+<script>
+const logBox = [];
+function log(msg){
+  console.log(msg);
+  logBox.push(msg);
+  document.getElementById('status').textContent = logBox.join('\n');
+}
+
+const overlay = {
+  el: null,
+  show() {
+    this.el.style.display = 'flex';
+  },
+  hide() {
+    this.el.style.display = 'none';
+  }
+};
+
+async function waitForSDK(max = 10) {
+  let ok = false;
+  for (let i = 0; i < max; i++) {
+    if (typeof window.showGiga === 'function') {
+      ok = true;
+      break;
     }
-    #fallbackOverlay button {
-      margin-top: 20px;
-      background: #ffd700;
-      color: #111;
-      font-size: 1.2rem;
-    }
-  </style>
+    log(`⏳ Waiting for Giga SDK... (${i+1}/${max})`);
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  return ok;
+}
 
+// Fallback ad (yellow overlay)
+window.AdGigaFallback = function() {
+  log("⚠️ Fallback ad triggered (SDK missing).");
+  overlay.show();
+  return new Promise(r => setTimeout(() => {
+    overlay.hide();
+    log("✅ Fallback finished (no real ad shown).");
+    r();
+  }, 4000));
+};
 
-  
-<script src="https://ad.gigapub.tech/script?id=3604"></script>
+// Ensure showGiga always exists
+if (window.showGiga === undefined)
+  window.showGiga = () => window.AdGigaFallback();
 
-    <script>
-      // Wait a bit and then test what exists on window
-      window.addEventListener("load", async () => {
-        console.log("Initial showGiga:", typeof window.showGiga);
-        // wait up to 10 s for the SDK to register itself
-        for (let i = 0; i < 10; i++) {
-          if (typeof window.showGiga === "function") break;
-          console.log("⏳ waiting…");
-          await new Promise(r => setTimeout(r, 1000));
-        }
-        console.log("Final showGiga:", typeof window.showGiga);
-      });
-    </script>
+async function runAd() {
+  log("\n🎬 Button tapped! Starting test...");
+  const sdkReady = await waitForSDK();
+
+  if (!sdkReady) {
+    log("❌ SDK never loaded. Using fallback overlay.");
+  } else {
+    log("✅ SDK detected. Attempting to show ad...");
+  }
+
+  try {
+    await window.showGiga(3604);
+    log("✅ Ad completed successfully!");
+  } catch (err) {
+    log("❌ Ad failed: " + err.message);
+  }
+}
+
+window.addEventListener("load", () => {
+  overlay.el = document.getElementById("overlay");
+  log("🌐 Page loaded.");
+  log("Platform: " + navigator.userAgent);
+  log("Initial showGiga type: " + typeof window.showGiga);
+  setInterval(() => {
+    document.getElementById('sdkStat').textContent = typeof window.showGiga;
+  }, 1000);
+});
+</script>
+</head>
+
+<body>
+  <h1>Giga Ad Android Diagnostic</h1>
+  <p>Press the button below to run the test.<br>
+     <strong>Note:</strong> Must be tapped by you (no auto-play on Android).</p>
+
+  <button onclick="runAd()">🎥 Show Ad Test</button>
+  <p>SDK status: <span id="sdkStat">checking...</span></p>
+  <div id="status">Logs will appear here...</div>
+
+  <div id="overlay">
+    <div>⚠️ Fallback Ad Active<br>(no real SDK loaded)</div>
+    <button onclick="overlay.hide()">Close</button>
+  </div>
 </body>
-</html>
+                                            </html>
