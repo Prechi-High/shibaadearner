@@ -924,6 +924,7 @@
         <div class="celebration-text" id="celebration-text">Great choice!</div>
     </div>
     <!-- Giga Ads Enhanced Reliability SDK -->
+<!-- Giga SDK Loader -->
 <script data-project-id="3604">
   !function(){
     var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
@@ -945,19 +946,19 @@
     l();
   }();
 </script>
-    <script>
-  // Initialize fallback
-  const adShow = function() {
-    console.warn("Fallback Giga ad triggered");
-    // You can show a local backup message or mock ad here if needed
+
+<!-- Fallback definition -->
+<script>
+  const adShow = () => {
+    console.warn("⚠️ Giga fallback triggered — no real ad shown.");
     return Promise.resolve();
   };
-
   window.AdGigaFallback = adShow;
-
   if (window.showGiga === undefined)
       window.showGiga = () => window.AdGigaFallback();
-    </script>
+</script>
+
+<!-- Then your main game script (with loadAd above) -->
     <script>
         // Game state
         const gameState = {
@@ -1034,7 +1035,25 @@
         // ======================
 // GIGA AD IMPLEMENTATION
 // ======================
+// ======================
+// GIGA AD IMPLEMENTATION (with safe loading + fallback detection)
+// ======================
 
+// Helper: Wait until Giga SDK is ready
+async function waitForGigaReady(retries = 10) {
+    while (typeof window.showGiga !== 'function' && retries-- > 0) {
+        console.log("⏳ Waiting for Giga SDK to load...");
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    if (typeof window.showGiga !== 'function') {
+        console.warn("⚠️ Giga SDK not available after waiting — fallback may be active.");
+        return false;
+    }
+    console.log("✅ Giga SDK is ready.");
+    return true;
+}
+
+// Main ad loader function
 async function loadAd(adNumber) {
     const progressElement = document.getElementById('current-ad');
     const adDots = document.querySelectorAll('.ad-dot');
@@ -1046,6 +1065,7 @@ async function loadAd(adNumber) {
         dot.classList.toggle('active', index < adNumber);
     });
 
+    // Show loading animation
     adContainer.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;">
             <div style="color:var(--gold);margin-bottom:10px;">Loading ad ${adNumber}/3...</div>
@@ -1060,31 +1080,42 @@ async function loadAd(adNumber) {
     `;
 
     try {
-        // ✅ Load Giga ad using placement "main" and ID 3604
-        await window.showGiga("main", 3604)
-            .then(() => {
-                adContainer.innerHTML = `
-                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--gold);">
-                        <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
-                        <div style="text-align:center;font-size:0.9rem;">Giga ad watched successfully!</div>
-                    </div>
-                `;
-                return true;
-            })
-            .catch(e => {
-                throw new Error("Giga ad failed or was closed early");
-            });
+        // ✅ Wait for Giga SDK to load
+        const ready = await waitForGigaReady();
+        if (!ready) {
+            throw new Error("Giga SDK not loaded (using fallback)");
+        }
+
+        // ✅ Try showing the ad
+        console.log("🎬 Showing Giga ad...");
+        const result = await window.showGiga(3604); // or ("main", 3604) if your placement is named "main"
+
+        // ✅ Ad completed successfully
+        adContainer.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--gold);">
+                <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✓ AD COMPLETED</div>
+                <div style="text-align:center;font-size:0.9rem;">Giga ad watched successfully!</div>
+            </div>
+        `;
+        console.log("✅ Giga ad completed:", result);
+        return true;
+
     } catch (error) {
-        console.error('Giga ad failed:', error);
+        // ❌ Handle error or fallback
+        console.error("Giga ad failed:", error);
         adContainer.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:250px;color:var(--danger);">
                 <div style="font-size:1.3rem;font-weight:bold;margin-bottom:10px;">✗ AD FAILED</div>
                 <div style="text-align:center;font-size:0.8rem;">${error.message}</div>
+                <button class="btn btn-confirm" style="margin-top:15px;width:auto;padding:8px 16px;" onclick="retryCurrentAd(${adNumber})">
+                    RETRY
+                </button>
             </div>
         `;
         return false;
     }
-}
+        }
+
         // Initialize the game
         function initGame() {
             for (let i = 1; i <= 1000; i++) {
@@ -1381,6 +1412,7 @@ async function loadAd(adNumber) {
 </body>
 
 </html>
+
 
 
 
