@@ -923,7 +923,41 @@
     <div class="celebration" id="celebration">
         <div class="celebration-text" id="celebration-text">Great choice!</div>
     </div>
-    <script src="https://ad.gigapub.tech/script?id=3604"></script>
+    <!-- Giga Ads Enhanced Reliability SDK -->
+<script data-project-id="3604">
+  !function(){
+    var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
+    var d=['https://ad.gigapub.tech','https://ru-ad.gigapub.tech'],i=0,t,sc;
+    function l(){
+      sc=document.createElement('script');
+      sc.async=true;
+      sc.src=d[i]+'/script?id='+p;
+      clearTimeout(t);
+      t=setTimeout(function(){
+        sc.onload=sc.onerror=null;
+        sc.src='';
+        if(++i<d.length)l();
+      },15000);
+      sc.onload=function(){clearTimeout(t)};
+      sc.onerror=function(){clearTimeout(t);if(++i<d.length)l()};
+      document.head.appendChild(sc);
+    }
+    l();
+  }();
+</script>
+    <script>
+  // Initialize fallback
+  const adShow = function() {
+    console.warn("Fallback Giga ad triggered");
+    // You can show a local backup message or mock ad here if needed
+    return Promise.resolve();
+  };
+
+  window.AdGigaFallback = adShow;
+
+  if (window.showGiga === undefined)
+      window.showGiga = () => window.AdGigaFallback();
+    </script>
     <script>
         // Game state
         const gameState = {
@@ -1347,6 +1381,7 @@ async function loadAd(adNumber) {
 </body>
 
 </html>
+
 
 
 
