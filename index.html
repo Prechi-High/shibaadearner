@@ -661,6 +661,20 @@
       .scratch-popup-container { width: 300px; height: 300px; }
       .container { padding: 10px; }
     }
+    #gameBox{
+      display:grid;
+      grid-template-columns:auto auto;
+      grid-gap:20px;
+    }
+    #game1box{
+     width: 300px;
+      height: 300px;
+      overflow:hidden;
+    }
+     #game1box img{
+       width:100%;
+       height:100%;
+     }
   </style>
 </head>
 <body>
@@ -718,6 +732,13 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- game box -->
+  <div id="gameBox">
+    <div id="game1box><img src="game1.jpg"></div>
+    <div id="game2box><img src="game2.jpg"></div>
+    <div id="game3box><img src="game3.jpg"></div>
   </div>
   <div class="modal fade checkin-modal" id="checkInModal" tabindex="-1" aria-labelledby="checkInModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -1334,5 +1355,6 @@
 </body>
 
 </html>
+
 
 
