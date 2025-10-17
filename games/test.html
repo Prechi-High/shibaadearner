@@ -8,13 +8,13 @@
     <style>
     /* Global/Body Styles */
     body{
-    	background-image: url('bg1.jpg');
-    	background-repeat:no-repeat;
-    	background-size:cover;
-    	background-attachment:fixed;
-    	color:#eee;
-    	margin:0;
-    	box-sizing: border-box;
+     background-image: url('bg1.jpg');
+     background-repeat:no-repeat;
+     background-size:cover;
+     background-attachment:fixed;
+     color:#eee;
+     margin:0;
+     box-sizing: border-box;
 }
 
 /* Main Container/Canvas Positioning */
@@ -157,9 +157,9 @@ button:active {
 }
 
 
-/* --- Overlay and Popup Styles (Kept as before) --- */
+/* --- Overlay and Popup Styles (improved) --- */
 .overlay {
-  position:fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -167,46 +167,47 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: green;
-	padding:100px;/* darker background for clarity */
-  z-index: 999999; /* highest layer — always above canvas */
+  background: rgba(0,0,0,0.6); /* semi-transparent dark backdrop */
+  padding: 40px; /* smaller padding */
+  z-index: 999999; /* above canvas */
   backdrop-filter: blur(3px);
 }
 
 .popup {
-  background:red;
-  padding: 100px 20px;
+  background: #121212; /* dark popup background */
+  padding: 20px 24px;
   color: #fff;
   text-align: center;
-  width: 90%;
-	height:90vh;
-  max-width: 90%;
+  width: 100%;
+  max-width: 520px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-  animation: popupFade 0.25s ease-out;
+  animation: popupFade 0.18s ease-out;
+  border-radius: 12px;
 }
 
 @keyframes popupFade {
-  from { transform: scale(0.9); opacity: 0; }
+  from { transform: scale(0.985); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
 .ad-progress {
   width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-  margin-top: 10px;
+  height: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  margin-top: 12px;
+  overflow: hidden;
 }
 
 .ad-fill {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #63b3ed, #4299e1);
-  transition: width 0.2s linear;
+  transition: width 0.12s linear;
 }
 
-.muted{color:#94a3b8}
-.center{text-align:center}
+.muted { color: #8b98a6; }
+.center { text-align: center; }
 </style>
 </head>
 
@@ -223,7 +224,7 @@ button:active {
     </div>
     <div class="stat earned">
       <small>💰 Earned</small>
-      <div id="earnedDisplay" class="big">$0.00 USDT</div>
+      <div id="earnedDisplay" class="big">$0.0000 USDT</div>
     </div>
     <div class="stat balance">
       <small>🏦 Balance</small>
@@ -237,10 +238,10 @@ button:active {
     </div>
     <div class="hud-buttons-group">
       <button id="tryAgainBtn" class="secondary">🔁 Try Again</button>
-    	<!-- <button id="claimBtn">✅ Claim Prize</button>  -->
+     <!-- <button id="claimBtn">✅ Claim Prize</button>  -->
     </div>
   </div>
-</div>	<!-- HUD: add this near your game canvas -->
+</div> <!-- HUD: add this near your game canvas -->
 
 <!-- End HUD -->
     <!-- main div  -->
@@ -248,8 +249,6 @@ button:active {
 <canvas  id="viewport" width="625" height="625"></canvas></div>
     
     <script>
-    
-    
 window.onload = function() {
     // Get the canvas and context
     var canvas = document.getElementById("viewport");
@@ -398,7 +397,7 @@ let timerRunning = false;
         // Add mouse events
         canvas.addEventListener("mousemove", onMouseMove);
         canvas.addEventListener("mousedown", onMouseDown);
-    	document.getElementById("tryAgainBtn").onclick = () => newGame();
+		document.getElementById("tryAgainBtn").onclick = () => newGame();
 //document.getElementById("claimBtn").onclick = () => handleWin();
         
         // Initialize the two-dimensional tile array
@@ -429,11 +428,13 @@ let timerRunning = false;
         main(0);
     }
     function updateHUD() {
-  document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(2)} USDT`;
+  // Earned shown with 4 decimal places as requested
+  document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(4)} USDT`;
+  // Keep balance & target formatting as before (2 decimals)
   document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(2)} USDT`;
   document.getElementById("targetDisplay").innerText = `$${target.toFixed(2)} USDT`;
   document.getElementById("extensionsUsed").innerText = extensionsUsed;
-    	updateTimeDisplay();
+	updateTimeDisplay();
 }
 function startTimer(resume = false) {
   clearInterval(timerInterval);
@@ -489,7 +490,7 @@ function handleWin() {
   totalBalance += earned;
   updateHUD();
   // You can replace alert with a modal if you want
-  alert(`🎉 You won! $${earned.toFixed(2)} added to your balance.`);
+  alert(`🎉 You won! $${earned.toFixed(4)} added to your balance.`);
   // reset for next round
   earned = 0;
   target = 0.30;
@@ -506,13 +507,12 @@ function showAdPopup() {
 
   const overlay = document.createElement("div");
   overlay.className = "overlay ad-popup";
-  overlay.style.display = "flex";
 
   overlay.innerHTML = `
-    <div class="popup center">
+    <div class="popup center" role="dialog" aria-modal="true" aria-label="Watch ads to continue">
       <h3>⏳ Time’s Up!</h3>
-      <p>You can watch 3 ads to get +1 minute and increase the target by $0.10.</p>
-      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
+      <p class="muted">Watch 3 simulated ads to get +1 minute and increase the target by $0.10.</p>
+      <div style="margin-top:14px; display:flex; gap:10px; justify-content:center;">
         <button id="watchAdsBtn">▶️ Watch Ads</button>
         <button id="quitGameBtn">❌ Quit</button>
       </div>
@@ -532,21 +532,26 @@ function showAdPopup() {
   };
 }
 
-// === Simulated ad progress ===
 function startAdProgress() {
+  // Remove any previous ad overlays
+  document.querySelectorAll(".overlay.ad-progress").forEach(e => e.remove());
+
   const overlay = document.createElement("div");
   overlay.className = "overlay ad-progress";
-  overlay.style.display = "block";
 
   overlay.innerHTML = `
-    <div class="popup center">
+    <div class="popup center" role="dialog" aria-modal="true" aria-label="Watching ads">
       <h3>📺 Watching Ads</h3>
-      <p id="adStatus">Ad 1 of 3...</p>
-      <div class="ad-progress">
-        <div class="ad-fill" id="adFill"></div>
+      <div id="adStatus" class="muted" style="margin-top:6px;">Ad 1 of 3 — 0%</div>
+      <div class="ad-progress" aria-hidden="true">
+        <div class="ad-fill" id="adFill" style="width:0%"></div>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
+        <button id="cancelAdsBtn">✖️ Cancel</button>
       </div>
     </div>
   `;
+
   document.body.appendChild(overlay);
 
   let adCount = 1;
@@ -554,44 +559,53 @@ function startAdProgress() {
   const adFill = document.getElementById("adFill");
   const adStatus = document.getElementById("adStatus");
 
-  const timer = setInterval(() => {
-    progress += 2; // fill speed
+  // keep reference so we can clear it from cancel handler
+  let adTimer = setInterval(() => {
+    // increase progress quicker for a snappier demo; adjust as you like
+    progress += 4;
+    if (progress > 100) progress = 100;
     adFill.style.width = progress + "%";
+    adStatus.innerText = `Ad ${adCount} of 3 — ${progress}%`;
 
     if (progress >= 100) {
       if (adCount < 3) {
         adCount++;
         progress = 0;
-        adStatus.innerText = `Ad ${adCount} of 3...`;
+        adFill.style.width = '0%';
+        adStatus.innerText = `Ad ${adCount} of 3 — 0%`;
       } else {
-        clearInterval(timer);
-        overlay.remove();
-
-       // After 3 ads “watched”
-        clearInterval(timer);
+        // Completed all ads
+        clearInterval(adTimer);
         overlay.remove();
 
         extensionsUsed++;
         timeLeft = 60; // +1 minute
         target += 0.10;
         updateHUD();
-        // startTimer(false) — start fresh from the new time (not resume)
+        // start fresh with new time (not resume)
         startTimer(false);
       }
     }
   }, 100);
+
+  // Cancel button — stop ads and show loss popup (or you can return to game)
+  document.getElementById("cancelAdsBtn").onclick = () => {
+    clearInterval(adTimer);
+    overlay.remove();
+    // Optionally allow quitting/back to loss screen
+    showLossPopup();
+  };
 }
-	
+
 function showContinuePopup() {
   // Pause timer already done by checkGameOver() before calling this
   const overlay = document.createElement("div");
   overlay.className = "overlay continue-popup";
-  overlay.style.display = "flex";
 
   overlay.innerHTML = `
     <div class="popup center">
       <h3>⚠️ Game Over?</h3>
-      <p>You still have time left. Watch 1 ad to continue or quit (you’ll lose $${earned.toFixed(2)}).</p>
+      <p class="muted">Watch 1 ad to continue or quit (you’ll lose $${earned.toFixed(4)}).</p>
       <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
         <button id="watchOneAdBtn">▶️ Watch Ad</button>
         <button id="quitConfirmBtn">❌ Quit</button>
@@ -602,19 +616,19 @@ function showContinuePopup() {
 
   // Watch 1 ad flow — preserve remaining time and HUD
   document.getElementById("watchOneAdBtn").onclick = () => {
-  overlay.remove();
-  const previousTime = timeLeft;
-  startSingleAd(() => {
-    resetBoardForContinue();
-    timeLeft = previousTime;
-    updateHUD();
-    startTimer(true);
-  });
-};
+    overlay.remove();
+    const previousTime = timeLeft;
+    startSingleAd(() => {
+      resetBoardForContinue();
+      timeLeft = previousTime;
+      updateHUD();
+      startTimer(true);
+    });
+  };
 
   // Quit flow — confirm losing earnings
   document.getElementById("quitConfirmBtn").onclick = () => {
-    const confirmQuit = confirm(`If you quit now, you'll lose $${earned.toFixed(2)}. Are you sure?`);
+    const confirmQuit = confirm(`If you quit now, you'll lose $${earned.toFixed(4)}. Are you sure?`);
     if (confirmQuit) {
       overlay.remove();
       earned = 0;
@@ -809,7 +823,7 @@ function quitGame() {
                                        coord.tilex + level.tilewidth/2,
                                        coord.tiley + level.tileheight/2,
                                        level.radius)) {
-                                        
+                    
                     // Intersection with a level bubble
                     snapBubble();
                     return;
@@ -842,7 +856,7 @@ function quitGame() {
                         
                        // Add cluster score
 score += cluster.length * 100;
-                    	// === Add USDT reward for each cluster ===
+                     // === Add USDT reward for each cluster ===
 //earned += 0.01;
 updateHUD();
 if (earned >= target) {
@@ -998,609 +1012,4 @@ if (earned >= target) {
         if (turncounter >= 5) {
             // Add a row of bubbles
             addBubbles();
-            turncounter = 0;
-            rowoffset = (rowoffset + 1) % 2;
-            
-            if (checkGameOver()) {
-                return;
-            }
-        }
-
-        // Next bubble
-        nextBubble();
-        setGameState(gamestates.ready);
-    }
-    
-    function checkGameOver() {
-        // Check for game over
-        for (var i=0; i<level.columns; i++) {
-            
-            if (level.tiles[i][level.rows-1].type != -1) {
-  // Pause timer
-  clearInterval(timerInterval);
-  timerRunning = false;
-
-  // Show continue/quit popup
-  showContinuePopup();
-  return true;
-}
-        }
-        
-        return false;
-    }
-    
-    function addBubbles() {
-        // Move the rows downwards
-        for (var i=0; i<level.columns; i++) {
-            for (var j=0; j<level.rows-1; j++) {
-                level.tiles[i][level.rows-1-j].type = level.tiles[i][level.rows-1-j-1].type;
-            }
-        }
-        
-        // Add a new row of bubbles at the top
-        for (var i=0; i<level.columns; i++) {
-            // Add random, existing, colors
-            level.tiles[i][0].type = getExistingColor();
-        }
-    }
-    
-    // Find the remaining colors
-    function findColors() {
-        var foundcolors = [];
-        var colortable = [];
-        for (var i=0; i<bubblecolors; i++) {
-            colortable.push(false);
-        }
-        
-        // Check all tiles
-        for (var i=0; i<level.columns; i++) {
-            for (var j=0; j<level.rows; j++) {
-                var tile = level.tiles[i][j];
-                if (tile.type >= 0) {
-                    if (!colortable[tile.type]) {
-                        colortable[tile.type] = true;
-                        foundcolors.push(tile.type);
-                    }
-                }
-            }
-        }
-        
-        return foundcolors;
-    }
-    
-   
-    function findCluster(tx, ty, matchtype, reset, skipremoved) {
-        // Reset the processed flags
-        if (reset) {
-            resetProcessed();
-        }
-       
-        var targettile = level.tiles[tx][ty];
-        
-        var toprocess = [targettile];
-        targettile.processed = true;
-        var foundcluster = [];
-
-        while (toprocess.length > 0) {
-            // Pop the last element from the array
-            var currenttile = toprocess.pop();
-            
-            // Skip processed and empty tiles
-            if (currenttile.type == -1) {
-                continue;
-            }
-            
-            // Skip tiles with the removed flag
-            if (skipremoved && currenttile.removed) {
-                continue;
-            }
-            
-          
-            if (!matchtype || (currenttile.type == targettile.type)) {
-                // Add current tile to the cluster
-                foundcluster.push(currenttile);
-                
-                // Get the neighbors of the current tile
-                var neighbors = getNeighbors(currenttile);
-                
-                // Check the type of each neighbor
-                for (var i=0; i<neighbors.length; i++) {
-                    if (!neighbors[i].processed) {
-                        // Add the neighbor to the toprocess array
-                        toprocess.push(neighbors[i]);
-                        neighbors[i].processed = true;
-                    }
-                }
-            }
-        }
-        
-        // Return the found cluster
-        return foundcluster;
-    }
-    
-    // Find floating clusters
-    function findFloatingClusters() {
-        // Reset the processed flags
-        resetProcessed();
-        
-        var foundclusters = [];
-        
-        // Check all tiles
-        for (var i=0; i<level.columns; i++) {
-            for (var j=0; j<level.rows; j++) {
-                var tile = level.tiles[i][j];
-                if (!tile.processed) {
-                    // Find all attached tiles
-                    var foundcluster = findCluster(i, j, false, false, true);
-                    
-                    // There must be a tile in the cluster
-                    if (foundcluster.length <= 0) {
-                        continue;
-                    }
-                    
-                    // Check if the cluster is floating
-                    var floating = true;
-                    for (var k=0; k<foundcluster.length; k++) {
-                        if (foundcluster[k].y == 0) {
-                            // Tile is attached to the roof
-                            floating = false;
-                            break;
-                        }
-                    }
-                    
-                    if (floating) {
-                        // Found a floating cluster
-                        foundclusters.push(foundcluster);
-                    }
-                }
-            }
-        }
-        
-        return foundclusters;
-    }
-    
-    // Reset the processed flags
-    function resetProcessed() {
-        for (var i=0; i<level.columns; i++) {
-            for (var j=0; j<level.rows; j++) {
-                level.tiles[i][j].processed = false;
-            }
-        }
-    }
-    
-    // Reset the removed flags
-    function resetRemoved() {
-        for (var i=0; i<level.columns; i++) {
-            for (var j=0; j<level.rows; j++) {
-                level.tiles[i][j].removed = false;
-            }
-        }
-    }
-    
-    // Get the neighbors of the specified tile
-    function getNeighbors(tile) {
-        var tilerow = (tile.y + rowoffset) % 2; // Even or odd row
-        var neighbors = [];
-        
-       
-        var n = neighborsoffsets[tilerow];
-        
-        // Get the neighbors
-        for (var i=0; i<n.length; i++) {
-            // Neighbor coordinate
-            var nx = tile.x + n[i][0];
-            var ny = tile.y + n[i][1];
-            
-            // Make sure the tile is valid
-            if (nx >= 0 && nx < level.columns && ny >= 0 && ny < level.rows) {
-                neighbors.push(level.tiles[nx][ny]);
-            }
-        }
-        
-        return neighbors;
-    }
-    
-    function updateFps(dt) {
-        if (fpstime > 0.25) {
-            // Calculate fps
-            fps = Math.round(framecount / fpstime);
-            
-            // Reset time and framecount
-            fpstime = 0;
-            framecount = 0;
-        }
-        
-        // Increase time and framecount
-        fpstime += dt;
-        framecount++;
-    }
-    
-    // Draw text that is centered
-    function drawCenterText(text, x, y, width) {
-        var textdim = context.measureText(text);
-        context.fillText(text, x + (width-textdim.width)/2, y);
-    }
-    
-    // Render the game
-    function render() {
-        // Draw the frame around the game
-        drawFrame();
-        
-        var yoffset =  level.tileheight/2;
-        
-        // Draw level background
-        context.fillStyle = "rgba(0,0,0,0.0)";
-        context.fillRect(level.x - 4, level.y - 4, level.width + 8, level.height + 4 - yoffset);
-        
-        // Render tiles
-        renderTiles();
-        
-        // Draw level bottom
-        context.fillStyle = "#A6341E";
-        context.fillRect(level.x - 4, level.y - 4 + level.height + 4 - yoffset, level.width + 8, 2*level.tileheight + 3);
-        
-        // Draw score
-        context.fillStyle = "rgba(0,0,0,0.0)";
-        context.font = "18px Verdana";
-        var scorex = level.x + level.width - 150;
-        var scorey = level.y+level.height + level.tileheight - yoffset - 8;
-        drawCenterText("Your Score:", scorex, scorey, 150);
-        context.font = "24px Verdana";
-        drawCenterText(score, scorex, scorey+30, 150);
-
-        // Render cluster
-        if (showcluster) {
-            renderCluster(cluster, 255, 128, 128);
-            
-            for (var i=0; i<floatingclusters.length; i++) {
-                var col = Math.floor(100 + 100 * i / floatingclusters.length);
-                renderCluster(floatingclusters[i], col, col, col);
-            }
-        }
-        
-        
-        // Render player bubble
-        renderPlayer();
-        
-        // Game Over overlay
-        if (gamestate == gamestates.gameover) {
-            context.fillStyle = "rgba(0, 0, 255, 1)";
-            context.fillRect(level.x - 4, level.y - 4, level.width + 8, level.height + 2 * level.tileheight + 8 - yoffset);
-            
-            context.fillStyle = "rgba(0,0,0,0.2)";
-            context.font = "24px Verdana";
-            drawCenterText("Game Over!", level.x, level.y + level.height / 2 + 10, level.width);
-            drawCenterText("Click to start", level.x, level.y + level.height / 2 + 40, level.width);
-        }
-    }
-    
-    // Draw a frame around the game
-    function drawFrame() {
-        // Draw background
-        context.fillStyle = "rgba(0,0,0,0.1)";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw header
-        context.fillStyle = "rgba(0,0,0,0.0)";
-        context.fillRect(0, 0, canvas.width, 79);
-        
-        // Draw title
-        context.fillStyle = "rgba(0,0,0,0.0)";
-        context.font = "24px Verdana";
-        context.fillText("Bubble Shooter Game", 10, 37);
-        
-        // Display fps
-        context.fillStyle = "rgba(0,0,0,0.0)";
-        context.font = "12px cursive";
-        context.fillText("Fps: " + fps, 13, 57);
-    }
-    
-    // Render tiles
-    function renderTiles() {
-        // Top to bottom
-        for (var j=0; j<level.rows; j++) {
-            for (var i=0; i<level.columns; i++) {
-                // Get the tile
-                var tile = level.tiles[i][j];
-            
-                
-                var shift = tile.shift;
-                
-               
-                var coord = getTileCoordinate(i, j);
-                
-              
-                if (tile.type >= 0) {
-                    // Support transparency
-                    context.save();
-                    context.globalAlpha = tile.alpha;
-                    
-                    // Draw the tile using the color
-                    drawBubble(coord.tilex, coord.tiley + shift, tile.type);
-                    
-                    context.restore();
-                }
-            }
-        }
-    }
-    
-    // Render cluster
-    function renderCluster(cluster, r, g, b) {
-        for (var i=0; i<cluster.length; i++) {
-            // Calculate the tile coordinates
-            var coord = getTileCoordinate(cluster[i].x, cluster[i].y);
-            
-            // Draw the tile using the color
-            context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-            context.fillRect(coord.tilex+level.tilewidth/4, coord.tiley+level.tileheight/4, level.tilewidth/2, level.tileheight/2);
-        }
-    }
-    
-    // Render the player bubble
-    function renderPlayer() {
-        var centerx = player.x + level.tilewidth/2;
-        var centery = player.y + level.tileheight/2;
-        
-        // Draw player background circle
-        context.fillStyle = "skyblue";
-        context.beginPath();
-        context.arc(centerx, centery, level.radius+12, 0, 2*Math.PI, false);
-        context.fill();
-        context.lineWidth = 2;
-        context.strokeStyle = "yellow";
-        context.stroke();
-
-        // Draw the angle
-        context.lineWidth = 2;
-        context.strokeStyle = "purple";
-        context.beginPath();
-        context.moveTo(centerx, centery);
-        context.lineTo(centerx + 1.5*level.tilewidth * Math.cos(degToRad(player.angle)), centery - 1.5*level.tileheight * Math.sin(degToRad(player.angle)));
-        context.stroke();
-        
-        // Draw the next bubble
-        drawBubble(player.nextbubble.x, player.nextbubble.y, player.nextbubble.tiletype);
-        
-        // Draw the bubble
-        if (player.bubble.visible) {
-            drawBubble(player.bubble.x, player.bubble.y, player.bubble.tiletype);
-        }
-        
-    }
-    
-    // Get the tile coordinate
-    function getTileCoordinate(column, row) {
-        var tilex = level.x + column * level.tilewidth;
-        
-        // X offset for odd or even rows
-        if ((row + rowoffset) % 2) {
-            tilex += level.tilewidth/2;
-        }
-        
-        var tiley = level.y + row * level.rowheight;
-        return { tilex: tilex, tiley: tiley };
-    }
-    
-    // Get the closest grid position
-    function getGridPosition(x, y) {
-        var gridy = Math.floor((y - level.y) / level.rowheight);
-        
-        // Check for offset
-        var xoffset = 0;
-        if ((gridy + rowoffset) % 2) {
-            xoffset = level.tilewidth / 2;
-        }
-        var gridx = Math.floor(((x - xoffset) - level.x) / level.tilewidth);
-        
-        return { x: gridx, y: gridy };
-    }
-
-    
-    // Draw the bubble
-    function drawBubble(x, y, index) {
-        if (index < 0 || index >= bubblecolors)
-            return;
-        
-        // Draw the bubble sprite
-        context.drawImage(bubbleimage, index * 40, 0, 40, 40, x, y, level.tilewidth,
-         level.tileheight);
-    }
-    
-    // Start a new game
-    function newGame() {
-        // Reset score
-        score = 0;
-        
-        turncounter = 0;
-        rowoffset = 0;
-        
-        // Set the gamestate to ready
-        setGameState(gamestates.ready);
-        
-        // Create the level
-        createLevel();
-
-        
-        nextBubble();
-        nextBubble();
-    	earned = 0.0;
-target = 0.30;
-extensionsUsed = 0;
-updateHUD();
-startTimer();
-    }
-	function resetBoardForContinue() {
-  // Same as newGame(), but does NOT reset earned, target, or totalBalance
-  state = gamestates.ready;
-  setGameState(gamestates.ready);
-
-  // Recreate level only, do not touch HUD
-  resetRemoved();
-  cluster = [];
-  floatingclusters = [];
-
-  // Refill bubbles in grid
-  createLevel();
-  nextBubble();
-}
-    // Create a random level
-    function createLevel() {
-        // Create a level with random tiles
-        for (var j=0; j<level.rows; j++) {
-            var randomtile = randRange(0, bubblecolors-1);
-            var count = 0;
-            for (var i=0; i<level.columns; i++) {
-                if (count >= 2) {
-                    // Change the random tile
-                    var newtile = randRange(0, bubblecolors-1);
-                    
-                  
-                    if (newtile == randomtile) {
-                        newtile = (newtile + 1) % bubblecolors;
-                    }
-                    randomtile = newtile;
-                    count = 0;
-                }
-                count++;
-                
-                if (j < level.rows/2) {
-                    level.tiles[i][j].type = randomtile;
-                } else {
-                    level.tiles[i][j].type = -1;
-                }
-            }
-        }
-    }
-    
-    // Create a random bubble for the player
-    function nextBubble() {
-        // Set the current bubble
-        player.tiletype = player.nextbubble.tiletype;
-        player.bubble.tiletype = player.nextbubble.tiletype;
-        player.bubble.x = player.x;
-        player.bubble.y = player.y;
-        player.bubble.visible = true;
-        
-        // Get a random type from the existing colors
-        var nextcolor = getExistingColor();
-        
-        // Set the next bubble
-        player.nextbubble.tiletype = nextcolor;
-    }
-    
-    // Get a random existing color
-    function getExistingColor() {
-        existingcolors = findColors();
-        
-        var bubbletype = 0;
-        if (existingcolors.length > 0) {
-            bubbletype = existingcolors[randRange(0, existingcolors.length-1)];
-        }
-        
-        return bubbletype;
-    }
-    
-    // Get a random int between low and high, inclusive
-    function randRange(low, high) {
-        return Math.floor(low + Math.random()*(high-low+1));
-    }
-    
-    // Shoot the bubble
-    function shootBubble() {
-        // Shoot the bubble in the direction of the mouse
-        player.bubble.x = player.x;
-        player.bubble.y = player.y;
-        player.bubble.angle = player.angle;
-        player.bubble.tiletype = player.tiletype;
-
-        // Set the gamestate
-        setGameState(gamestates.shootbubble);
-    }
-    
-    // Check if two circles intersect
-    function circleIntersection(x1, y1, r1, x2, y2, r2) {
-        // Calculate the distance between the centers
-        var dx = x1 - x2;
-        var dy = y1 - y2;
-        var len = Math.sqrt(dx * dx + dy * dy);
-        
-        if (len < r1 + r2) {
-            // Circles intersect
-            return true;
-        }
-        
-        return false;
-    }
-    
-    // Convert radians to degrees
-    function radToDeg(angle) {
-        return angle * (180 / Math.PI);
-    }
-    
-    // Convert degrees to radians
-    function degToRad(angle) {
-        return angle * (Math.PI / 180);
-    }
-
-    // On mouse movement
-    function onMouseMove(e) {
-        // Get the mouse position
-        var pos = getMousePos(canvas, e);
-
-        // Get the mouse angle
-        var mouseangle = radToDeg(Math.atan2((player.y+level.tileheight/2) - pos.y, pos.x - (player.x+level.tilewidth/2)));
-
-    
-        if (mouseangle < 0) {
-            mouseangle = 180 + (180 + mouseangle);
-        }
-
-      
-        var lbound = 8;
-        var ubound = 172;
-        if (mouseangle > 90 && mouseangle < 270) {
-            // Left
-            if (mouseangle > ubound) {
-                mouseangle = ubound;
-            }
-        } else {
-            // Right
-            if (mouseangle < lbound || mouseangle >= 270) {
-                mouseangle = lbound;
-            }
-        }
-
-        // Set the player angle
-        player.angle = mouseangle;
-    }
-    
-    // On mouse button click
-    function onMouseDown(e) {
-       
-        var pos = getMousePos(canvas, e);
-        
-        if (gamestate == gamestates.ready) {
-            shootBubble();
-        } else if (gamestate == gamestates.gameover) {
-            newGame();
-        }
-    }
-    
-    // Get the mouse position
-    function getMousePos(canvas, e) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: Math.round((e.clientX - rect.left)/(rect.right - rect.left)*canvas.width),
-            y: Math.round((e.clientY - rect.top)/(rect.bottom - rect.top)*canvas.height)
-        };
-    }
-    
-    // Call init to start 
-    init();
-};
-   
-    </script>
-    
-</body>
-
-</html> 
+[...]}
