@@ -3,77 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <title>Bubble Shooter Game</title>
-<!-- Linking CSS & JS -->
-
-    <style>
-    /* Global/Body Styles */
-    body{
-     background-image: url('bg1.jpg');
-     background-repeat:no-repeat;
-     background-size:cover;
-     background-attachment:fixed;
-     color:#eee;
-     margin:0;
-     box-sizing: border-box;
+<style>
+/* Global/Body Styles */
+body{
+	background-image: url('bg1.jpg');
+	background-repeat:no-repeat;
+	background-size:cover;
+	background-attachment:fixed;
+	color:#eee;
+	margin:0;
+	box-sizing: border-box;
 }
-
 /* Main Container/Canvas Positioning */
 #main-container{
-  height:1000px; /* Changed to 'px' for consistency */
-  width:625px;   /* Changed to 'px' for consistency */
+  height:625px;
+  width:625px;
   box-sizing:border-box;
-  margin: 20px auto 0 auto; /* Center the main game view */
-  background: rgba(0,0,0,0.5); /* Semi-transparent background for the game area */
+  margin: 20px auto 0 auto;
+  background: rgba(0,0,0,0.5);
   border-radius: 10px;
-  overflow: hidden; /* Keep game elements inside */
+  overflow: hidden;
+  position: relative;
 }
-
 #viewport{
- height:625px; /* Canvas size */
+ height:625px;
  width:625px;
- border: none; /* Remove border */
+ border: none;
  display: block;
+}
+/* Live Winners Display */
+#live-winners {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px 15px;
+  z-index: 100;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#winners-container {
+  display: inline-block;
+  animation: scrollLeft 40s linear infinite;
+}
+@keyframes scrollLeft {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* --- HUD STYLING (The Game-Specific Look) --- */
-
 .hud{
   display:flex;
-  flex-direction: column; /* Stack stats and controls vertically */
+  flex-direction: column;
   gap: 8px;
-  padding: 10px 0; /* Padding top/bottom */
-  width: 625px; /* Match main-container width */
-  margin: 10px auto 0 auto; /* Center above the game */
+  padding: 10px 0;
+  width: 625px;
+  margin: 10px auto 0 auto;
   font-family: Arial, sans-serif;
 }
-
 .hud-stats-row {
   display: flex;
-  justify-content: space-between; /* Spread stats out */
+  justify-content: space-between;
   padding: 0 5px;
-  /* Use a gradient or a strong color to match game header feel */
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
-
 .stat{
-  /* Reset the original .stat flex/background */
   background: none;
   padding: 8px 10px;
   border-radius: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column; /* Stack small text over big text */
+  flex-direction: column;
   font-size: 14px;
   min-width: 100px;
   text-shadow: 1px 1px 2px #000;
   position: relative;
 }
-
-/* Decorative separator for stats */
 .stat:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -83,10 +95,8 @@
   width: 1px;
   background: rgba(255, 255, 255, 0.2);
 }
-
-
 .stat small{
-  color: #a0f0ff; /* Brighter small text color */
+  color: #a0f0ff;
   font-size: 10px;
   text-transform: uppercase;
   font-weight: 700;
@@ -97,29 +107,22 @@
   font-size: 18px;
   color: #ffffff;
 }
-
-/* Special color for the target/earned stat to draw attention */
 .target .big, .earned .big {
   color: #ffde00;
 }
-
-/* Second Row: Controls and Extensions */
 .hud-controls-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
   padding: 5px 10px;
-  /* Match the visual style of the stats row */
   background: rgba(0, 0, 0, 0.4); 
   border-radius: 10px;
 }
-
 .hud-buttons-group {
   display: flex;
   gap: 8px;
 }
-
 .extensions-stat {
   font-size: 12px;
   color: #9aa;
@@ -129,8 +132,6 @@
   display: flex;
   align-items: center;
 }
-
-/* General Button Styling */
 button {
   padding: 8px 15px;
   border: none;
@@ -140,26 +141,22 @@ button {
   box-shadow: 0 3px #333;
   transition: all 0.1s ease;
 }
-
 button:active {
   transform: translateY(1px);
   box-shadow: 0 1px #333;
 }
-
 #claimBtn {
-  background: linear-gradient(180deg, #4CAF50, #2E8B57); /* Green/Claim */
+  background: linear-gradient(180deg, #4CAF50, #2E8B57);
   color: white;
 }
-
 #tryAgainBtn.secondary {
-  background: linear-gradient(180deg, #FFD700, #DAA520); /* Gold/Try Again */
+  background: linear-gradient(180deg, #FFD700, #DAA520);
   color: #333;
 }
 
-
-/* --- Overlay and Popup Styles (improved) --- */
+/* --- Overlay and Popup Styles --- */
 .overlay {
-  position: fixed;
+  position:fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -167,51 +164,81 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.6); /* semi-transparent dark backdrop */
-  padding: 40px; /* smaller padding */
-  z-index: 999999; /* above canvas */
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 999999;
   backdrop-filter: blur(3px);
 }
-
 .popup {
-  background: #121212; /* dark popup background */
-  padding: 20px 24px;
+  background: rgba(30, 30, 46, 0.95);
+  padding: 30px;
   color: #fff;
   text-align: center;
-  width: 100%;
-  max-width: 520px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-  animation: popupFade 0.18s ease-out;
-  border-radius: 12px;
+  animation: popupFade 0.25s ease-out;
 }
-
 @keyframes popupFade {
-  from { transform: scale(0.985); opacity: 0; }
+  from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-
 .ad-progress {
   width: 100%;
-  height: 12px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 8px;
-  margin-top: 12px;
-  overflow: hidden;
+  height: 20px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  margin-top: 15px;
 }
-
 .ad-fill {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #63b3ed, #4299e1);
-  transition: width 0.12s linear;
+  transition: width 0.2s linear;
 }
-
-.muted { color: #8b98a6; }
-.center { text-align: center; }
+.muted{color:#94a3b8}
+.center{text-align:center}
+.btn-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  min-width: 120px;
+}
+.btn-primary {
+  background: linear-gradient(to right, #00c9ff, #92fe9d);
+  color: #1a1a2e;
+}
+.btn-secondary {
+  background: linear-gradient(to right, #ff6b6b, #ff8e53);
+  color: white;
+}
 </style>
 </head>
-
 <body>
+<!-- Live Winners Display -->
+<div id="live-winners">
+  <div id="winners-container">
+    <span>🏆 User1 won $0.05 USDT • </span>
+    <span>🎉 User2 won $0.12 USDT • </span>
+    <span>🌟 User3 won $0.08 USDT • </span>
+    <span>🔥 User4 won $0.15 USDT • </span>
+    <span>💎 User5 won $0.07 USDT • </span>
+    <span>🏆 User6 won $0.09 USDT • </span>
+    <span>🎉 User7 won $0.11 USDT • </span>
+    <span>🌟 User8 won $0.06 USDT • </span>
+    <span>🔥 User9 won $0.13 USDT • </span>
+    <span>💎 User10 won $0.04 USDT • </span>
+  </div>
+</div>
+
 <div class="hud" aria-live="polite">
   <div class="hud-stats-row">
     <div class="stat time">
@@ -224,31 +251,28 @@ button:active {
     </div>
     <div class="stat earned">
       <small>💰 Earned</small>
-      <div id="earnedDisplay" class="big">$0.0000 USDT</div>
+      <div id="earnedDisplay" class="big">$0.00 USDT</div>
     </div>
     <div class="stat balance">
       <small>🏦 Balance</small>
-      <div id="balanceDisplay" class="big">$1.20 USDT</div>
+      <div id="balanceDisplay" class="big">$0.00 USDT</div>
     </div>
   </div>
-
   <div class="hud-controls-row">
     <div class="extensions-stat">
       Extensions used this round: <span id="extensionsUsed">0</span> / 2
     </div>
     <div class="hud-buttons-group">
       <button id="tryAgainBtn" class="secondary">🔁 Try Again</button>
-     <!-- <button id="claimBtn">✅ Claim Prize</button>  -->
     </div>
   </div>
-</div> <!-- HUD: add this near your game canvas -->
+</div>
 
-<!-- End HUD -->
-    <!-- main div  -->
 <div id="main-container">
-<canvas  id="viewport" width="625" height="625"></canvas></div>
-    
-    <script>
+  <canvas id="viewport" width="625" height="625"></canvas>
+</div>
+
+<script>
 window.onload = function() {
     // Get the canvas and context
     var canvas = document.getElementById("viewport");
@@ -259,18 +283,18 @@ window.onload = function() {
     var fpstime = 0;
     var framecount = 0;
     var fps = 0;
-    
     var initialized = false;
-	// === Game economy variables ===
-// === Game economy variables ===
-let earned = 0.0;
-let totalBalance = 0.0;  // default 0.00 USDT
-let target = 0.30;
-let timeLeft = 120; // seconds = 2 minutes
-let extensionsUsed = 0;
-let timerInterval = null;
-let timerRunning = false;
-	
+    
+    // === Game economy variables ===
+    let earned = 0.0;
+    let totalBalance = 0.0;
+    let target = 0.30;
+    let timeLeft = 120; // 2 minutes
+    let extensionsUsed = 0;
+    let timerInterval = null;
+    let timerRunning = false;
+    let gamePaused = false;
+    
     // Level
     var level = {
         x: 4,          
@@ -285,7 +309,7 @@ let timerRunning = false;
         radius: 20,    
         tiles: []    
     };
-
+    
     // Define a tile class
     var Tile = function(x, y, type, shift) {
         this.x = x;
@@ -305,19 +329,19 @@ let timerRunning = false;
         angle: 0,
         tiletype: 0,
         bubble: {
-                    x: 0,
-                    y: 0,
-                    angle: 0,
-                    speed: 1000,
-                    dropspeed: 900,
-                    tiletype: 0,
-                    visible: false
-                },
+            x: 0,
+            y: 0,
+            angle: 0,
+            speed: 1000,
+            dropspeed: 900,
+            tiletype: 0,
+            visible: false
+        },
         nextbubble: {
-                        x: 0,
-                        y: 0,
-                        tiletype: 0
-                    }
+            x: 0,
+            y: 0,
+            tiletype: 0
+        }
     };
     
     // Neighbor offset table
@@ -333,7 +357,6 @@ let timerRunning = false;
     
     // Score
     var score = 0;
-    
     var turncounter = 0;
     var rowoffset = 0;
     
@@ -357,58 +380,40 @@ let timerRunning = false;
     
     // Load images
     function loadImages(imagefiles) {
-        // Initialize variables
         loadcount = 0;
         loadtotal = imagefiles.length;
         preloaded = false;
-        
-        // Load the images
         var loadedimages = [];
         for (var i=0; i<imagefiles.length; i++) {
-            // Create the image object
             var image = new Image();
-            
-            // Add onload event handler
             image.onload = function () {
                 loadcount++;
                 if (loadcount == loadtotal) {
-                    // Done loading
                     preloaded = true;
                 }
             };
-            
-            // Set the source url of the image
             image.src = imagefiles[i];
-            
-            // Save to the image array
             loadedimages[i] = image;
         }
-        
-        // Return an array of images
         return loadedimages;
     }
     
     // Initialize the game
     function init() {
-        // Load images
         images = loadImages(["bubble-sprites.png"]);
         bubbleimage = images[0];
-    
-        // Add mouse events
+        
         canvas.addEventListener("mousemove", onMouseMove);
         canvas.addEventListener("mousedown", onMouseDown);
-		document.getElementById("tryAgainBtn").onclick = () => newGame();
-//document.getElementById("claimBtn").onclick = () => handleWin();
+        document.getElementById("tryAgainBtn").onclick = () => showQuitConfirm();
         
         // Initialize the two-dimensional tile array
         for (var i=0; i<level.columns; i++) {
             level.tiles[i] = [];
             for (var j=0; j<level.rows; j++) {
-                // Define a tile type and a shift parameter for animation
                 level.tiles[i][j] = new Tile(i, j, 0, 0);
             }
         }
-        
         level.width = level.columns * level.tilewidth + level.tilewidth/2;
         level.height = (level.rows-1) * level.rowheight + level.tileheight;
         
@@ -417,389 +422,333 @@ let timerRunning = false;
         player.y = level.y + level.height;
         player.angle = 90;
         player.tiletype = 0;
-        
         player.nextbubble.x = player.x - 2 * level.tilewidth;
         player.nextbubble.y = player.y;
         
         // New game
         newGame();
-        
-        // Enter main loop
         main(0);
     }
-    function updateHUD() {
-  // Earned shown with 4 decimal places as requested
-  document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(4)} USDT`;
-  // Keep balance & target formatting as before (2 decimals)
-  document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(2)} USDT`;
-  document.getElementById("targetDisplay").innerText = `$${target.toFixed(2)} USDT`;
-  document.getElementById("extensionsUsed").innerText = extensionsUsed;
-	updateTimeDisplay();
-}
-function startTimer(resume = false) {
-  clearInterval(timerInterval);
-  timerRunning = true;
-  if (!resume) timeLeft = 120; // only reset for new games
-  updateHUD(); // sync UI
-
-  timerInterval = setInterval(() => {
-    if (!timerRunning) return;
-
-    if (timeLeft <= 0) {
-      timeLeft = 0; // clamp
-      updateTimeDisplay();
-      clearInterval(timerInterval);
-      timerRunning = false;
-      console.log("⏰ Timer hit zero – calling handleTimeUp()");
-      handleTimeUp();
-      return;
-    }
-
-    timeLeft--;
-    updateTimeDisplay();
-  }, 1000);
-}
-
-function updateTimeDisplay() {
-  let mins = Math.floor(timeLeft / 60);
-  let secs = timeLeft % 60;
-  document.getElementById("timeDisplay").innerText =
-    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
-function handleTimeUp() {
-  console.log("handleTimeUp() triggered. earned:", earned, "target:", target);
-  if (earned >= target) {
-    handleWin();
-    return;
-  }
-
-  if (extensionsUsed < 2) {
-    console.log("Calling showAdPopup()");
-    showAdPopup();
-  } else {
-    console.log("Calling showLossPopup()");
-    showLossPopup();
-  }
-}
-	// ---- Paste this as top-level functions (not inside any other function) ----
-
-function handleWin() {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  totalBalance += earned;
-  updateHUD();
-  // You can replace alert with a modal if you want
-  alert(`🎉 You won! $${earned.toFixed(4)} added to your balance.`);
-  // reset for next round
-  earned = 0;
-  target = 0.30;
-  extensionsUsed = 0;
-  updateHUD();
-  newGame();
-}
-
-function showAdPopup() {
-  console.log("showAdPopup() called"); // debug
-
-  // Remove existing popup if any
-  document.querySelectorAll(".overlay.ad-popup, .overlay.ad-progress").forEach(e => e.remove());
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay ad-popup";
-
-  overlay.innerHTML = `
-    <div class="popup center" role="dialog" aria-modal="true" aria-label="Watch ads to continue">
-      <h3>⏳ Time’s Up!</h3>
-      <p class="muted">Watch 3 simulated ads to get +1 minute and increase the target by $0.10.</p>
-      <div style="margin-top:14px; display:flex; gap:10px; justify-content:center;">
-        <button id="watchAdsBtn">▶️ Watch Ads</button>
-        <button id="quitGameBtn">❌ Quit</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  document.getElementById("watchAdsBtn").onclick = () => {
-    overlay.remove();
-    startAdProgress();
-  };
-
-  document.getElementById("quitGameBtn").onclick = () => {
-    overlay.remove();
-    showLossPopup();
-  };
-}
-
-function startAdProgress() {
-  // Remove any previous ad overlays
-  document.querySelectorAll(".overlay.ad-progress").forEach(e => e.remove());
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay ad-progress";
-
-  overlay.innerHTML = `
-    <div class="popup center" role="dialog" aria-modal="true" aria-label="Watching ads">
-      <h3>📺 Watching Ads</h3>
-      <div id="adStatus" class="muted" style="margin-top:6px;">Ad 1 of 3 — 0%</div>
-      <div class="ad-progress" aria-hidden="true">
-        <div class="ad-fill" id="adFill" style="width:0%"></div>
-      </div>
-      <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
-        <button id="cancelAdsBtn">✖️ Cancel</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  let adCount = 1;
-  let progress = 0;
-  const adFill = document.getElementById("adFill");
-  const adStatus = document.getElementById("adStatus");
-
-  // keep reference so we can clear it from cancel handler
-  let adTimer = setInterval(() => {
-    // increase progress quicker for a snappier demo; adjust as you like
-    progress += 4;
-    if (progress > 100) progress = 100;
-    adFill.style.width = progress + "%";
-    adStatus.innerText = `Ad ${adCount} of 3 — ${progress}%`;
-
-    if (progress >= 100) {
-      if (adCount < 3) {
-        adCount++;
-        progress = 0;
-        adFill.style.width = '0%';
-        adStatus.innerText = `Ad ${adCount} of 3 — 0%`;
-      } else {
-        // Completed all ads
-        clearInterval(adTimer);
-        overlay.remove();
-
-        extensionsUsed++;
-        timeLeft = 60; // +1 minute
-        target += 0.10;
-        updateHUD();
-        // start fresh with new time (not resume)
-        startTimer(false);
-      }
-    }
-  }, 100);
-
-  // Cancel button — stop ads and show loss popup (or you can return to game)
-  document.getElementById("cancelAdsBtn").onclick = () => {
-    clearInterval(adTimer);
-    overlay.remove();
-    // Optionally allow quitting/back to loss screen
-    showLossPopup();
-  };
-}
-
-function showContinuePopup() {
-  // Pause timer already done by checkGameOver() before calling this
-  const overlay = document.createElement("div");
-  overlay.className = "overlay continue-popup";
-
-  overlay.innerHTML = `
-    <div class="popup center">
-      <h3>⚠️ Game Over?</h3>
-      <p class="muted">Watch 1 ad to continue or quit (you’ll lose $${earned.toFixed(4)}).</p>
-      <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
-        <button id="watchOneAdBtn">▶️ Watch Ad</button>
-        <button id="quitConfirmBtn">❌ Quit</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  // Watch 1 ad flow — preserve remaining time and HUD
-  document.getElementById("watchOneAdBtn").onclick = () => {
-    overlay.remove();
-    const previousTime = timeLeft;
-    startSingleAd(() => {
-      resetBoardForContinue();
-      timeLeft = previousTime;
-      updateHUD();
-      startTimer(true);
-    });
-  };
-
-  // Quit flow — confirm losing earnings
-  document.getElementById("quitConfirmBtn").onclick = () => {
-    const confirmQuit = confirm(`If you quit now, you'll lose $${earned.toFixed(4)}. Are you sure?`);
-    if (confirmQuit) {
-      overlay.remove();
-      earned = 0;
-      updateHUD();
-      showLossPopup();
-    }
-  };
-}
-
-// Simple single ad progress (like the 3-ad version)
-function startSingleAd(callback) {
-  // Remove any previous ad overlays
-  document.querySelectorAll(".overlay.ad-progress").forEach(e => e.remove());
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay ad-progress";
-  overlay.style.display = "flex"; // make visible immediately
-
-  overlay.innerHTML = `
-    <div class="popup center">
-      <h3>📺 Watching Ad...</h3>
-      <p>Please wait while the ad finishes.</p>
-      <div class="ad-progress">
-        <div class="ad-fill" id="singleAdFill"></div>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  let progress = 0;
-  const adFill = document.getElementById("singleAdFill");
-
-  const timer = setInterval(() => {
-    progress += 2;
-    adFill.style.width = progress + "%";
-    if (progress >= 100) {
-      clearInterval(timer);
-      overlay.remove();
-      callback();
-    }
-  }, 100);
-}
-function showLossPopup() {
-  // Remove any existing loss overlay
-  const old = document.querySelector(".overlay.loss-popup");
-  if (old) old.remove();
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay loss-popup";
-  overlay.style.display = "flex";
-
-  overlay.innerHTML = `
-    <div class="popup center">
-      <h3>😢 You Lost</h3>
-      <p>You didn’t reach your target. Your earnings have been reset.</p>
-      <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
-        <button id="playAgainBtn">🔁 Play Again</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  document.getElementById("playAgainBtn").onclick = () => {
-    overlay.remove();
-    earned = 0;
-    target = 0.30;
-    extensionsUsed = 0;
-    updateHUD();
-    newGame();
-  };
-}
-
-function quitGame() {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  // remove any popups
-  const ad = document.querySelector(".overlay.ad-popup");
-  if (ad) ad.remove();
-  const loss = document.querySelector(".overlay.loss-popup");
-  if (loss) loss.remove();
-
-  alert("👋 Game exited. Thanks for playing!");
-}
-	//main loop
-	function main(tframe) {
-        // Request animation frames
-        window.requestAnimationFrame(main);
     
+    function updateHUD() {
+        document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(2)} USDT`;
+        document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(2)} USDT`;
+        document.getElementById("targetDisplay").innerText = `$${target.toFixed(2)} USDT`;
+        document.getElementById("extensionsUsed").innerText = extensionsUsed;
+        updateTimeDisplay();
+    }
+    
+    function startTimer(resume = false) {
+        clearInterval(timerInterval);
+        timerRunning = true;
+        gamePaused = false;
+        if (!resume) timeLeft = 120;
+        updateHUD();
+        timerInterval = setInterval(() => {
+            if (!timerRunning || gamePaused) return;
+            if (timeLeft <= 0) {
+                timeLeft = 0;
+                updateTimeDisplay();
+                clearInterval(timerInterval);
+                timerRunning = false;
+                handleTimeUp();
+                return;
+            }
+            timeLeft--;
+            updateTimeDisplay();
+        }, 1000);
+    }
+    
+    function updateTimeDisplay() {
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        document.getElementById("timeDisplay").innerText =
+            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    function handleTimeUp() {
+        if (earned >= target) {
+            handleWin();
+            return;
+        }
+        if (extensionsUsed < 2) {
+            showAdPopup();
+        } else {
+            showLossPopup();
+        }
+    }
+    
+    function handleWin() {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        totalBalance += earned;
+        updateHUD();
+        
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>🎉 Congratulations!</h3>
+                <p>You've reached your target of $${target.toFixed(2)} USDT! The amount has been added to your Total Balance.</p>
+                <div class="btn-group">
+                    <button id="winOkBtn" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById("winOkBtn").onclick = () => {
+            overlay.remove();
+            resetForNewGame();
+            newGame();
+        };
+    }
+    
+    function showAdPopup() {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>⏰ Time's Up!</h3>
+                <p>Watch 3 ads to get an extra 1 minute, but your target will increase by $0.10 USDT.</p>
+                <div class="btn-group">
+                    <button id="watchAdsBtn" class="btn btn-primary">▶️ Watch Ads</button>
+                    <button id="quitGameBtn" class="btn btn-secondary">❌ Try Again</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById("watchAdsBtn").onclick = () => {
+            overlay.remove();
+            startAdProgress();
+        };
+        document.getElementById("quitGameBtn").onclick = () => {
+            overlay.remove();
+            showQuitConfirm();
+        };
+    }
+    
+    function startAdProgress() {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>📺 Watching Ads</h3>
+                <p id="adStatus">Ad 1 of 3...</p>
+                <div class="ad-progress">
+                    <div class="ad-fill" id="adFill"></div>
+                </div>
+                <button id="adContinueBtn" class="btn btn-primary" style="margin-top:15px;">Continue to Next Ad</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        let adCount = 1;
+        let progress = 0;
+        const adFill = document.getElementById("adFill");
+        const adStatus = document.getElementById("adStatus");
+        const adContinueBtn = document.getElementById("adContinueBtn");
+        
+        adContinueBtn.onclick = () => {
+            if (adCount < 3) {
+                adCount++;
+                progress = 0;
+                adFill.style.width = "0%";
+                adStatus.innerText = `Ad ${adCount} of 3...`;
+            } else {
+                // All ads watched
+                overlay.remove();
+                extensionsUsed++;
+                timeLeft = 60;
+                target += 0.10;
+                updateHUD();
+                startTimer(false);
+            }
+        };
+    }
+    
+    function showContinuePopup() {
+        gamePaused = true;
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>💥 Game Over</h3>
+                <p>You still have time left. Watch 1 ad to continue playing.</p>
+                <div class="btn-group">
+                    <button id="watchOneAdBtn" class="btn btn-primary">▶️ Watch Ad</button>
+                    <button id="quitConfirmBtn" class="btn btn-secondary">❌ Quit</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById("watchOneAdBtn").onclick = () => {
+            overlay.remove();
+            startSingleAd(() => {
+                resetBoardForContinue();
+                gamePaused = false;
+                startTimer(true);
+            });
+        };
+        
+        document.getElementById("quitConfirmBtn").onclick = () => {
+            overlay.remove();
+            showQuitConfirm(true);
+        };
+    }
+    
+    function startSingleAd(callback) {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>📺 Watching Ad...</h3>
+                <p>Please wait while the ad finishes.</p>
+                <div class="ad-progress">
+                    <div class="ad-fill" id="singleAdFill"></div>
+                </div>
+                <button id="singleAdContinueBtn" class="btn btn-primary" style="margin-top:15px;">Continue</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const adFill = document.getElementById("singleAdFill");
+        const adContinueBtn = document.getElementById("singleAdContinueBtn");
+        
+        adContinueBtn.onclick = () => {
+            overlay.remove();
+            callback();
+        };
+    }
+    
+    function showQuitConfirm(fromGameOver = false) {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>⚠️ Confirm Quit</h3>
+                <p>If you quit now, you'll lose the amount you earned ($${earned.toFixed(2)} USDT).</p>
+                <div class="btn-group">
+                    <button id="continueBtn" class="btn btn-primary">Watch Ad to Continue</button>
+                    <button id="quitBtn" class="btn btn-secondary">Quit</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById("continueBtn").onclick = () => {
+            overlay.remove();
+            if (fromGameOver) {
+                startSingleAd(() => {
+                    resetBoardForContinue();
+                    gamePaused = false;
+                    startTimer(true);
+                });
+            } else {
+                startSingleAd(() => {
+                    gamePaused = false;
+                    startTimer(true);
+                });
+            }
+        };
+        
+        document.getElementById("quitBtn").onclick = () => {
+            overlay.remove();
+            resetForNewGame();
+            newGame();
+        };
+    }
+    
+    function showLossPopup() {
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `
+            <div class="popup center">
+                <h3>😢 You Lost</h3>
+                <p>You didn't reach your target. Your earnings have been reset.</p>
+                <div class="btn-group">
+                    <button id="playAgainBtn" class="btn btn-primary">🔁 Play Again</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        document.getElementById("playAgainBtn").onclick = () => {
+            overlay.remove();
+            resetForNewGame();
+            newGame();
+        };
+    }
+    
+    function resetForNewGame() {
+        earned = 0.0;
+        target = 0.30;
+        extensionsUsed = 0;
+        updateHUD();
+    }
+    
+    // Main loop
+    function main(tframe) {
+        window.requestAnimationFrame(main);
         if (!initialized) {
-            // Preloader
-            
-            // Clear the canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw the frame
             drawFrame();
-            
-            // Draw a progress bar
             var loadpercentage = loadcount/loadtotal;
             context.strokeStyle = "#ff8080";
             context.lineWidth=3;
             context.strokeRect(18.5, 0.5 + canvas.height - 51, canvas.width-37, 32);
             context.fillStyle = "#ff8080";
             context.fillRect(18.5, 0.5 + canvas.height - 51, loadpercentage*(canvas.width-37), 32);
-            
-            // Draw the progress text
             var loadtext = "Loaded " + loadcount + "/" + loadtotal + " images";
             context.fillStyle = "#000000";
             context.font = "16px Verdana";
             context.fillText(loadtext, 18, 0.5 + canvas.height - 63);
-            
             if (preloaded) {
-                // Add a delay for demonstration purposes
                 setTimeout(function(){initialized = true;}, 1000);
             }
         } else {
-            // Update and render the game
             update(tframe);
             render();
         }
     }
     
-    // Update the game state
     function update(tframe) {
         var dt = (tframe - lastframe) / 1000;
         lastframe = tframe;
-        
-        // Update the fps counter
         updateFps(dt);
         
         if (gamestate == gamestates.ready) {
-            // Game is ready for player input
+            // Ready for input
         } else if (gamestate == gamestates.shootbubble) {
-            // Bubble is moving
             stateShootBubble(dt);
         } else if (gamestate == gamestates.removecluster) {
-            // Remove cluster and drop tiles
             stateRemoveCluster(dt);
         }
     }
     
     function setGameState(newgamestate) {
         gamestate = newgamestate;
-        
         animationstate = 0;
         animationtime = 0;
     }
     
     function stateShootBubble(dt) {
-        // Bubble is moving
-        
-        // Move the bubble in the direction of the mouse
         player.bubble.x += dt * player.bubble.speed * Math.cos(degToRad(player.bubble.angle));
         player.bubble.y += dt * player.bubble.speed * -1*Math.sin(degToRad(player.bubble.angle));
         
-        // Handle left and right collisions with the level
+        // Handle left and right collisions
         if (player.bubble.x <= level.x) {
-            // Left edge
             player.bubble.angle = 180 - player.bubble.angle;
             player.bubble.x = level.x;
         } else if (player.bubble.x + level.tilewidth >= level.x + level.width) {
-            // Right edge
             player.bubble.angle = 180 - player.bubble.angle;
             player.bubble.x = level.x + level.width - level.tilewidth;
         }
- 
-        // Collisions with the top of the level
+        
+        // Top collision
         if (player.bubble.y <= level.y) {
-            // Top collision
             player.bubble.y = level.y;
             snapBubble();
             return;
@@ -809,13 +758,8 @@ function quitGame() {
         for (var i=0; i<level.columns; i++) {
             for (var j=0; j<level.rows; j++) {
                 var tile = level.tiles[i][j];
+                if (tile.type < 0) continue;
                 
-                // Skip empty tiles
-                if (tile.type < 0) {
-                    continue;
-                }
-                
-                // Check for intersections
                 var coord = getTileCoordinate(i, j);
                 if (circleIntersection(player.bubble.x + level.tilewidth/2,
                                        player.bubble.y + level.tileheight/2,
@@ -823,8 +767,6 @@ function quitGame() {
                                        coord.tilex + level.tilewidth/2,
                                        coord.tiley + level.tileheight/2,
                                        level.radius)) {
-                    
-                    // Intersection with a level bubble
                     snapBubble();
                     return;
                 }
@@ -833,57 +775,34 @@ function quitGame() {
     }
     
     function stateRemoveCluster(dt) {
-  if (animationstate == 0) {
-    resetRemoved();
-
-    // ✅ reward once per valid cluster
-    if (cluster && cluster.length >= 3) {
-      earned += 0.0025;
-      updateHUD();
-      if (earned >= target) handleWin();
-    }
-
-    floatingclusters = findFloatingClusters();
-    
+        if (animationstate == 0) {
+            resetRemoved();
+            if (cluster && cluster.length >= 3) {
+                earned += 0.0025;
+                updateHUD();
+                if (earned >= target) handleWin();
+            }
+            floatingclusters = findFloatingClusters();
             if (floatingclusters.length > 0) {
-                // Setup drop animation
                 for (var i=0; i<floatingclusters.length; i++) {
                     for (var j=0; j<floatingclusters[i].length; j++) {
                         var tile = floatingclusters[i][j];
-                        tile.shift = 0;
                         tile.shift = 1;
                         tile.velocity = player.bubble.dropspeed;
-                        
-                       // Add cluster score
-score += cluster.length * 100;
-                     // === Add USDT reward for each cluster ===
-//earned += 0.01;
-updateHUD();
-if (earned >= target) {
-  handleWin();
-}
                     }
                 }
             }
-            
             animationstate = 1;
         }
         
         if (animationstate == 1) {
-            // Pop bubbles
             var tilesleft = false;
             for (var i=0; i<cluster.length; i++) {
                 var tile = cluster[i];
-                
                 if (tile.type >= 0) {
                     tilesleft = true;
-                    
-                    // Alpha animation
                     tile.alpha -= dt * 15;
-                    if (tile.alpha < 0) {
-                        tile.alpha = 0;
-                    }
-
+                    if (tile.alpha < 0) tile.alpha = 0;
                     if (tile.alpha == 0) {
                         tile.type = -1;
                         tile.alpha = 1;
@@ -891,41 +810,27 @@ if (earned >= target) {
                 }                
             }
             
-            // Drop bubbles
             for (var i=0; i<floatingclusters.length; i++) {
                 for (var j=0; j<floatingclusters[i].length; j++) {
                     var tile = floatingclusters[i][j];
-                    
                     if (tile.type >= 0) {
                         tilesleft = true;
-                        
-                        // Accelerate dropped tiles
                         tile.velocity += dt * 700;
                         tile.shift += dt * tile.velocity;
-                            
-                        // Alpha animation
                         tile.alpha -= dt * 8;
-                        if (tile.alpha < 0) {
-                            tile.alpha = 0;
-                        }
-
-                        // Check if the bubbles are past the bottom of the level
+                        if (tile.alpha < 0) tile.alpha = 0;
                         if (tile.alpha == 0 || (tile.y * level.rowheight + tile.shift > (level.rows - 1) * level.rowheight + level.tileheight)) {
                             tile.type = -1;
                             tile.shift = 0;
                             tile.alpha = 1;
                         }
                     }
-
                 }
             }
             
             if (!tilesleft) {
-                // Next bubble
                 nextBubble();
-                
-                // Check for game over
-                var tilefound = false
+                var tilefound = false;
                 for (var i=0; i<level.columns; i++) {
                     for (var j=0; j<level.rows; j++) {
                         if (level.tiles[i][j].type != -1) {
@@ -934,45 +839,27 @@ if (earned >= target) {
                         }
                     }
                 }
-                
                 if (tilefound) {
                     setGameState(gamestates.ready);
                 } else {
-                    // No tiles left, game over
                     setGameState(gamestates.gameover);
                 }
             }
         }
     }
     
-    // Snap bubble to the grid
     function snapBubble() {
-        // Get the grid position
         var centerx = player.bubble.x + level.tilewidth/2;
         var centery = player.bubble.y + level.tileheight/2;
         var gridpos = getGridPosition(centerx, centery);
-
-        // Make sure the grid position is valid
-        if (gridpos.x < 0) {
-            gridpos.x = 0;
-        }
-            
-        if (gridpos.x >= level.columns) {
-            gridpos.x = level.columns - 1;
-        }
-
-        if (gridpos.y < 0) {
-            gridpos.y = 0;
-        }
-            
-        if (gridpos.y >= level.rows) {
-            gridpos.y = level.rows - 1;
-        }
-
-        // Check if the tile is empty
+        
+        if (gridpos.x < 0) gridpos.x = 0;
+        if (gridpos.x >= level.columns) gridpos.x = level.columns - 1;
+        if (gridpos.y < 0) gridpos.y = 0;
+        if (gridpos.y >= level.rows) gridpos.y = level.rows - 1;
+        
         var addtile = false;
         if (level.tiles[gridpos.x][gridpos.y].type != -1) {
-            // Tile is not empty, shift the new tile downwards
             for (var newrow=gridpos.y+1; newrow<level.rows; newrow++) {
                 if (level.tiles[gridpos.x][newrow].type == -1) {
                     gridpos.y = newrow;
@@ -983,33 +870,414 @@ if (earned >= target) {
         } else {
             addtile = true;
         }
-
-        // Add the tile to the grid
-        if (addtile) {
-            // Hide the player bubble
-            player.bubble.visible = false;
         
-            // Set the tile
+        if (addtile) {
+            player.bubble.visible = false;
             level.tiles[gridpos.x][gridpos.y].type = player.bubble.tiletype;
             
-            // Check for game over
             if (checkGameOver()) {
                 return;
             }
             
-            // Find clusters
             cluster = findCluster(gridpos.x, gridpos.y, true, true, false);
-            
             if (cluster.length >= 3) {
-                // Remove the cluster
                 setGameState(gamestates.removecluster);
                 return;
             }
         }
         
-        // No clusters found
         turncounter++;
         if (turncounter >= 5) {
-            // Add a row of bubbles
             addBubbles();
-[...]}
+            turncounter = 0;
+            rowoffset = (rowoffset + 1) % 2;
+            if (checkGameOver()) {
+                return;
+            }
+        }
+        
+        nextBubble();
+        setGameState(gamestates.ready);
+    }
+    
+    function checkGameOver() {
+        for (var i=0; i<level.columns; i++) {
+            if (level.tiles[i][level.rows-1].type != -1) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                showContinuePopup();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    function addBubbles() {
+        for (var i=0; i<level.columns; i++) {
+            for (var j=0; j<level.rows-1; j++) {
+                level.tiles[i][level.rows-1-j].type = level.tiles[i][level.rows-1-j-1].type;
+            }
+        }
+        for (var i=0; i<level.columns; i++) {
+            level.tiles[i][0].type = getExistingColor();
+        }
+    }
+    
+    function findColors() {
+        var foundcolors = [];
+        var colortable = [];
+        for (var i=0; i<bubblecolors; i++) {
+            colortable.push(false);
+        }
+        for (var i=0; i<level.columns; i++) {
+            for (var j=0; j<level.rows; j++) {
+                var tile = level.tiles[i][j];
+                if (tile.type >= 0) {
+                    if (!colortable[tile.type]) {
+                        colortable[tile.type] = true;
+                        foundcolors.push(tile.type);
+                    }
+                }
+            }
+        }
+        return foundcolors;
+    }
+    
+    function findCluster(tx, ty, matchtype, reset, skipremoved) {
+        if (reset) resetProcessed();
+        var targettile = level.tiles[tx][ty];
+        var toprocess = [targettile];
+        targettile.processed = true;
+        var foundcluster = [];
+        while (toprocess.length > 0) {
+            var currenttile = toprocess.pop();
+            if (currenttile.type == -1) continue;
+            if (skipremoved && currenttile.removed) continue;
+            if (!matchtype || (currenttile.type == targettile.type)) {
+                foundcluster.push(currenttile);
+                var neighbors = getNeighbors(currenttile);
+                for (var i=0; i<neighbors.length; i++) {
+                    if (!neighbors[i].processed) {
+                        toprocess.push(neighbors[i]);
+                        neighbors[i].processed = true;
+                    }
+                }
+            }
+        }
+        return foundcluster;
+    }
+    
+    function findFloatingClusters() {
+        resetProcessed();
+        var foundclusters = [];
+        for (var i=0; i<level.columns; i++) {
+            for (var j=0; j<level.rows; j++) {
+                var tile = level.tiles[i][j];
+                if (!tile.processed) {
+                    var foundcluster = findCluster(i, j, false, false, true);
+                    if (foundcluster.length <= 0) continue;
+                    var floating = true;
+                    for (var k=0; k<foundcluster.length; k++) {
+                        if (foundcluster[k].y == 0) {
+                            floating = false;
+                            break;
+                        }
+                    }
+                    if (floating) foundclusters.push(foundcluster);
+                }
+            }
+        }
+        return foundclusters;
+    }
+    
+    function resetProcessed() {
+        for (var i=0; i<level.columns; i++) {
+            for (var j=0; j<level.rows; j++) {
+                level.tiles[i][j].processed = false;
+            }
+        }
+    }
+    
+    function resetRemoved() {
+        for (var i=0; i<level.columns; i++) {
+            for (var j=0; j<level.rows; j++) {
+                level.tiles[i][j].removed = false;
+            }
+        }
+    }
+    
+    function getNeighbors(tile) {
+        var tilerow = (tile.y + rowoffset) % 2;
+        var neighbors = [];
+        var n = neighborsoffsets[tilerow];
+        for (var i=0; i<n.length; i++) {
+            var nx = tile.x + n[i][0];
+            var ny = tile.y + n[i][1];
+            if (nx >= 0 && nx < level.columns && ny >= 0 && ny < level.rows) {
+                neighbors.push(level.tiles[nx][ny]);
+            }
+        }
+        return neighbors;
+    }
+    
+    function updateFps(dt) {
+        if (fpstime > 0.25) {
+            fps = Math.round(framecount / fpstime);
+            fpstime = 0;
+            framecount = 0;
+        }
+        fpstime += dt;
+        framecount++;
+    }
+    
+    function drawCenterText(text, x, y, width) {
+        var textdim = context.measureText(text);
+        context.fillText(text, x + (width-textdim.width)/2, y);
+    }
+    
+    function render() {
+        drawFrame();
+        var yoffset = level.tileheight/2;
+        context.fillStyle = "rgba(0,0,0,0.0)";
+        context.fillRect(level.x - 4, level.y - 4, level.width + 8, level.height + 4 - yoffset);
+        renderTiles();
+        context.fillStyle = "#A6341E";
+        context.fillRect(level.x - 4, level.y - 4 + level.height + 4 - yoffset, level.width + 8, 2*level.tileheight + 3);
+        context.fillStyle = "rgba(0,0,0,0.0)";
+        context.font = "18px Verdana";
+        var scorex = level.x + level.width - 150;
+        var scorey = level.y+level.height + level.tileheight - yoffset - 8;
+        drawCenterText("Your Score:", scorex, scorey, 150);
+        context.font = "24px Verdana";
+        drawCenterText(score, scorex, scorey+30, 150);
+        if (showcluster) {
+            renderCluster(cluster, 255, 128, 128);
+            for (var i=0; i<floatingclusters.length; i++) {
+                var col = Math.floor(100 + 100 * i / floatingclusters.length);
+                renderCluster(floatingclusters[i], col, col, col);
+            }
+        }
+        renderPlayer();
+        if (gamestate == gamestates.gameover) {
+            context.fillStyle = "rgba(0, 0, 255, 1)";
+            context.fillRect(level.x - 4, level.y - 4, level.width + 8, level.height + 2 * level.tileheight + 8 - yoffset);
+            context.fillStyle = "rgba(0,0,0,0.2)";
+            context.font = "24px Verdana";
+            drawCenterText("Game Over!", level.x, level.y + level.height / 2 + 10, level.width);
+            drawCenterText("Click to start", level.x, level.y + level.height / 2 + 40, level.width);
+        }
+    }
+    
+    function drawFrame() {
+        context.fillStyle = "rgba(0,0,0,0.1)";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = "rgba(0,0,0,0.0)";
+        context.fillRect(0, 0, canvas.width, 79);
+        context.fillStyle = "rgba(0,0,0,0.0)";
+        context.font = "24px Verdana";
+        context.fillText("Bubble Shooter Game", 10, 37);
+        context.fillStyle = "rgba(0,0,0,0.0)";
+        context.font = "12px cursive";
+        context.fillText("Fps: " + fps, 13, 57);
+    }
+    
+    function renderTiles() {
+        for (var j=0; j<level.rows; j++) {
+            for (var i=0; i<level.columns; i++) {
+                var tile = level.tiles[i][j];
+                var shift = tile.shift;
+                var coord = getTileCoordinate(i, j);
+                if (tile.type >= 0) {
+                    context.save();
+                    context.globalAlpha = tile.alpha;
+                    drawBubble(coord.tilex, coord.tiley + shift, tile.type);
+                    context.restore();
+                }
+            }
+        }
+    }
+    
+    function renderCluster(cluster, r, g, b) {
+        for (var i=0; i<cluster.length; i++) {
+            var coord = getTileCoordinate(cluster[i].x, cluster[i].y);
+            context.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+            context.fillRect(coord.tilex+level.tilewidth/4, coord.tiley+level.tileheight/4, level.tilewidth/2, level.tileheight/2);
+        }
+    }
+    
+    function renderPlayer() {
+        var centerx = player.x + level.tilewidth/2;
+        var centery = player.y + level.tileheight/2;
+        context.fillStyle = "skyblue";
+        context.beginPath();
+        context.arc(centerx, centery, level.radius+12, 0, 2*Math.PI, false);
+        context.fill();
+        context.lineWidth = 2;
+        context.strokeStyle = "yellow";
+        context.stroke();
+        context.lineWidth = 2;
+        context.strokeStyle = "purple";
+        context.beginPath();
+        context.moveTo(centerx, centery);
+        context.lineTo(centerx + 1.5*level.tilewidth * Math.cos(degToRad(player.angle)), centery - 1.5*level.tileheight * Math.sin(degToRad(player.angle)));
+        context.stroke();
+        drawBubble(player.nextbubble.x, player.nextbubble.y, player.nextbubble.tiletype);
+        if (player.bubble.visible) {
+            drawBubble(player.bubble.x, player.bubble.y, player.bubble.tiletype);
+        }
+    }
+    
+    function getTileCoordinate(column, row) {
+        var tilex = level.x + column * level.tilewidth;
+        if ((row + rowoffset) % 2) {
+            tilex += level.tilewidth/2;
+        }
+        var tiley = level.y + row * level.rowheight;
+        return { tilex: tilex, tiley: tiley };
+    }
+    
+    function getGridPosition(x, y) {
+        var gridy = Math.floor((y - level.y) / level.rowheight);
+        var xoffset = 0;
+        if ((gridy + rowoffset) % 2) {
+            xoffset = level.tilewidth / 2;
+        }
+        var gridx = Math.floor(((x - xoffset) - level.x) / level.tilewidth);
+        return { x: gridx, y: gridy };
+    }
+    
+    function drawBubble(x, y, index) {
+        if (index < 0 || index >= bubblecolors) return;
+        context.drawImage(bubbleimage, index * 40, 0, 40, 40, x, y, level.tilewidth, level.tileheight);
+    }
+    
+    function newGame() {
+        score = 0;
+        turncounter = 0;
+        rowoffset = 0;
+        setGameState(gamestates.ready);
+        createLevel();
+        nextBubble();
+        nextBubble();
+        startTimer();
+    }
+    
+    function resetBoardForContinue() {
+        setGameState(gamestates.ready);
+        resetRemoved();
+        cluster = [];
+        floatingclusters = [];
+        createLevel();
+        nextBubble();
+    }
+    
+    function createLevel() {
+        for (var j=0; j<level.rows; j++) {
+            var randomtile = randRange(0, bubblecolors-1);
+            var count = 0;
+            for (var i=0; i<level.columns; i++) {
+                if (count >= 2) {
+                    var newtile = randRange(0, bubblecolors-1);
+                    if (newtile == randomtile) {
+                        newtile = (newtile + 1) % bubblecolors;
+                    }
+                    randomtile = newtile;
+                    count = 0;
+                }
+                count++;
+                if (j < level.rows/2) {
+                    level.tiles[i][j].type = randomtile;
+                } else {
+                    level.tiles[i][j].type = -1;
+                }
+            }
+        }
+    }
+    
+    function nextBubble() {
+        player.tiletype = player.nextbubble.tiletype;
+        player.bubble.tiletype = player.nextbubble.tiletype;
+        player.bubble.x = player.x;
+        player.bubble.y = player.y;
+        player.bubble.visible = true;
+        var nextcolor = getExistingColor();
+        player.nextbubble.tiletype = nextcolor;
+    }
+    
+    function getExistingColor() {
+        existingcolors = findColors();
+        var bubbletype = 0;
+        if (existingcolors.length > 0) {
+            bubbletype = existingcolors[randRange(0, existingcolors.length-1)];
+        }
+        return bubbletype;
+    }
+    
+    function randRange(low, high) {
+        return Math.floor(low + Math.random()*(high-low+1));
+    }
+    
+    function shootBubble() {
+        player.bubble.x = player.x;
+        player.bubble.y = player.y;
+        player.bubble.angle = player.angle;
+        player.bubble.tiletype = player.tiletype;
+        setGameState(gamestates.shootbubble);
+    }
+    
+    function circleIntersection(x1, y1, r1, x2, y2, r2) {
+        var dx = x1 - x2;
+        var dy = y1 - y2;
+        var len = Math.sqrt(dx * dx + dy * dy);
+        if (len < r1 + r2) {
+            return true;
+        }
+        return false;
+    }
+    
+    function radToDeg(angle) {
+        return angle * (180 / Math.PI);
+    }
+    
+    function degToRad(angle) {
+        return angle * (Math.PI / 180);
+    }
+    
+    function onMouseMove(e) {
+        var pos = getMousePos(canvas, e);
+        var mouseangle = radToDeg(Math.atan2((player.y+level.tileheight/2) - pos.y, pos.x - (player.x+level.tilewidth/2)));
+        if (mouseangle < 0) {
+            mouseangle = 180 + (180 + mouseangle);
+        }
+        var lbound = 8;
+        var ubound = 172;
+        if (mouseangle > 90 && mouseangle < 270) {
+            if (mouseangle > ubound) mouseangle = ubound;
+        } else {
+            if (mouseangle < lbound || mouseangle >= 270) mouseangle = lbound;
+        }
+        player.angle = mouseangle;
+    }
+    
+    function onMouseDown(e) {
+        var pos = getMousePos(canvas, e);
+        if (gamestate == gamestates.ready) {
+            shootBubble();
+        } else if (gamestate == gamestates.gameover) {
+            newGame();
+        }
+    }
+    
+    function getMousePos(canvas, e) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: Math.round((e.clientX - rect.left)/(rect.right - rect.left)*canvas.width),
+            y: Math.round((e.clientY - rect.top)/(rect.bottom - rect.top)*canvas.height)
+        };
+    }
+    
+    init();
+};
+</script>
+</body>
+</html>
