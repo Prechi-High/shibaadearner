@@ -27,11 +27,6 @@ body{
   overflow: hidden;
   position: relative;
 }
-#viewport{
-  width: 100%;
-  height: 100%;
-  display: block;
-}
 
 /* Live Winners Display */
 #live-winners {
@@ -289,6 +284,9 @@ window.onload = function() {
         const container = document.getElementById("main-container");
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
+        
+        // Update level dimensions based on canvas size
+        updateLevelDimensions();
     }
     
     // Initial resize and add resize listener
@@ -314,16 +312,16 @@ window.onload = function() {
     
     // Level
     var level = {
-        x: 4,          
-        y: 83,        
+        x: 0,          
+        y: 0,        
         width: 0,      
         height: 0,     
         columns: 15,   
         rows: 14,      
-        tilewidth: 40,  
-        tileheight: 40, 
-        rowheight: 34,  
-        radius: 20,    
+        tilewidth: 0,  
+        tileheight: 0, 
+        rowheight: 0,  
+        radius: 0,    
         tiles: []    
     };
     
@@ -431,8 +429,9 @@ window.onload = function() {
                 level.tiles[i][j] = new Tile(i, j, 0, 0);
             }
         }
-        level.width = level.columns * level.tilewidth + level.tilewidth/2;
-        level.height = (level.rows-1) * level.rowheight + level.tileheight;
+        
+        // Initialize level dimensions
+        updateLevelDimensions();
         
         // Init the player
         player.x = level.x + level.width/2 - level.tilewidth/2;
@@ -445,6 +444,24 @@ window.onload = function() {
         // New game
         newGame();
         main(0);
+    }
+    
+    function updateLevelDimensions() {
+        // Calculate tile dimensions based on canvas size
+        level.tilewidth = Math.min(canvas.width / level.columns, canvas.height / level.rows) * 0.9;
+        level.tileheight = level.tilewidth;
+        level.rowheight = level.tileheight * 0.85;
+        level.radius = level.tilewidth / 2;
+        
+        // Update level dimensions
+        level.width = level.columns * level.tilewidth + level.tilewidth/2;
+        level.height = (level.rows-1) * level.rowheight + level.tileheight;
+        
+        // Update player position
+        player.x = level.x + level.width/2 - level.tilewidth/2;
+        player.y = level.y + level.height;
+        player.nextbubble.x = player.x - 2 * level.tilewidth;
+        player.nextbubble.y = player.y;
     }
     
     function updateHUD() {
