@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bubble Shooter Game</title>
 <style>
 /* Global/Body Styles */
@@ -13,24 +14,25 @@ body{
 	color:#eee;
 	margin:0;
 	box-sizing: border-box;
+	overflow-x: hidden;
 }
 /* Main Container/Canvas Positioning */
 #main-container{
-  height:625px;
-  width:625px;
-  box-sizing:border-box;
-  margin: 20px auto 0 auto;
+  width: 95vw;
+  max-width: 625px;
+  aspect-ratio: 1/1;
+  margin: 10px auto 0 auto;
   background: rgba(0,0,0,0.5);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
 }
 #viewport{
- height:625px;
- width:625px;
- border: none;
- display: block;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
+
 /* Live Winners Display */
 #live-winners {
   position: absolute;
@@ -39,9 +41,9 @@ body{
   width: 100%;
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
-  padding: 8px 15px;
+  padding: 6px 10px;
   z-index: 100;
-  font-size: 14px;
+  font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -60,7 +62,8 @@ body{
   flex-direction: column;
   gap: 8px;
   padding: 10px 0;
-  width: 625px;
+  width: 95vw;
+  max-width: 625px;
   margin: 10px auto 0 auto;
   font-family: Arial, sans-serif;
 }
@@ -82,7 +85,7 @@ body{
   align-items: center;
   flex-direction: column;
   font-size: 14px;
-  min-width: 100px;
+  min-width: 80px;
   text-shadow: 1px 1px 2px #000;
   position: relative;
 }
@@ -104,7 +107,7 @@ body{
 }
 .big{
   font-weight: 900;
-  font-size: 18px;
+  font-size: 16px;
   color: #ffffff;
 }
 .target .big, .earned .big {
@@ -140,6 +143,7 @@ button {
   font-weight: bold;
   box-shadow: 0 3px #333;
   transition: all 0.1s ease;
+  font-size: 14px;
 }
 button:active {
   transform: translateY(1px);
@@ -170,7 +174,7 @@ button:active {
 }
 .popup {
   background: rgba(30, 30, 46, 0.95);
-  padding: 30px;
+  padding: 25px;
   color: #fff;
   text-align: center;
   width: 90%;
@@ -203,14 +207,16 @@ button:active {
   gap: 10px;
   justify-content: center;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 .btn {
-  padding: 10px 20px;
+  padding: 10px 15px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  min-width: 120px;
+  min-width: 100px;
+  font-size: 16px;
 }
 .btn-primary {
   background: linear-gradient(to right, #00c9ff, #92fe9d);
@@ -226,16 +232,16 @@ button:active {
 <!-- Live Winners Display -->
 <div id="live-winners">
   <div id="winners-container">
-    <span>🏆 User1 won $0.05 USDT • </span>
-    <span>🎉 User2 won $0.12 USDT • </span>
-    <span>🌟 User3 won $0.08 USDT • </span>
-    <span>🔥 User4 won $0.15 USDT • </span>
-    <span>💎 User5 won $0.07 USDT • </span>
-    <span>🏆 User6 won $0.09 USDT • </span>
-    <span>🎉 User7 won $0.11 USDT • </span>
-    <span>🌟 User8 won $0.06 USDT • </span>
-    <span>🔥 User9 won $0.13 USDT • </span>
-    <span>💎 User10 won $0.04 USDT • </span>
+    <span>🏆 User1 won $0.0500 USDT • </span>
+    <span>🎉 User2 won $0.1200 USDT • </span>
+    <span>🌟 User3 won $0.0800 USDT • </span>
+    <span>🔥 User4 won $0.1500 USDT • </span>
+    <span>💎 User5 won $0.0700 USDT • </span>
+    <span>🏆 User6 won $0.0900 USDT • </span>
+    <span>🎉 User7 won $0.1100 USDT • </span>
+    <span>🌟 User8 won $0.0600 USDT • </span>
+    <span>🔥 User9 won $0.1300 USDT • </span>
+    <span>💎 User10 won $0.0400 USDT • </span>
   </div>
 </div>
 
@@ -247,15 +253,15 @@ button:active {
     </div>
     <div class="stat target">
       <small>🎯 Target</small>
-      <div id="targetDisplay" class="big">$0.30 USDT</div>
+      <div id="targetDisplay" class="big">$0.3000 USDT</div>
     </div>
     <div class="stat earned">
       <small>💰 Earned</small>
-      <div id="earnedDisplay" class="big">$0.00 USDT</div>
+      <div id="earnedDisplay" class="big">$0.0000 USDT</div>
     </div>
     <div class="stat balance">
       <small>🏦 Balance</small>
-      <div id="balanceDisplay" class="big">$0.00 USDT</div>
+      <div id="balanceDisplay" class="big">$0.0000 USDT</div>
     </div>
   </div>
   <div class="hud-controls-row">
@@ -269,7 +275,7 @@ button:active {
 </div>
 
 <div id="main-container">
-  <canvas id="viewport" width="625" height="625"></canvas>
+  <canvas id="viewport"></canvas>
 </div>
 
 <script>
@@ -277,6 +283,17 @@ window.onload = function() {
     // Get the canvas and context
     var canvas = document.getElementById("viewport");
     var context = canvas.getContext("2d");
+    
+    // Set canvas size to match container
+    function resizeCanvas() {
+        const container = document.getElementById("main-container");
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+    }
+    
+    // Initial resize and add resize listener
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
     
     // Timing/second
     var lastframe = 0;
@@ -431,9 +448,10 @@ window.onload = function() {
     }
     
     function updateHUD() {
-        document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(2)} USDT`;
-        document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(2)} USDT`;
-        document.getElementById("targetDisplay").innerText = `$${target.toFixed(2)} USDT`;
+        // Format to 4 decimal places
+        document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(4)} USDT`;
+        document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(4)} USDT`;
+        document.getElementById("targetDisplay").innerText = `$${target.toFixed(4)} USDT`;
         document.getElementById("extensionsUsed").innerText = extensionsUsed;
         updateTimeDisplay();
     }
@@ -489,7 +507,7 @@ window.onload = function() {
         overlay.innerHTML = `
             <div class="popup center">
                 <h3>🎉 Congratulations!</h3>
-                <p>You've reached your target of $${target.toFixed(2)} USDT! The amount has been added to your Total Balance.</p>
+                <p>You've reached your target of $${target.toFixed(4)} USDT! The amount has been added to your Total Balance.</p>
                 <div class="btn-group">
                     <button id="winOkBtn" class="btn btn-primary">OK</button>
                 </div>
@@ -510,7 +528,7 @@ window.onload = function() {
         overlay.innerHTML = `
             <div class="popup center">
                 <h3>⏰ Time's Up!</h3>
-                <p>Watch 3 ads to get an extra 1 minute, but your target will increase by $0.10 USDT.</p>
+                <p>Watch 3 ads to get an extra 1 minute, but your target will increase by $0.1000 USDT.</p>
                 <div class="btn-group">
                     <button id="watchAdsBtn" class="btn btn-primary">▶️ Watch Ads</button>
                     <button id="quitGameBtn" class="btn btn-secondary">❌ Try Again</button>
@@ -545,7 +563,6 @@ window.onload = function() {
         document.body.appendChild(overlay);
         
         let adCount = 1;
-        let progress = 0;
         const adFill = document.getElementById("adFill");
         const adStatus = document.getElementById("adStatus");
         const adContinueBtn = document.getElementById("adContinueBtn");
@@ -553,7 +570,6 @@ window.onload = function() {
         adContinueBtn.onclick = () => {
             if (adCount < 3) {
                 adCount++;
-                progress = 0;
                 adFill.style.width = "0%";
                 adStatus.innerText = `Ad ${adCount} of 3...`;
             } else {
@@ -629,7 +645,7 @@ window.onload = function() {
         overlay.innerHTML = `
             <div class="popup center">
                 <h3>⚠️ Confirm Quit</h3>
-                <p>If you quit now, you'll lose the amount you earned ($${earned.toFixed(2)} USDT).</p>
+                <p>If you quit now, you'll lose the amount you earned ($${earned.toFixed(4)} USDT).</p>
                 <div class="btn-group">
                     <button id="continueBtn" class="btn btn-primary">Watch Ad to Continue</button>
                     <button id="quitBtn" class="btn btn-secondary">Quit</button>
