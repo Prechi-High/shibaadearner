@@ -1,185 +1,1264 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Bridge Run — Prototype</title>
-<style>
-  :root{--bg:#86c2ff;--ground:#2e8546;--bridge:#7b5230}
-  html,body{height:100%;margin:0;background:var(--bg);-webkit-tap-highlight-color:transparent}
-  canvas{display:block;background:linear-gradient(#86c2ff,#cceeff);width:100%;height:100vh}
-  #ui{position:fixed;left:8px;top:8px;z-index:10;font-family:system-ui,Segoe UI,Roboto,Arial;color:#032}
-  #score{font-size:18px;background:rgba(255,255,255,0.85);padding:6px 10px;border-radius:8px}
-  #buttons{position:fixed;right:8px;top:8px;z-index:10}
-  button{font-size:14px;padding:6px 10px;margin-left:6px;border-radius:8px}
-  #hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(255,255,255,0.9);padding:8px 12px;border-radius:999px;font-size:14px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Shooter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            height: 85vh;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.5);
+        }
+
+        /* Entrance Animation */
+        #entranceAnimation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeOut 1s ease-in-out 3s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffff00;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 0, 0.7);
+            animation: titlePulse 2s infinite, slideIn 1.5s ease-out;
+        }
+
+        @keyframes titlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(-100px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #00ffff;
+            text-align: center;
+            animation: fadeIn 2s ease-out 1s both;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Game Header */
+        .game-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            border-bottom: 2px solid #00ffff;
+        }
+
+        .header-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .header-label {
+            font-size: 0.8rem;
+            color: #ffff00;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+        }
+
+        .header-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Game Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        /* New HUD Elements */
+        .hud-container {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 15px;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-label {
+            font-size: 0.7rem;
+            color: #00ffff;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .hud-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Aiming Line */
+        #aimLine {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            width: 2px;
+            height: 0;
+            background: rgba(255, 255, 255, 0.7);
+            transform-origin: bottom center;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            display: none;
+        }
+
+        #aimLine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px white;
+        }
+
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10;
+            border: 2px solid #00ffff;
+            max-width: 80%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        }
+
+        .instructions h3 {
+            color: #ffff00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .instructions p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        #startButton {
+            background: linear-gradient(45deg, #00cc00, #00ff00);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transition: all 0.3s;
+        }
+
+        #startButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+        }
+
+        /* Game Over Screen */
+        #gameOver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Win Screen */
+        #winScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .win-title {
+            color: #00ff00;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Time Elapsed Screen */
+        #timeElapsedScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .time-elapsed-title {
+            color: #ffff00;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+        }
+
+        /* Ad Modal */
+        #adModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .ad-content {
+            background: rgba(20, 20, 60, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 90%;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+        }
+
+        .ad-title {
+            color: #ffff00;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .ad-counter {
+            color: #00ffff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .ad-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #1a1a4a, #2a2a6a);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 2px solid #00ffff;
+        }
+
+        .ad-text {
+            font-size: 1.5rem;
+            color: #ffff00;
+            text-transform: uppercase;
+        }
+
+        .ad-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .ad-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .next-ad {
+            background: linear-gradient(45deg, #00cc00, #00ff00);
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .cancel-ad {
+            background: linear-gradient(45deg, #cc0000, #ff0000);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Confirmation Modal */
+        #confirmModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .confirm-content {
+            background: rgba(20, 20, 60, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 90%;
+            border: 2px solid #ffff00;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
+        }
+
+        .confirm-title {
+            color: #ffff00;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .confirm-message {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .confirm-yes {
+            background: linear-gradient(45deg, #cc0000, #ff0000);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+
+        .confirm-no {
+            background: linear-gradient(45deg, #00cc00, #00ff00);
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Common Modal Styles */
+        .modal h2 {
+            color: #ffff00;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+        }
+
+        .modal p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .modal-button {
+            background: linear-gradient(45deg, #ff6b00, #ff0000);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.7);
+            transition: all 0.3s;
+        }
+
+        .modal-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 107, 0, 0.9);
+        }
+
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            .game-container {
+                height: 90vh;
+            }
+            
+            .header-value {
+                font-size: 1.2rem;
+            }
+            
+            .hud-value {
+                font-size: 1rem;
+            }
+            
+            .game-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header-value {
+                font-size: 1rem;
+            }
+            
+            .hud-value {
+                font-size: 0.9rem;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .instructions h3 {
+                font-size: 1.2rem;
+            }
+            
+            .instructions p {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="ui"><div id="score">Score: 0</div></div>
-<div id="buttons"><button id="pauseBtn">Pause</button><button id="restartBtn">Restart</button></div>
-<div id="hint">Tap anywhere to jump • Hold to charge jump</div>
-<script>
-(() => {
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  let DPR = Math.max(1, window.devicePixelRatio || 1);
-  function resize(){
-    DPR = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width = Math.floor(innerWidth * DPR);
-    canvas.height = Math.floor(innerHeight * DPR);
-    canvas.style.width = innerWidth + 'px';
-    canvas.style.height = innerHeight + 'px';
-    ctx.setTransform(DPR,0,0,DPR,0,0);
-  }
-  addEventListener('resize', resize);
-  resize();// Game state const state = { running: true, score: 0, phase: 'bridge', // 'bridge' then 'main' speed: 160, // px/sec world speed lastTime: 0, player: null, entities: [], cameraX: 0, bridgeEndX: 1200 };
+    <div class="game-container">
+        <!-- Entrance Animation -->
+        <div id="entranceAnimation">
+            <div class="game-title">BUBBLE SHOOTER</div>
+            <div class="subtitle">Match bubbles to earn USDT!</div>
+        </div>
+        
+        <!-- Game Header -->
+        <div class="game-header">
+            <div class="header-item">
+                <div class="header-label">Time</div>
+                <div class="header-value" id="timeDisplay">2:00</div>
+            </div>
+            <div class="header-item">
+                <div class="header-label">Shots</div>
+                <div class="header-value" id="shotsDisplay">0</div>
+            </div>
+            <div class="header-item">
+                <div class="header-label">Score</div>
+                <div class="header-value" id="scoreDisplay">0</div>
+            </div>
+        </div>
+        
+        <!-- New HUD Elements -->
+        <div class="hud-container">
+            <div class="hud-item">
+                <div class="hud-label">Target</div>
+                <div class="hud-value" id="targetDisplay">0.3000 USDT</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Earned</div>
+                <div class="hud-value" id="earnedDisplay">0.0000 USDT</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Total</div>
+                <div class="hud-value" id="totalDisplay">0.0000 USDT</div>
+            </div>
+        </div>
+        
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Aiming Line -->
+        <div id="aimLine"></div>
+        
+        <!-- Instructions -->
+        <div class="instructions" id="instructions">
+            <h3>BUBBLE SHOOTER</h3>
+            <p>Aim by touching and dragging on the screen</p>
+            <p>Release to shoot bubbles</p>
+            <p>Match 3 or more bubbles of the same color to earn USDT!</p>
+            <button id="startButton">START GAME</button>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOver" class="modal">
+            <h2>GAME OVER</h2>
+            <p id="finalScore">Score: 0</p>
+            <button id="restartButton" class="modal-button">PLAY AGAIN</button>
+        </div>
+        
+        <!-- Win Screen -->
+        <div id="winScreen" class="modal">
+            <h2 class="win-title">CONGRATULATIONS!</h2>
+            <p id="winAmount">You won 0.3000 USDT!</p>
+            <button id="winRestartButton" class="modal-button">PLAY AGAIN</button>
+        </div>
+        
+        <!-- Time Elapsed Screen -->
+        <div id="timeElapsedScreen" class="modal">
+            <h2 class="time-elapsed-title">TIME ELAPSED</h2>
+            <p id="timeEarnedAmount">You earned 0.0000 USDT</p>
+            <p>Watch 3 ads to continue playing</p>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button id="watchAdsButton" class="modal-button">WATCH ADS</button>
+                <button id="quitGameButton" class="modal-button">QUIT GAME</button>
+            </div>
+        </div>
+        
+        <!-- Ad Modal -->
+        <div id="adModal">
+            <div class="ad-content">
+                <div class="ad-title">WATCH AD TO CONTINUE</div>
+                <div class="ad-counter" id="adCounter">1/3</div>
+                <div class="ad-placeholder">
+                    <div class="ad-text">ADVERTISEMENT</div>
+                </div>
+                <div class="ad-buttons">
+                    <button id="nextAdButton" class="ad-button next-ad">NEXT AD</button>
+                    <button id="cancelAdButton" class="ad-button cancel-ad">CANCEL</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Modal -->
+        <div id="confirmModal">
+            <div class="confirm-content">
+                <div class="confirm-title">CONFIRM ACTION</div>
+                <div class="confirm-message" id="confirmMessage">Are you sure you want to quit? You will lose your earnings of 0.0000 USDT.</div>
+                <div class="confirm-buttons">
+                    <button id="confirmQuitButton" class="confirm-button confirm-yes">YES, QUIT</button>
+                    <button id="cancelQuitButton" class="confirm-button confirm-no">NO, CONTINUE</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Particle Effects -->
+       <div class="particles" id="particles"></div>
+    </div>
 
-// Player function createPlayer(){ return { x: 120, y: canvas.height/2, w: 36, h: 36, vx: 0, vy: 0, onGround: false, jumpPower: 420, charge:0, color:'#ffcc00', dead:false }; } state.player = createPlayer();
-
-// Utilities function rand(min,max){return Math.random()*(max-min)+min}
-
-// Level: bridge section (a wooden bridge across a chasm) function drawBridge(ctx, cam){ const bridgeY = canvas.height*0.62; // left ground ctx.fillStyle = '#553'; ctx.fillRect(-100-cam, bridgeY+40, 500, canvas.height - bridgeY - 40);
-
-// bridge planks
-ctx.fillStyle = '#7b5230';
-const startX = -cam + 200;
-const plankW = 80;
-for(let x = startX; x < state.bridgeEndX - cam; x += plankW){
-  ctx.fillRect(x, bridgeY, plankW-6, 22);
-  // rope supports
-  ctx.beginPath(); ctx.moveTo(x+10, bridgeY); ctx.lineTo(x+10, bridgeY-30); ctx.strokeStyle='#6b3'; ctx.lineWidth=2; ctx.stroke();
-}
-// right land (bridge end)
-ctx.fillStyle = '#553';
-ctx.fillRect(state.bridgeEndX - cam + 40, bridgeY+40, 1000, canvas.height - bridgeY - 40);
-
-}
-
-// Create obstacles - some logs/crates on bridge and moving enemies after bridge function spawnInitialObstacles(){ state.entities = []; // place some obstacle boxes on the bridge for(let i=1;i<=6;i++){ const x = 300 + i120 + rand(-20,20); const isGap = Math.random() < 0.15; state.entities.push({type: isGap? 'gap':'crate', x, w: isGap? 60:40, y:0, passed:false}); } // place an enemy shortly after bridge for(let i=0;i<8;i++){ const x = state.bridgeEndX + 200 + i220 + rand(-30,30); state.entities.push({type:'enemy', x, w:36, y:0, dir: Math.random()>0.5?1:-1, t:rand(0,1)}); } } spawnInitialObstacles();
-
-// Input: touch/click to jump let pointerDown = false; let pointerTime = 0; function pointerStart(e){ e.preventDefault(); pointerDown = true; pointerTime = performance.now(); } function pointerEnd(e){ e.preventDefault(); pointerDown = false; const dt = (performance.now()-pointerTime)/1000; // short tap or long if(!state.player.dead){ const charge = Math.min(1, Math.max(0.12, dt)); state.player.vy = -state.player.jumpPower*(0.9 + charge*0.9); state.player.onGround = false; } } canvas.addEventListener('touchstart', pointerStart, {passive:false}); canvas.addEventListener('mousedown', pointerStart); canvas.addEventListener('touchend', pointerEnd); canvas.addEventListener('mouseup', pointerEnd);
-
-// Buttons document.getElementById('pauseBtn').addEventListener('click', ()=>{ state.running = !state.running; document.getElementById('pauseBtn').textContent = state.running? 'Pause' : 'Resume';}); document.getElementById('restartBtn').addEventListener('click', ()=>{ restart(); });
-
-function restart(){ state.player = createPlayer(); state.score = 0; state.running = true; state.phase='bridge'; state.cameraX = 0; state.bridgeEndX = 1200; spawnInitialObstacles(); }
-
-// Physics & update function update(dt){ if(!state.running) return; const p = state.player; // forward auto-scroll state.cameraX += state.speed * dt; state.score += Math.floor(state.speed * dt * 0.02);
-
-// apply gravity
-p.vy += 1400 * dt;
-p.y += p.vy * dt;
-
-// simple ground on bridge or main ground
-const groundY = canvas.height*0.62 - (state.phase==='bridge' ? 0 : 30);
-if(p.y + p.h/2 >= groundY){ p.y = groundY - p.h/2; p.vy = 0; p.onGround = true; }
-
-// move player forward slowly relative to camera
-// collisions with crates
-for(const e of state.entities){
-  const ex = e.x - state.cameraX;
-  if(e.type==='crate'){
-    const ew = e.w; const ey = groundY - (ew/2);
-    if(!e.passed && p.x + p.w/2 > ex && p.x - p.w/2 < ex+ew){
-      // simple collision from above
-      if(p.y + p.h/2 > ey - 2){ // landing on crate
-        p.y = ey - p.h/2; p.vy = 0; p.onGround = true; e.passed = true; state.score += 4;
-      }
-    }
-  }
-  if(e.type==='gap'){
-    // if player above gap while on bridge and falls
-    const gapX = ex; const gapW = e.w;
-    if(p.x > gapX && p.x < gapX + gapW && p.y + p.h/2 >= groundY - 1){
-      // fall into gap
-      p.vy = 800; p.onGround = false; p.y += 4;
-    }
-  }
-  if(e.type==='enemy'){
-    // enemy moves left/right around its original x
-    e.t += dt;
-    const wiggle = Math.sin(e.t*2)*20;
-    const enemyX = e.x + wiggle - state.cameraX;
-    const distX = Math.abs(enemyX - p.x);
-    if(distX < (e.w + p.w)/2 && Math.abs((canvas.height*0.62) - p.y) < 80){
-      // dead!
-      p.dead = true; state.running = false;
-    }
-  }
-}
-
-// Transition to main when camera passes bridgeEndX
-if(state.cameraX > state.bridgeEndX - 200 && state.phase==='bridge'){
-  state.phase = 'main';
-  // change visual behavior: raise ground and spawn more enemies
-  state.speed += 30; // faster
-}
-
-// If player falls below screen
-if(p.y - p.h/2 > canvas.height + 50){ p.dead = true; state.running = false; }
-
-}
-
-// Draw function draw(){ // clear ctx.clearRect(0,0,canvas.width,canvas.height); // sky gradient background const g = ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,'#86c2ff'); g.addColorStop(1,'#cfeefd'); ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-const cam = state.cameraX;
-
-// draw bridge or main environment
-if(state.phase === 'bridge'){
-  drawBridge(ctx, cam);
-} else {
-  // main world: rolling hills
-  const groundY = canvas.height*0.62 - 30;
-  ctx.fillStyle='#3a7';
-  for(let i=-1;i<6;i++){
-    const hx = (i*400 - (cam*0.4 % 400));
-    ctx.beginPath(); ctx.ellipse(hx+220, groundY+40, 200, 50, 0, 0, Math.PI*2); ctx.fill();
-  }
-}
-
-// draw entities
-for(const e of state.entities){
-  const ex = e.x - cam;
-  if(ex < -200 || ex > canvas.width + 200) continue;
-  if(e.type==='crate'){
-    ctx.fillStyle='#6b3'; ctx.fillRect(ex, canvas.height*0.62 - 40, e.w, 40);
-  } else if(e.type==='gap'){
-    // nothing visible
-  } else if(e.type==='enemy'){
-    const wig = Math.sin(e.t*2)*20;
-    const ex2 = e.x + wig - cam;
-    ctx.fillStyle='#d33'; ctx.beginPath(); ctx.arc(ex2, canvas.height*0.62 - 20, 18,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#700'; ctx.fillRect(ex2-12, canvas.height*0.62 - 10, 24, 8);
-  }
-}
-
-// draw player
-const p = state.player;
-ctx.save(); ctx.translate(p.x, p.y);
-ctx.fillStyle = p.dead? '#555' : p.color;
-ctx.beginPath(); ctx.arc(0,0, p.w/2, 0, Math.PI*2); ctx.fill();
-ctx.restore();
-
-// HUD
-document.getElementById('score').textContent = 'Score: ' + state.score;
-
-if(!state.running){
-  ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = 'white'; ctx.font = 'bold 28px system-ui'; ctx.textAlign='center';
-  if(state.player.dead) ctx.fillText('Game Over', canvas.width/2, canvas.height/2 - 10);
-  else ctx.fillText('Paused', canvas.width/2, canvas.height/2 - 10);
-  ctx.font = '16px system-ui'; ctx.fillText('Tap Restart to play again', canvas.width/2, canvas.height/2 + 24);
-}
-
-}
-
-// Main loop function loop(ts){ if(!state.lastTime) state.lastTime = ts; const dt = Math.min(1/30, (ts - state.lastTime)/1000); state.lastTime = ts; update(dt); draw(); requestAnimationFrame(loop); } requestAnimationFrame(loop);
-
-// Small demo polish: allow horizontal movement via tilt/keyboard for debugging addEventListener('keydown', e=>{ if(e.key === ' '){ if(state.player.onGround){ state.player.vy = -420; state.player.onGround=false }} if(e.key==='r') restart(); });
-
-})(); </script>
-
+    <script>
+        // Game variables
+        let canvas, ctx;
+        let bubbles = [];
+        let shooterBubble = null;
+        let currentBubble = null;
+        let isAiming = false;
+        let aimAngle = 0;
+        let gameRunning = false;
+        let score = 0;
+        let shots = 0;
+        let timeLeft = 120; // 2 minutes in seconds
+        let gameTimer;
+        let target = 0.3000;
+        let earned = 0.0000;
+        let total = 0.0000;
+        let adCount = 0;
+        let totalAds = 3;
+        
+        // Bubble properties - Updated as requested
+        const BUBBLE_RADIUS = 12;
+        const BUBBLE_COLORS = ['#ff4d4d', '#4d79ff', '#4dff4d', '#ffff4d', '#cc4dff'];
+        const BUBBLE_SPEED = 8;
+        const ROWS = 6;
+        const COLS = 12;
+        const EARNINGS_PER_CLUSTER = 0.0035;
+        
+        // Initialize the game
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Create initial bubble grid
+            createBubbleGrid();
+            
+            // Create shooter bubble at the bottom
+            createShooterBubble();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Create particles
+            createParticles();
+        }
+        
+        // Create the initial bubble grid
+        function createBubbleGrid() {
+            bubbles = [];
+            const startY = 120;
+            
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    // Offset every other row for honeycomb pattern
+                    const offset = row % 2 === 0 ? 0 : BUBBLE_RADIUS;
+                    
+                    const bubble = {
+                        x: col * (BUBBLE_RADIUS * 2) + BUBBLE_RADIUS + offset + 10,
+                        y: row * (BUBBLE_RADIUS * 2) + startY,
+                        radius: BUBBLE_RADIUS,
+                        color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)],
+                        row: row,
+                        col: col
+                    };
+                    
+                    bubbles.push(bubble);
+                }
+            }
+        }
+        
+        // Create the shooter bubble at the bottom
+        function createShooterBubble() {
+            shooterBubble = {
+                x: canvas.width / 2,
+                y: canvas.height - 100,
+                radius: BUBBLE_RADIUS,
+                color: BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)]
+            };
+        }
+        
+        // Set up event listeners for aiming and shooting
+        function setupEventListeners() {
+            const aimLine = document.getElementById('aimLine');
+            const startButton = document.getElementById('startButton');
+            const restartButton = document.getElementById('restartButton');
+            const winRestartButton = document.getElementById('winRestartButton');
+            const watchAdsButton = document.getElementById('watchAdsButton');
+            const quitGameButton = document.getElementById('quitGameButton');
+            const nextAdButton = document.getElementById('nextAdButton');
+            const cancelAdButton = document.getElementById('cancelAdButton');
+            const confirmQuitButton = document.getElementById('confirmQuitButton');
+            const cancelQuitButton = document.getElementById('cancelQuitButton');
+            
+            // Start game button
+            startButton.addEventListener('click', startGame);
+            
+            // Restart game buttons
+            restartButton.addEventListener('click', restartGame);
+            winRestartButton.addEventListener('click', restartGame);
+            
+            // Time elapsed screen buttons
+            watchAdsButton.addEventListener('click', showAdModal);
+            quitGameButton.addEventListener('click', showConfirmModal);
+            
+            // Ad modal buttons
+            nextAdButton.addEventListener('click', nextAd);
+            cancelAdButton.addEventListener('click', showConfirmModal);
+            
+            // Confirmation modal buttons
+            confirmQuitButton.addEventListener('click', quitGame);
+            cancelQuitButton.addEventListener('click', hideConfirmModal);
+            
+            // Mouse/touch events for aiming
+            canvas.addEventListener('mousedown', startAim);
+            canvas.addEventListener('mousemove', updateAim);
+            canvas.addEventListener('mouseup', shootBubble);
+            
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startAim(e.touches[0]);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                updateAim(e.touches[0]);
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                shootBubble();
+            });
+            
+            function startAim(e) {
+                if (!gameRunning) return;
+                
+                isAiming = true;
+                aimLine.style.display = 'block';
+                updateAim(e);
+            }
+            
+            function updateAim(e) {
+                if (!isAiming) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                // Calculate angle between shooter and mouse
+                // Restrict shooting to upper half of screen
+                const deltaX = mouseX - shooterBubble.x;
+                const deltaY = Math.min(mouseY, shooterBubble.y - 10) - shooterBubble.y;
+                aimAngle = Math.atan2(deltaY, deltaX);
+                
+                // Update aiming line
+                const lineLength = 300;
+                aimLine.style.height = `${lineLength}px`;
+                aimLine.style.transform = `translateX(-50%) rotate(${aimAngle}rad)`;
+                aimLine.style.bottom = `${canvas.height - shooterBubble.y}px`;
+                aimLine.style.left = `${shooterBubble.x}px`;
+            }
+            
+            function shootBubble() {
+                if (!isAiming || !gameRunning) return;
+                
+                isAiming = false;
+                aimLine.style.display = 'none';
+                
+                // Create a new bubble to shoot
+                currentBubble = {
+                    x: shooterBubble.x,
+                    y: shooterBubble.y,
+                    radius: BUBBLE_RADIUS,
+                    color: shooterBubble.color,
+                    dx: Math.cos(aimAngle) * BUBBLE_SPEED,
+                    dy: Math.sin(aimAngle) * BUBBLE_SPEED
+                };
+                
+                // Update shots count
+                shots++;
+                updateDisplays();
+                
+                // Create a new shooter bubble
+                createShooterBubble();
+            }
+        }
+        
+        // Start the game
+        function startGame() {
+            document.getElementById('instructions').style.display = 'none';
+            gameRunning = true;
+            
+            // Reset game state
+            score = 0;
+            shots = 0;
+            timeLeft = 120; // 2 minutes
+            earned = 0.0000;
+            total = 0.0000;
+            updateDisplays();
+            
+            // Start game timer
+            gameTimer = setInterval(function() {
+                timeLeft--;
+                updateDisplays();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // Start game loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Restart the game
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('winScreen').style.display = 'none';
+            document.getElementById('timeElapsedScreen').style.display = 'none';
+            createBubbleGrid();
+            createShooterBubble();
+            startGame();
+        }
+        
+        // End the game
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            
+            // Check if player reached target
+            if (earned >= target) {
+                // Player won
+                document.getElementById('winAmount').textContent = `You won ${target.toFixed(4)} USDT!`;
+                document.getElementById('winScreen').style.display = 'flex';
+            } else {
+                // Time elapsed
+                document.getElementById('timeEarnedAmount').textContent = `You earned ${earned.toFixed(4)} USDT`;
+                document.getElementById('timeElapsedScreen').style.display = 'flex';
+            }
+        }
+        
+        // Show ad modal
+        function showAdModal() {
+            document.getElementById('timeElapsedScreen').style.display = 'none';
+            document.getElementById('adModal').style.display = 'flex';
+            adCount = 1;
+            updateAdCounter();
+        }
+        
+        // Update ad counter
+        function updateAdCounter() {
+            document.getElementById('adCounter').textContent = `${adCount}/${totalAds}`;
+        }
+        
+        // Next ad
+        function nextAd() {
+            adCount++;
+            updateAdCounter();
+            
+            if (adCount > totalAds) {
+                // All ads watched
+                hideAdModal();
+                // Add time and increase target
+                timeLeft += 60; // 1 minute
+                target += 0.1; // Increase target by 0.1 USDT
+                gameRunning = true;
+                updateDisplays();
+                // Resume game
+                gameTimer = setInterval(function() {
+                    timeLeft--;
+                    updateDisplays();
+                    
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Hide ad modal
+        function hideAdModal() {
+            document.getElementById('adModal').style.display = 'none';
+        }
+        
+        // Show confirmation modal
+        function showConfirmModal() {
+            document.getElementById('confirmMessage').textContent = `Are you sure you want to quit? You will lose your earnings of ${earned.toFixed(4)} USDT.`;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        
+        // Hide confirmation modal
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        // Quit game
+        function quitGame() {
+            hideConfirmModal();
+            hideAdModal();
+            document.getElementById('timeElapsedScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'flex';
+            document.getElementById('finalScore').textContent = `Earned: ${earned.toFixed(4)} USDT`;
+        }
+        
+        // Main game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bubbles
+            drawBubbles();
+            
+            // Draw shooter bubble
+            drawBubble(shooterBubble);
+            
+            // Update and draw current bubble if exists
+            if (currentBubble) {
+                updateBubblePosition();
+                drawBubble(currentBubble);
+                checkCollisions();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Draw all bubbles in the grid
+        function drawBubbles() {
+            bubbles.forEach(bubble => {
+                drawBubble(bubble);
+            });
+        }
+        
+        // Draw a single bubble
+        function drawBubble(bubble) {
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+            ctx.fillStyle = bubble.color;
+            ctx.fill();
+            ctx.closePath();
+            
+            // Add bubble highlight
+            ctx.beginPath();
+            ctx.arc(bubble.x - bubble.radius/3, bubble.y - bubble.radius/3, bubble.radius/2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+            ctx.closePath();
+        }
+        
+        // Update the position of the current bubble
+        function updateBubblePosition() {
+            currentBubble.x += currentBubble.dx;
+            currentBubble.y += currentBubble.dy;
+            
+            // Bounce off walls
+            if (currentBubble.x - currentBubble.radius < 0 || currentBubble.x + currentBubble.radius > canvas.width) {
+                currentBubble.dx = -currentBubble.dx;
+            }
+            
+            // Check if bubble goes off top
+            if (currentBubble.y - currentBubble.radius < 0) {
+                attachBubbleToGrid();
+            }
+        }
+        
+        // Check for collisions with other bubbles
+    function checkCollisions() {
+            for (let i = 0; i < bubbles.length; i++) {
+                const bubble = bubbles[i];
+                const dx = currentBubble.x - bubble.x;
+                const dy = currentBubble.y - bubble.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < currentBubble.radius + bubble.radius) {
+                    attachBubbleToGrid();
+                    checkForMatches(bubble);
+                    break;
+                }
+            }
+        }
+        
+        // Attach the current bubble to the grid
+        function attachBubbleToGrid() {
+            // Find the closest grid position
+            const gridX = Math.round((currentBubble.x - BUBBLE_RADIUS) / (BUBBLE_RADIUS * 2));
+            const gridY = Math.round((currentBubble.y - 120) / (BUBBLE_RADIUS * 2));
+            
+            // Add the bubble to the grid
+            const newBubble = {
+                x: gridX * (BUBBLE_RADIUS * 2) + BUBBLE_RADIUS + 10,
+                y: gridY * (BUBBLE_RADIUS * 2) + 120,
+                radius: BUBBLE_RADIUS,
+                color: currentBubble.color,
+                row: gridY,
+                col: gridX
+            };
+            
+            bubbles.push(newBubble);
+            currentBubble = null;
+            
+            // Check for matches with the new bubble
+            checkForMatches(newBubble);
+        }
+        
+        // Check for matching bubbles and remove them
+        function checkForMatches(startBubble) {
+            const matches = [];
+            const visited = new Set();
+            const color = startBubble.color;
+            
+            // Flood fill algorithm to find connected bubbles of the same color
+            function floodFill(bubble) {
+                if (!bubble || visited.has(bubble) || bubble.color !== color) return;
+                
+                visited.add(bubble);
+                matches.push(bubble);
+                
+                // Check all neighboring positions
+                const neighbors = [
+                    {row: bubble.row - 1, col: bubble.col}, // Top
+                    {row: bubble.row + 1, col: bubble.col}, // Bottom
+                    {row: bubble.row, col: bubble.col - 1}, // Left
+                    {row: bubble.row, col: bubble.col + 1}, // Right
+                ];
+                
+                // For honeycomb pattern, check additional neighbors on even/odd rows
+                if (bubble.row % 2 === 0) {
+                    neighbors.push({row: bubble.row - 1, col: bubble.col - 1}); // Top-left
+                    neighbors.push({row: bubble.row + 1, col: bubble.col - 1}); // Bottom-left
+                } else {
+                    neighbors.push({row: bubble.row - 1, col: bubble.col + 1}); // Top-right
+                    neighbors.push({row: bubble.row + 1, col: bubble.col + 1}); // Bottom-right
+                }
+                
+                neighbors.forEach(neighbor => {
+                    const neighborBubble = bubbles.find(b => 
+                        b.row === neighbor.row && b.col === neighbor.col
+                    );
+                    if (neighborBubble) {
+                        floodFill(neighborBubble);
+                    }
+                });
+            }
+            
+            floodFill(startBubble);
+            
+            // If we have 3 or more matches, remove them
+            if (matches.length >= 3) {
+                matches.forEach(match => {
+                    const index = bubbles.indexOf(match);
+                    if (index > -1) {
+                        bubbles.splice(index, 1);
+                        
+                        // Add explosion effect
+                        createExplosion(match.x, match.y, match.color);
+                    }
+                });
+                
+                // Update earned amount
+                earned += EARNINGS_PER_CLUSTER;
+                total = earned;
+                score = Math.floor(earned * 10000); // Convert to points for display
+                updateDisplays();
+                
+                // Check if player reached target
+                if (earned >= target) {
+                    endGame();
+                }
+            }
+            
+            // Check if all bubbles are cleared
+            if (bubbles.length === 0) {
+                createBubbleGrid(); // Create a new grid
+            }
+        }
+        
+        // Create explosion effect when bubbles are destroyed
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                const size = Math.random() * 4 + 2;
+                const duration = Math.random() * 1 + 0.5;
+                
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.background = color;
+                particle.style.animation = `none`;
+                
+                // Custom explosion animation
+                setTimeout(() => {
+                    particle.style.transition = `all ${duration}s ease-out`;
+                    particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                    particle.style.opacity = '0';
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, duration * 1000);
+                }, 10);
+                
+                document.querySelector('.particles').appendChild(particle);
+            }
+        }
+        
+        // Update all displays with current game state
+        function updateDisplays() {
+            // Format time as MM:SS
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timeDisplay').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            document.getElementById('shotsDisplay').textContent = shots;
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            document.getElementById('targetDisplay').textContent = `${target.toFixed(4)} USDT`;
+            document.getElementById('earnedDisplay').textContent = `${earned.toFixed(4)} USDT`;
+            document.getElementById('totalDisplay').textContent = `${total.toFixed(4)} USDT`;
+        }
+        
+        // Create background particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random position
+                const left = Math.random() * 100;
+                const size = Math.random() * 3 + 1;
+                const delay = Math.random() * 6;
+                const duration = Math.random() * 4 + 4;
+                
+                particle.style.left = `${left}%`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Random color
+                const colors = ['#00ffff', '#00ff99', '#ffff00', '#ff00ff'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.background = color;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize the game when page loads
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
