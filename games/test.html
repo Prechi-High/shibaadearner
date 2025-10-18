@@ -1,851 +1,681 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bubble Shooter Game</title>
-<style>
-/* Global/Body Styles */
-body{
-	background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-	color:#eee;
-	margin:0;
-	box-sizing: border-box;
-	overflow-x: hidden;
-	font-family: Arial, sans-serif;
-}
-/* Main Container/Canvas Positioning */
-#main-container{
-  width: 95vw;
-  max-width: 625px;
-  aspect-ratio: 1/1;
-  margin: 10px auto 0 auto;
-  background: rgba(0,0,0,0.5);
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Live Winners Display */
-#live-winners {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 6px 10px;
-  z-index: 100;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-#winners-container {
-  display: inline-block;
-  animation: scrollLeft 40s linear infinite;
-}
-@keyframes scrollLeft {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-/* HUD STYLING */
-.hud{
-  display:flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 0;
-  width: 95vw;
-  max-width: 625px;
-  margin: 10px auto 0 auto;
-}
-.hud-stats-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 5px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-.stat{
-  background: none;
-  padding: 8px 10px;
-  border-radius: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  font-size: 14px;
-  min-width: 80px;
-  text-shadow: 1px 1px 2px #000;
-  position: relative;
-}
-.stat:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 15%;
-  height: 70%;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.2);
-}
-.stat small{
-  color: #a0f0ff;
-  font-size: 10px;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.big{
-  font-weight: 900;
-  font-size: 16px;
-  color: #ffffff;
-}
-.target .big, .earned .big {
-  color: #ffde00;
-}
-.hud-controls-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 10px;
-  background: rgba(0, 0, 0, 0.4); 
-  border-radius: 10px;
-}
-.hud-buttons-group {
-  display: flex;
-  gap: 8px;
-}
-.extensions-stat {
-  font-size: 12px;
-  color: #9aa;
-  padding: 5px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-}
-button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 3px #333;
-  transition: all 0.1s ease;
-  font-size: 14px;
-}
-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px #333;
-}
-#tryAgainBtn.secondary {
-  background: linear-gradient(180deg, #FFD700, #DAA520);
-  color: #333;
-}
-
-/* Overlay and Popup Styles */
-.overlay {
-  position:fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 999999;
-  backdrop-filter: blur(3px);
-}
-.popup {
-  background: rgba(30, 30, 46, 0.95);
-  padding: 25px;
-  color: #fff;
-  text-align: center;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-  animation: popupFade 0.25s ease-out;
-}
-@keyframes popupFade {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-.ad-progress {
-  width: 100%;
-  height: 20px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 6px;
-  margin-top: 15px;
-}
-.ad-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #63b3ed, #4299e1);
-  transition: width 0.2s linear;
-}
-.btn-group {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-.btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  min-width: 100px;
-  font-size: 16px;
-}
-.btn-primary {
-  background: linear-gradient(to right, #00c9ff, #92fe9d);
-  color: #1a1a2e;
-}
-.btn-secondary {
-  background: linear-gradient(to right, #ff6b6b, #ff8e53);
-  color: white;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Shooter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .game-container {
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(to bottom, #0f3460, #1a1a2e);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #3498db;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .game-stats {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .stat-box {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #7ed6df;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f9ca24;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .game-area {
+            height: 480px;
+            position: relative;
+        }
+        
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .game-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .cannon {
+            width: 60px;
+            height: 60px;
+            background: #e74c3c;
+            border-radius: 50%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .cannon::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 60px;
+            background: #e74c3c;
+            top: -30px;
+            left: 15px;
+            border-radius: 15px;
+        }
+        
+        .next-bubble {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #9b59b6;
+            position: absolute;
+            right: 100px;
+            bottom: 10px;
+            border: 2px solid white;
+        }
+        
+        .game-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-indicator {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9ca24;
+        }
+        
+        .player-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #7ed6df;
+        }
+        
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .overlay-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #f9ca24;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(249, 202, 36, 0.7);
+        }
+        
+        .overlay-subtitle {
+            font-size: 24px;
+            color: #7ed6df;
+            margin-bottom: 30px;
+        }
+        
+        .start-button {
+            padding: 15px 40px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .start-button:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .bubble.red { background: radial-gradient(circle at 30% 30%, #e74c3c, #c0392b); }
+        .bubble.blue { background: radial-gradient(circle at 30% 30%, #3498db, #2980b9); }
+        .bubble.green { background: radial-gradient(circle at 30% 30%, #2ecc71, #27ae60); }
+        .bubble.yellow { background: radial-gradient(circle at 30% 30%, #f9ca24, #f39c12); }
+        .bubble.purple { background: radial-gradient(circle at 30% 30%, #9b59b6, #8e44ad); }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<!-- Live Winners Display -->
-<div id="live-winners">
-  <div id="winners-container">
-    <span>🏆 User1 won $0.0500 USDT • </span>
-    <span>🎉 User2 won $0.1200 USDT • </span>
-    <span>🌟 User3 won $0.0800 USDT • </span>
-    <span>🔥 User4 won $0.1500 USDT • </span>
-    <span>💎 User5 won $0.0700 USDT • </span>
-    <span>🏆 User6 won $0.0900 USDT • </span>
-    <span>🎉 User7 won $0.1100 USDT • </span>
-    <span>🌟 User8 won $0.0600 USDT • </span>
-    <span>🔥 User9 won $0.1300 USDT • </span>
-    <span>💎 User10 won $0.0400 USDT • </span>
-  </div>
-</div>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-stats">
+                <div class="stat-box">
+                    <div class="stat-label">TIME</div>
+                    <div class="stat-value" id="time">60s</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">SHOTS</div>
+                    <div class="stat-value" id="shots">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">SCORE</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+            </div>
+            <div class="game-title">BUBBLE SHOOTER</div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="game-canvas"></canvas>
+            
+            <div class="game-controls">
+                <div class="cannon"></div>
+            </div>
+            
+            <div class="next-bubble"></div>
+            
+            <div class="game-footer">
+                <div class="mode-indicator">CLASSIC&HUGE</div>
+                <div class="player-name">Player</div>
+                <div class="mode-indicator">REWARDS</div>
+            </div>
+        </div>
+        
+        <div class="game-overlay" id="start-overlay">
+            <div class="overlay-title">BUBBLE SHOOTER</div>
+            <div class="overlay-subtitle">CLASSIC & HUGE REWARDS</div>
+            <button class="start-button" id="start-button">START GAME</button>
+        </div>
+        
+        <div class="game-overlay hidden" id="game-over-overlay">
+            <div class="overlay-title">GAME OVER</div>
+            <div class="overlay-subtitle">Your Score: <span id="final-score">0</span></div>
+            <button class="start-button" id="restart-button">PLAY AGAIN</button>
+        </div>
+    </div>
 
-<div class="hud" aria-live="polite">
-  <div class="hud-stats-row">
-    <div class="stat time">
-      <small>⏰ Time left</small>
-      <div id="timeDisplay" class="big">02:00</div>
-    </div>
-    <div class="stat target">
-      <small>🎯 Target</small>
-      <div id="targetDisplay" class="big">$0.3000 USDT</div>
-    </div>
-    <div class="stat earned">
-      <small>💰 Earned</small>
-      <div id="earnedDisplay" class="big">$0.0000 USDT</div>
-    </div>
-    <div class="stat balance">
-      <small>🏦 Balance</small>
-      <div id="balanceDisplay" class="big">$0.0000 USDT</div>
-    </div>
-  </div>
-  <div class="hud-controls-row">
-    <div class="extensions-stat">
-      Extensions used this round: <span id="extensionsUsed">0</span> / 2
-    </div>
-    <div class="hud-buttons-group">
-      <button id="tryAgainBtn" class="secondary">🔁 Try Again</button>
-    </div>
-  </div>
-</div>
-
-<div id="main-container">
-  <canvas id="viewport"></canvas>
-</div>
-
-<script>
-window.onload = function() {
-    const canvas = document.getElementById("viewport");
-    const ctx = canvas.getContext("2d");
-    
-    // Make canvas responsive
-    function resizeCanvas() {
-        const container = document.getElementById("main-container");
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        updateLevelDimensions();
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    // Game state
-    let earned = 0.0;
-    let totalBalance = 0.0;
-    let target = 0.30;
-    let timeLeft = 120;
-    let extensionsUsed = 0;
-    let timerInterval = null;
-    let timerRunning = false;
-    let gamePaused = false;
-    
-    // Bubble colors (no image needed)
-    const BUBBLE_COLORS = [
-        '#FF5252', '#FFD740', '#7C4DFF', '#40C4FF', '#69F0AE', '#FF4081', '#00E676'
-    ];
-    
-    // Level config
-    const level = {
-        x: 10,
-        y: 60,
-        width: 0,
-        height: 0,
-        columns: 15,
-        rows: 14,
-        tilewidth: 0,
-        tileheight: 0,
-        rowheight: 0,
-        radius: 0,
-        tiles: []
-    };
-    
-    // Player
-    const player = {
-        x: 0,
-        y: 0,
-        angle: 90,
-        tiletype: 0,
-        bubble: { x: 0, y: 0, angle: 0, speed: 800, visible: false, tiletype: 0 },
-        nextbubble: { x: 0, y: 0, tiletype: 0 }
-    };
-    
-    // Neighbor offsets for hex grid
-    const neighborOffsets = [
-        [[1,0],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1]], // even rows
-        [[1,0],[1,1],[0,1],[-1,0],[0,-1],[1,-1]]   // odd rows
-    ];
-    
-    // Game states
-    const gamestates = { init: 0, ready: 1, shoot: 2, remove: 3, over: 4 };
-    let gamestate = gamestates.init;
-    
-    // Other state
-    let score = 0;
-    let turncounter = 0;
-    let rowoffset = 0;
-    let cluster = [];
-    let floatingclusters = [];
-    
-    // Initialize game
-    function init() {
-        // Create empty tile grid
-        for (let i = 0; i < level.columns; i++) {
-            level.tiles[i] = [];
-            for (let j = 0; j < level.rows; j++) {
-                level.tiles[i][j] = { x: i, y: j, type: -1, alpha: 1, shift: 0, velocity: 0 };
-            }
-        }
-        
-        updateLevelDimensions();
-        player.x = level.x + level.width/2;
-        player.y = level.y + level.height + 40;
-        player.nextbubble.x = player.x - 60;
-        player.nextbubble.y = player.y;
-        
-        canvas.addEventListener("mousemove", onMouseMove);
-        canvas.addEventListener("click", onMouseClick);
-        document.getElementById("tryAgainBtn").onclick = showQuitConfirm;
-        
-        newGame();
-        gameLoop();
-    }
-    
-    function updateLevelDimensions() {
-        level.tilewidth = Math.min(
-            (canvas.width - 40) / level.columns,
-            (canvas.height - 120) / level.rows
-        );
-        level.tileheight = level.tilewidth;
-        level.rowheight = level.tileheight * 0.85;
-        level.radius = level.tilewidth / 2;
-        level.width = level.columns * level.tilewidth;
-        level.height = (level.rows - 1) * level.rowheight + level.tileheight;
-        
-        player.x = level.x + level.width/2;
-        player.y = level.y + level.height + 40;
-        player.nextbubble.x = player.x - 60;
-        player.nextbubble.y = player.y;
-    }
-    
-    function updateHUD() {
-        document.getElementById("earnedDisplay").innerText = `$${earned.toFixed(4)} USDT`;
-        document.getElementById("balanceDisplay").innerText = `$${totalBalance.toFixed(4)} USDT`;
-        document.getElementById("targetDisplay").innerText = `$${target.toFixed(4)} USDT`;
-        document.getElementById("extensionsUsed").innerText = extensionsUsed;
-        updateTimeDisplay();
-    }
-    
-    function startTimer(resume = false) {
-        clearInterval(timerInterval);
-        timerRunning = true;
-        gamePaused = false;
-        if (!resume) timeLeft = 120;
-        updateHUD();
-        timerInterval = setInterval(() => {
-            if (!timerRunning || gamePaused) return;
-            if (timeLeft <= 0) {
-                timeLeft = 0;
-                updateTimeDisplay();
-                clearInterval(timerInterval);
-                timerRunning = false;
-                handleTimeUp();
-                return;
-            }
-            timeLeft--;
-            updateTimeDisplay();
-        }, 1000);
-    }
-    
-    function updateTimeDisplay() {
-        const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const secs = (timeLeft % 60).toString().padStart(2, '0');
-        document.getElementById("timeDisplay").innerText = `${mins}:${secs}`;
-    }
-    
-    // === MODAL FUNCTIONS ===
-    function handleWin() {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        totalBalance += earned;
-        updateHUD();
-        
-        showPopup(`
-            <h3>🎉 Congratulations!</h3>
-            <p>You've reached your target of $${target.toFixed(4)} USDT! The amount has been added to your Total Balance.</p>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="closePopup(); resetForNewGame(); newGame();">OK</button>
-            </div>
-        `);
-    }
-    
-    function showAdPopup() {
-        showPopup(`
-            <h3>⏰ Time's Up!</h3>
-            <p>Watch 3 ads to get an extra 1 minute, but your target will increase by $0.1000 USDT.</p>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="closePopup(); startAdProgress();">▶️ Watch Ads</button>
-                <button class="btn btn-secondary" onclick="closePopup(); showQuitConfirm();">❌ Try Again</button>
-            </div>
-        `);
-    }
-    
-    function showContinuePopup() {
-        gamePaused = true;
-        showPopup(`
-            <h3>💥 Game Over</h3>
-            <p>You still have time left. Watch 1 ad to continue playing.</p>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="closePopup(); startSingleAd(() => { resetBoardForContinue(); gamePaused = false; startTimer(true); });">▶️ Watch Ad</button>
-                <button class="btn btn-secondary" onclick="closePopup(); showQuitConfirm(true);">❌ Quit</button>
-            </div>
-        `);
-    }
-    
-    function showQuitConfirm(fromGameOver = false) {
-        showPopup(`
-            <h3>⚠️ Confirm Quit</h3>
-            <p>If you quit now, you'll lose the amount you earned ($${earned.toFixed(4)} USDT).</p>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="closePopup(); startSingleAd(() => { gamePaused = false; startTimer(true); });">Watch Ad to Continue</button>
-                <button class="btn btn-secondary" onclick="closePopup(); resetForNewGame(); newGame();">Quit</button>
-            </div>
-        `);
-    }
-    
-    function showLossPopup() {
-        showPopup(`
-            <h3>😢 You Lost</h3>
-            <p>You didn't reach your target. Your earnings have been reset.</p>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="closePopup(); resetForNewGame(); newGame();">🔁 Play Again</button>
-            </div>
-        `);
-    }
-    
-    function showPopup(html) {
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-        overlay.innerHTML = `<div class="popup">${html}</div>`;
-        document.body.appendChild(overlay);
-    }
-    
-    function closePopup() {
-        const overlay = document.querySelector(".overlay");
-        if (overlay) overlay.remove();
-    }
-    
-    function startAdProgress() {
-        let adCount = 1;
-        showPopup(`
-            <h3>📺 Watching Ads</h3>
-            <p id="adStatus">Ad ${adCount} of 3...</p>
-            <div class="ad-progress"><div class="ad-fill" id="adFill"></div></div>
-            <button class="btn btn-primary" style="margin-top:15px;" onclick="continueAds(${adCount})">Continue to Next Ad</button>
-        `);
-    }
-    
-    function continueAds(currentAd) {
-        if (currentAd < 3) {
-            const newAd = currentAd + 1;
-            document.getElementById("adStatus").innerText = `Ad ${newAd} of 3...`;
-            document.getElementById("adFill").style.width = "0%";
-            // Update button to next ad
-            const btn = document.querySelector(".btn-primary");
-            btn.setAttribute("onclick", `continueAds(${newAd})`);
-        } else {
-            closePopup();
-            extensionsUsed++;
-            timeLeft = 60;
-            target += 0.10;
-            updateHUD();
-            startTimer(false);
-        }
-    }
-    
-    function startSingleAd(callback) {
-        showPopup(`
-            <h3>📺 Watching Ad...</h3>
-            <p>Please wait while the ad finishes.</p>
-            <div class="ad-progress"><div class="ad-fill" id="singleAdFill"></div></div>
-            <button class="btn btn-primary" style="margin-top:15px;" onclick="closePopup(); (${callback.toString()})()">Continue</button>
-        `);
-    }
-    
-    function resetForNewGame() {
-        earned = 0.0;
-        target = 0.30;
-        extensionsUsed = 0;
-        updateHUD();
-    }
-    
-    // === GAME LOGIC ===
-    function newGame() {
-        score = 0;
-        turncounter = 0;
-        rowoffset = 0;
-        gamestate = gamestates.ready;
-        createLevel();
-        nextBubble();
-        nextBubble();
-        startTimer();
-    }
-    
-    function resetBoardForContinue() {
-        gamestate = gamestates.ready;
-        cluster = [];
-        floatingclusters = [];
-        createLevel();
-        nextBubble();
-    }
-    
-    function createLevel() {
-        for (let j = 0; j < level.rows; j++) {
-            let color = Math.floor(Math.random() * BUBBLE_COLORS.length);
-            let count = 0;
-            for (let i = 0; i < level.columns; i++) {
-                if (count >= 2) {
-                    let newColor = Math.floor(Math.random() * BUBBLE_COLORS.length);
-                    if (newColor === color) newColor = (newColor + 1) % BUBBLE_COLORS.length;
-                    color = newColor;
-                    count = 0;
-                }
-                count++;
-                if (j < Math.floor(level.rows / 2)) {
-                    level.tiles[i][j].type = color;
-                } else {
-                    level.tiles[i][j].type = -1;
-                }
-            }
-        }
-    }
-    
-    function nextBubble() {
-        player.bubble.tiletype = player.nextbubble.tiletype;
-        player.bubble.x = player.x;
-        player.bubble.y = player.y;
-        player.bubble.visible = true;
-        player.nextbubble.tiletype = Math.floor(Math.random() * BUBBLE_COLORS.length);
-    }
-    
-    function shootBubble() {
-        if (gamestate !== gamestates.ready) return;
-        player.bubble.angle = player.angle;
-        gamestate = gamestates.shoot;
-    }
-    
-    function snapBubble() {
-        const centerX = player.bubble.x;
-        const centerY = player.bubble.y;
-        const gridPos = getGridPosition(centerX, centerY);
-        
-        // Clamp to grid
-        gridPos.x = Math.max(0, Math.min(level.columns - 1, gridPos.x));
-        gridPos.y = Math.max(0, Math.min(level.rows - 1, gridPos.y));
-        
-        let addTile = false;
-        if (level.tiles[gridPos.x][gridPos.y].type !== -1) {
-            for (let r = gridPos.y + 1; r < level.rows; r++) {
-                if (level.tiles[gridPos.x][r].type === -1) {
-                    gridPos.y = r;
-                    addTile = true;
-                    break;
-                }
-            }
-        } else {
-            addTile = true;
-        }
-        
-        if (addTile) {
-            player.bubble.visible = false;
-            level.tiles[gridPos.x][gridPos.y].type = player.bubble.tiletype;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            const startOverlay = document.getElementById('start-overlay');
+            const gameOverOverlay = document.getElementById('game-over-overlay');
+            const startButton = document.getElementById('start-button');
+            const restartButton = document.getElementById('restart-button');
+            const timeDisplay = document.getElementById('time');
+            const shotsDisplay = document.getElementById('shots');
+            const scoreDisplay = document.getElementById('score');
+            const finalScoreDisplay = document.getElementById('final-score');
+            const nextBubble = document.querySelector('.next-bubble');
             
-            if (checkGameOver()) return;
+            // Set canvas size
+            canvas.width = 800;
+            canvas.height = 480;
             
-            cluster = findCluster(gridPos.x, gridPos.y, true, true);
-            if (cluster.length >= 3) {
-                earned += 0.0025;
-                updateHUD();
-                if (earned >= target) {
-                    handleWin();
-                    return;
-                }
-                gamestate = gamestates.remove;
-                return;
-            }
-        }
-        
-        turncounter++;
-        if (turncounter >= 5) {
-            addBubbles();
-            turncounter = 0;
-            rowoffset = (rowoffset + 1) % 2;
-            if (checkGameOver()) return;
-        }
-        
-        nextBubble();
-        gamestate = gamestates.ready;
-    }
-    
-    function checkGameOver() {
-        for (let i = 0; i < level.columns; i++) {
-            if (level.tiles[i][level.rows - 1].type !== -1) {
-                clearInterval(timerInterval);
-                timerRunning = false;
-                showContinuePopup();
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    function addBubbles() {
-        for (let i = 0; i < level.columns; i++) {
-            for (let j = level.rows - 1; j > 0; j--) {
-                level.tiles[i][j].type = level.tiles[i][j - 1].type;
-            }
-            level.tiles[i][0].type = Math.floor(Math.random() * BUBBLE_COLORS.length);
-        }
-    }
-    
-    function findCluster(x, y, matchType, reset) {
-        const targetTile = level.tiles[x][y];
-        if (targetTile.type === -1) return [];
-        
-        const visited = new Set();
-        const cluster = [];
-        const stack = [{x, y}];
-        
-        while (stack.length > 0) {
-            const {x: cx, y: cy} = stack.pop();
-            const key = `${cx},${cy}`;
-            if (visited.has(key)) continue;
-            visited.add(key);
+            // Game variables
+            let gameActive = false;
+            let timeLeft = 60;
+            let shots = 0;
+            let score = 0;
+            let gameInterval;
+            let timeInterval;
+            let bubbles = [];
+            let currentBubble = null;
+            let nextBubbleColor = null;
+            let cannonAngle = 0;
             
-            const tile = level.tiles[cx][cy];
-            if (tile.type === -1) continue;
-            if (matchType && tile.type !== targetTile.type) continue;
+            // Bubble colors
+            const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
             
-            cluster.push(tile);
-            
-            const neighbors = getNeighbors(cx, cy);
-            for (const n of neighbors) {
-                const nKey = `${n.x},${n.y}`;
-                if (!visited.has(nKey)) {
-                    stack.push(n);
-                }
-            }
-        }
-        return cluster;
-    }
-    
-    function getNeighbors(x, y) {
-        const rowParity = (y + rowoffset) % 2;
-        const offsets = neighborOffsets[rowParity];
-        const neighbors = [];
-        for (const [dx, dy] of offsets) {
-            const nx = x + dx;
-            const ny = y + dy;
-            if (nx >= 0 && nx < level.columns && ny >= 0 && ny < level.rows) {
-                neighbors.push({x: nx, y: ny});
-            }
-        }
-        return neighbors;
-    }
-    
-    function getGridPosition(x, y) {
-        const gridY = Math.floor((y - level.y) / level.rowheight);
-        const xOffset = ((gridY + rowoffset) % 2) ? level.tilewidth / 2 : 0;
-        const gridX = Math.floor((x - level.x - xOffset) / level.tilewidth);
-        return { x: gridX, y: gridY };
-    }
-    
-    // === RENDERING ===
-    function drawBubble(x, y, type, alpha = 1) {
-        if (type < 0 || type >= BUBBLE_COLORS.length) return;
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(x, y, level.radius, 0, Math.PI * 2);
-        ctx.fillStyle = BUBBLE_COLORS[type];
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-    }
-    
-    function render() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw bubbles
-        for (let j = 0; j < level.rows; j++) {
-            for (let i = 0; i < level.columns; i++) {
-                const tile = level.tiles[i][j];
-                if (tile.type !== -1) {
-                    const coord = getTileCoordinate(i, j);
-                    drawBubble(coord.x, coord.y + tile.shift, tile.type, tile.alpha);
-                }
-            }
-        }
-        
-        // Draw player
-        ctx.save();
-        ctx.translate(player.x, player.y);
-        ctx.rotate((player.angle - 90) * Math.PI / 180);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -40);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
-        
-        // Draw next bubble
-        drawBubble(player.nextbubble.x, player.nextbubble.y, player.nextbubble.tiletype);
-        
-        // Draw current bubble
-        if (player.bubble.visible) {
-            drawBubble(player.bubble.x, player.bubble.y, player.bubble.tiletype);
-        }
-    }
-    
-    function getTileCoordinate(col, row) {
-        const x = level.x + col * level.tilewidth + ((row + rowoffset) % 2 ? level.tilewidth / 2 : 0);
-        const y = level.y + row * level.rowheight;
-        return { x, y };
-    }
-    
-    // === GAME LOOP ===
-    let lastTime = 0;
-    function gameLoop(timestamp) {
-        const dt = (timestamp - lastTime) / 1000;
-        lastTime = timestamp;
-        
-        update(dt);
-        render();
-        requestAnimationFrame(gameLoop);
-    }
-    
-    function update(dt) {
-        if (gamestate === gamestates.shoot) {
-            player.bubble.x += dt * player.bubble.speed * Math.cos((player.bubble.angle - 90) * Math.PI / 180);
-            player.bubble.y += dt * player.bubble.speed * Math.sin((player.bubble.angle - 90) * Math.PI / 180);
-            
-            // Wall collisions
-            if (player.bubble.x < level.x + level.radius) {
-                player.bubble.x = level.x + level.radius;
-                player.bubble.angle = 180 - (player.bubble.angle - 180);
-            } else if (player.bubble.x > level.x + level.width - level.radius) {
-                player.bubble.x = level.x + level.width - level.radius;
-                player.bubble.angle = 180 - (player.bubble.angle - 180);
+            // Initialize game
+            function initGame() {
+                gameActive = true;
+                timeLeft = 60;
+                shots = 0;
+                score = 0;
+                bubbles = [];
+                
+                timeDisplay.textContent = timeLeft + 's';
+                shotsDisplay.textContent = shots;
+                scoreDisplay.textContent = score;
+                
+                // Create initial bubble grid
+                createBubbleGrid();
+                
+                // Set next bubble
+                setNextBubble();
+                
+                // Start game loop
+                gameInterval = requestAnimationFrame(gameLoop);
+                
+                // Start timer
+                timeInterval = setInterval(updateTimer, 1000);
+                
+                // Hide overlays
+                startOverlay.classList.add('hidden');
+                gameOverOverlay.classList.add('hidden');
             }
             
-            // Top collision
-            if (player.bubble.y < level.y + level.radius) {
-                player.bubble.y = level.y + level.radius;
-                snapBubble();
-                return;
-            }
-            
-            // Bubble collisions
-            for (let i = 0; i < level.columns; i++) {
-                for (let j = 0; j < level.rows; j++) {
-                    const tile = level.tiles[i][j];
-                    if (tile.type === -1) continue;
-                    const coord = getTileCoordinate(i, j);
-                    const dx = player.bubble.x - coord.x;
-                    const dy = player.bubble.y - coord.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < level.radius * 2) {
-                        snapBubble();
-                        return;
+            // Create initial bubble grid
+            function createBubbleGrid() {
+                const rows = 8;
+                const cols = 12;
+                const bubbleRadius = 25;
+                
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        // Create a staggered grid (every other row is offset)
+                        const x = col * (bubbleRadius * 2) + (row % 2 === 0 ? 0 : bubbleRadius);
+                        const y = row * (bubbleRadius * 1.8) + 50;
+                        
+                        // Random color
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        bubbles.push({
+                            x: x,
+                            y: y,
+                            radius: bubbleRadius,
+                            color: color,
+                            row: row,
+                            col: col
+                        });
                     }
                 }
             }
             
-            // Bottom collision
-            if (player.bubble.y > canvas.height) {
-                snapBubble();
+            // Set the next bubble to shoot
+            function setNextBubble() {
+                nextBubbleColor = colors[Math.floor(Math.random() * colors.length)];
+                nextBubble.className = 'next-bubble ' + nextBubbleColor;
+                
+                // Create current bubble if it doesn't exist
+                if (!currentBubble) {
+                    currentBubble = {
+                        x: canvas.width / 2,
+                        y: canvas.height - 60,
+                        radius: 25,
+                        color: nextBubbleColor,
+                        dx: 0,
+                        dy: 0,
+                        moving: false
+                    };
+                    
+                    setNextBubble();
+                }
             }
-        } else if (gamestate === gamestates.remove) {
-            // Handle cluster removal animation here if needed
-            gamestate = gamestates.ready;
-        }
-    }
-    
-    // === INPUT HANDLERS ===
-    function onMouseMove(e) {
-        if (gamestate !== gamestates.ready) return;
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const dx = mouseX - player.x;
-        const dy = mouseY - player.y;
-        let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-        if (angle < 0) angle += 360;
-        if (angle < 10) angle = 10;
-        if (angle > 170) angle = 170;
-        player.angle = angle;
-    }
-    
-    function onMouseClick(e) {
-        if (gamestate === gamestates.ready) {
-            shootBubble();
-        }
-    }
-    
-    // Start the game
-    init();
-};
-</script>
+            
+            // Game loop
+            function gameLoop() {
+                if (!gameActive) return;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw bubbles
+                drawBubbles();
+                
+                // Draw current bubble if it exists and is moving
+                if (currentBubble && currentBubble.moving) {
+                    drawBubble(currentBubble);
+                    
+                    // Update bubble position
+                    currentBubble.x += currentBubble.dx;
+                    currentBubble.y += currentBubble.dy;
+                    
+                    // Check for collisions with walls
+                    if (currentBubble.x - currentBubble.radius < 0 || 
+                        currentBubble.x + currentBubble.radius > canvas.width) {
+                        currentBubble.dx = -currentBubble.dx;
+                    }
+                    
+                    // Check for collisions with ceiling
+                    if (currentBubble.y - currentBubble.radius < 0) {
+                        currentBubble.moving = false;
+                        attachBubble();
+                    }
+                    
+                    // Check for collisions with other bubbles
+                    for (let i = 0; i < bubbles.length; i++) {
+                        if (checkCollision(currentBubble, bubbles[i])) {
+                            currentBubble.moving = false;
+                            attachBubble();
+                            break;
+                        }
+                    }
+                } else if (currentBubble && !currentBubble.moving) {
+                    // Draw current bubble in cannon
+                    drawBubble(currentBubble);
+                }
+                
+                // Draw cannon
+                drawCannon();
+                
+                // Continue game loop
+                gameInterval = requestAnimationFrame(gameLoop);
+            }
+            
+            // Draw all bubbles
+            function drawBubbles() {
+                bubbles.forEach(bubble => {
+                    drawBubble(bubble);
+                });
+            }
+            
+            // Draw a single bubble
+            function drawBubble(bubble) {
+                ctx.beginPath();
+                ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+                
+                // Create gradient for bubble
+                const gradient = ctx.createRadialGradient(
+                    bubble.x - bubble.radius/3, 
+                    bubble.y - bubble.radius/3, 
+                    0,
+                    bubble.x, 
+                    bubble.y, 
+                    bubble.radius
+                );
+                
+                // Set gradient colors based on bubble color
+                switch(bubble.color) {
+                    case 'red':
+                        gradient.addColorStop(0, '#e74c3c');
+                        gradient.addColorStop(1, '#c0392b');
+                        break;
+                    case 'blue':
+                        gradient.addColorStop(0, '#3498db');
+                        gradient.addColorStop(1, '#2980b9');
+                        break;
+                    case 'green':
+                        gradient.addColorStop(0, '#2ecc71');
+                        gradient.addColorStop(1, '#27ae60');
+                        break;
+                    case 'yellow':
+                        gradient.addColorStop(0, '#f9ca24');
+                        gradient.addColorStop(1, '#f39c12');
+                        break;
+                    case 'purple':
+                        gradient.addColorStop(0, '#9b59b6');
+                        gradient.addColorStop(1, '#8e44ad');
+                        break;
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Add bubble highlight
+                ctx.beginPath();
+                ctx.arc(
+                    bubble.x - bubble.radius/3, 
+                    bubble.y - bubble.radius/3, 
+                    bubble.radius/3, 
+                    0, 
+                    Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fill();
+                
+                // Add bubble border
+                ctx.beginPath();
+                ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+            
+            // Draw cannon
+            function drawCannon() {
+                const cannonX = canvas.width / 2;
+                const cannonY = canvas.height - 30;
+                
+                // Draw cannon base
+                ctx.beginPath();
+                ctx.arc(cannonX, cannonY, 30, 0, Math.PI * 2);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                
+                // Draw cannon barrel
+                ctx.save();
+                ctx.translate(cannonX, cannonY);
+                ctx.rotate(cannonAngle);
+                
+                ctx.beginPath();
+                ctx.rect(-5, -60, 10, 60);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            // Check collision between two bubbles
+            function checkCollision(bubble1, bubble2) {
+                const dx = bubble1.x - bubble2.x;
+                const dy = bubble1.y - bubble2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                return distance < bubble1.radius + bubble2.radius;
+            }
+            
+            // Attach bubble to grid
+            function attachBubble() {
+                // Find the closest grid position
+                const gridX = Math.round((currentBubble.x) / (currentBubble.radius * 2));
+                const gridY = Math.round((currentBubble.y) / (currentBubble.radius * 1.8));
+                
+                // Adjust for staggered rows
+                const adjustedX = gridX * (currentBubble.radius * 2) + (gridY % 2 === 0 ? 0 : currentBubble.radius);
+                const adjustedY = gridY * (currentBubble.radius * 1.8);
+                
+                // Add bubble to grid
+                bubbles.push({
+                    x: adjustedX,
+                    y: adjustedY,
+                    radius: currentBubble.radius,
+                    color: currentBubble.color,
+                    row: gridY,
+                    col: gridX
+                });
+                
+                // Check for matches
+                checkMatches();
+                
+                // Reset current bubble
+                currentBubble = {
+                    x: canvas.width / 2,
+                    y: canvas.height - 60,
+                    radius: 25,
+                    color: nextBubbleColor,
+                    dx: 0,
+                    dy: 0,
+                    moving: false
+                };
+                
+                // Set next bubble
+                setNextBubble();
+                
+                // Update shots
+                shots++;
+                shotsDisplay.textContent = shots;
+            }
+            
+            // Check for matching bubbles
+            function checkMatches() {
+                // This is a simplified version - in a full game, you would implement
+                // a more sophisticated matching algorithm
+                
+                // For demo purposes, we'll just remove some random bubbles
+                const matches = [];
+                
+                // Find bubbles of the same color that are adjacent
+                // This is a placeholder for a real matching algorithm
+                for (let i = 0; i < bubbles.length; i++) {
+                    const bubble = bubbles[i];
+                    if (bubble.color === currentBubble.color) {
+                        // Check neighbors (simplified)
+                        const neighbors = bubbles.filter(b => 
+                            Math.abs(b.x - bubble.x) < bubble.radius * 2.5 && 
+                            Math.abs(b.y - bubble.y) < bubble.radius * 2.5 &&
+                            b.color === bubble.color
+                        );
+                        
+                        if (neighbors.length >= 2) {
+                            matches.push(...neighbors);
+                        }
+                    }
+                }
+                
+                // Remove duplicates
+                const uniqueMatches = [...new Set(matches)];
+                
+                if (uniqueMatches.length >= 3) {
+                    // Remove matched bubbles
+                    bubbles = bubbles.filter(bubble => !uniqueMatches.includes(bubble));
+                    
+                    // Update score
+                    score += uniqueMatches.length * 10;
+                    scoreDisplay.textContent = score;
+                }
+            }
+            
+            // Update timer
+            function updateTimer() {
+                if (!gameActive) return;
+                
+                timeLeft--;
+                timeDisplay.textContent = timeLeft + 's';
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }
+            
+            // End game
+            function endGame() {
+                gameActive = false;
+                cancelAnimationFrame(gameInterval);
+                clearInterval(timeInterval);
+                
+                finalScoreDisplay.textContent = score;
+                gameOverOverlay.classList.remove('hidden');
+            }
+            
+            // Handle mouse movement for cannon aiming
+            canvas.addEventListener('mousemove', function(e) {
+                if (!gameActive) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const cannonX = canvas.width / 2;
+                const cannonY = canvas.height - 30;
+                
+                // Calculate angle between cannon and mouse
+                cannonAngle = Math.atan2(mouseY - cannonY, mouseX - cannonX) - Math.PI/2;
+            });
+            
+            // Handle mouse click for shooting
+            canvas.addEventListener('click', function(e) {
+                if (!gameActive || !currentBubble || currentBubble.moving) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const cannonX = canvas.width / 2;
+                const cannonY = canvas.height - 60;
+                
+                // Calculate direction vector
+                const dx = mouseX - cannonX;
+                const dy = mouseY - cannonY;
+                
+                // Normalize vector and set speed
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const speed = 8;
+                
+                currentBubble.dx = (dx / length) * speed;
+                currentBubble.dy = (dy / length) * speed;
+                currentBubble.moving = true;
+            });
+            
+            // Start game button
+            startButton.addEventListener('click', initGame);
+            
+            // Restart game button
+            restartButton.addEventListener('click', initGame);
+            
+            // Initial setup
+            drawCannon();
+        });
+    </script>
 </body>
 </html>
